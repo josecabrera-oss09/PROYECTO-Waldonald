@@ -3,7 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package Login;
-
+import java.awt.Font;
+import java.io.InputStream;
 /**
  *
  * @author Computacion
@@ -15,7 +16,28 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
+    }   
+    
+    private Font cargarFuente(String archivo, float tamaño) {
+    try {
+        InputStream fuente = getClass().getResourceAsStream(
+                "/Font/DMSans/" + archivo
+        );
+
+        if (fuente == null) {
+            System.out.println("No se encontró la fuente: " + archivo);
+            return new Font("Arial", Font.PLAIN, (int) tamaño);
+        }
+
+        return Font.createFont(Font.TRUETYPE_FONT, fuente)
+                   .deriveFont(tamaño);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new Font("Arial", Font.PLAIN, (int) tamaño);
     }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -77,11 +99,14 @@ public class Login extends javax.swing.JFrame {
         labelEscalable7.setText("labelEscalable7");
         jPanel1.add(labelEscalable7, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 100, 110));
 
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(102, 51, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 160, 160, 50));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 170, 550, 70));
 
         boton21.setText("boton21");
-        jPanel1.add(boton21, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 370, 210, 50));
+        jPanel1.add(boton21, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 490, 240, 50));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 810));
 
