@@ -26,18 +26,64 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        labelEscalable2 = new Labels.LabelEscalable();
+        labelEscalable4 = new Labels.LabelEscalable();
+        labelEscalable5 = new Labels.LabelEscalable();
+        labelEscalable3 = new Labels.LabelEscalable();
+        labelEscalable1 = new Labels.LabelEscalable();
+        labelEscalable6 = new Labels.LabelEscalable();
+        labelEscalable7 = new Labels.LabelEscalable();
+        jLabel1 = new javax.swing.JLabel();
+        boton21 = new Componentes.Boton2();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel2.setBackground(new java.awt.Color(236, 236, 236));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Logo.png"))); // NOI18N
+        labelEscalable2.setText("labelEscalable2");
+        jPanel2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 300, 180));
+
+        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/BbebidaLogo.png"))); // NOI18N
+        labelEscalable4.setText("labelEscalable4");
+        jPanel2.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 450, 200, 300));
+
+        labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PapasLogo.png"))); // NOI18N
+        labelEscalable5.setText("labelEscalable5");
+        jPanel2.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 530, 160, 220));
+
+        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MeseLogo.png"))); // NOI18N
+        labelEscalable3.setText("labelEscalable3");
+        jPanel2.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 690, 400, 120));
+
+        labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/FondoLogo.png"))); // NOI18N
+        labelEscalable1.setText("labelEscalable1");
+        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 370, 330));
+
+        labelEscalable6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PuntosLogo.png"))); // NOI18N
+        labelEscalable6.setText("labelEscalable6");
+        jPanel2.add(labelEscalable6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 390, 70, 110));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 810));
+
+        labelEscalable7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo.png"))); // NOI18N
+        labelEscalable7.setText("labelEscalable7");
+        jPanel1.add(labelEscalable7, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 100, 110));
+
+        jLabel1.setText("¡Bienvenido a Waldonald's!");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 160, 160, 50));
+
+        boton21.setText("boton21");
+        jPanel1.add(boton21, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 370, 210, 50));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 810));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -78,5 +124,16 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Componentes.Boton2 boton21;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private Labels.LabelEscalable labelEscalable1;
+    private Labels.LabelEscalable labelEscalable2;
+    private Labels.LabelEscalable labelEscalable3;
+    private Labels.LabelEscalable labelEscalable4;
+    private Labels.LabelEscalable labelEscalable5;
+    private Labels.LabelEscalable labelEscalable6;
+    private Labels.LabelEscalable labelEscalable7;
     // End of variables declaration//GEN-END:variables
 }
