@@ -99,11 +99,11 @@ public class Login extends javax.swing.JFrame {
         labelEscalable7.setText("labelEscalable7");
         jPanel1.add(labelEscalable7, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 100, 110));
 
-        jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(102, 51, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 170, 550, 70));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 550, 70));
 
         boton21.setText("boton21");
         jPanel1.add(boton21, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 490, 240, 50));
