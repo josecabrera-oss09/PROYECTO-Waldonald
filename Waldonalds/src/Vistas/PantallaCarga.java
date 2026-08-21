@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 public class PantallaCarga extends JFrame {
 
@@ -15,84 +16,278 @@ public class PantallaCarga extends JFrame {
 
     private JPanel pnlFondo;
     private JPanel pnlCargaW;
+    private JLabel lblDerechos;
     private JLabel lblCargando;
+
+    // ===============================
+    // ANIMACIÓN DEL TEXTO
+    // ===============================
+    private Timer timerCargando;
+
+    private int frameTexto = 0;
+
+    private final int cargandoX = 100;
+    private final int cargandoY = 230;
 
     public PantallaCarga() {
 
         configurarVentana();
+
         crearComponentes();
+
         configurarCargaW();
+
+        iniciarAnimacionCargando();
     }
 
+    // =================================================
+    // VENTANA
+    // =================================================
     private void configurarVentana() {
 
-        setSize(500, 300);
+        setSize(
+                500,
+                320
+        );
+
         setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        setDefaultCloseOperation(
+                JFrame.EXIT_ON_CLOSE
+        );
+
         setUndecorated(true);
+
         setLocationRelativeTo(null);
     }
 
+    // =================================================
+    // COMPONENTES
+    // =================================================
     private void crearComponentes() {
 
-        pnlFondo = new JPanel();
+        // ==========================================
+        // FONDO
+        // ==========================================
+        pnlFondo
+                = new JPanel();
+
         pnlFondo.setLayout(null);
 
-        // ===============================
-        // COLOR DE FONDO
-        // ===============================
-        // Rojo McDonald's:
-        pnlFondo.setBackground(new Color(218, 41, 28));
+        /*
+         * ROJO
+         *
+         * RGB(218, 41, 28)
+         * #DA291C
+         */
+        pnlFondo.setBackground(
+                new Color(
+                        218,
+                        41,
+                        28
+                )
+        );
 
-        add(pnlFondo);
+        add(
+                pnlFondo
+        );
 
-        pnlCargaW = new JPanel();
+        // ==========================================
+        // ÁREA DE LA W
+        // ==========================================
+        pnlCargaW
+                = new JPanel();
+
         pnlCargaW.setOpaque(false);
-        pnlCargaW.setLayout(new BorderLayout());
 
-        // ===============================
-        // ÁREA DEL LOGO
-        // ===============================
-        // Si haces el logo más grande, este panel ya tiene suficiente espacio
-        pnlCargaW.setBounds(150, 55, 200, 140);
+        pnlCargaW.setLayout(
+                new BorderLayout()
+        );
 
-        pnlFondo.add(pnlCargaW);
+        /*
+         * Panel bastante más grande.
+         *
+         * Antes:
+         * 200 × 140
+         *
+         * Ahora:
+         * 320 × 200
+         */
+        pnlCargaW.setBounds(
+                90,
+                25,
+                320,
+                200
+        );
 
-        lblCargando = new JLabel("Cargando...");
-        lblCargando.setHorizontalAlignment(SwingConstants.CENTER);
-        lblCargando.setFont(new Font("Arial", Font.BOLD, 14));
-        lblCargando.setForeground(Color.WHITE);
+        pnlFondo.add(
+                pnlCargaW
+        );
 
-        lblCargando.setBounds(120, 205, 260, 30);
+        // ==========================================
+        // CARGANDO
+        // ==========================================
+        lblCargando
+                = new JLabel(
+                        "Cargando"
+                );
 
-        pnlFondo.add(lblCargando);
+        lblCargando.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        lblCargando.setFont(
+                new Font(
+                        "Arial",
+                        Font.BOLD,
+                        15
+                )
+        );
+
+        lblCargando.setForeground(
+                Color.WHITE
+        );
+
+        lblCargando.setBounds(
+                cargandoX,
+                cargandoY,
+                300,
+                30
+        );
+
+        pnlFondo.add(
+                lblCargando
+        );
+
+        lblDerechos = new JLabel(
+                "©2026 WalDonald’s. Todos los derechos reservados.");
+        lblDerechos.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        lblDerechos.setFont(
+                new Font(
+                        "Arial",
+                        Font.PLAIN,
+                        11
+                )
+        );
+
+        lblDerechos.setForeground(
+                new Color(255, 230, 230)
+        );
+
+        lblDerechos.setBounds(
+                50,
+                260,
+                400,
+                25
+        );
+
+        pnlFondo.add(
+                lblDerechos
+        );
     }
 
+    // =================================================
+    // CONFIGURAR W
+    // =================================================
     private void configurarCargaW() {
 
-        cargaW = new CargaW();
+        cargaW
+                = new CargaW();
 
-        // ===============================
-        // TAMAÑO DEL LOGO
-        // ===============================
-        // Cambia este número si quieres el logo más grande o más pequeño
-        cargaW.setTamanoLogo(110);
+        /*
+         * ==========================================
+         * TAMAÑO DEL LOGO
+         * ==========================================
+         *
+         * Antes estabas usando 110.
+         *
+         * Ahora usamos 180.
+         */
+        cargaW.setTamanoLogo(
+                180
+        );
 
-        // Opcional: ajustar velocidad o ancho de luz
-        cargaW.setVelocidad(2.8f);
-        cargaW.setAnchoLuz(46);
-        cargaW.setOpacidadBase(0.22f);
+        /*
+         * Movimiento suave.
+         */
+        cargaW.setVelocidad(
+                3.0f
+        );
 
-        pnlCargaW.add(cargaW, BorderLayout.CENTER);
+        /*
+         * Franja más amplia para que
+         * se note mejor.
+         */
+        cargaW.setAnchoLuz(
+                65
+        );
+
+        /*
+         * W de fondo tenue.
+         */
+        cargaW.setOpacidadBase(
+                0.12f
+        );
+
+        pnlCargaW.add(
+                cargaW,
+                BorderLayout.CENTER
+        );
+
         pnlCargaW.revalidate();
+
         pnlCargaW.repaint();
     }
 
-    public static void main(String[] args) {
+    // =================================================
+    // ANIMACIÓN DE "CARGANDO"
+    // =================================================
+    private void iniciarAnimacionCargando() {
+
+        timerCargando = new Timer(350, e -> {
+
+            frameTexto++;
+
+            int fasePuntos = frameTexto % 4;
+
+            switch (fasePuntos) {
+
+                case 0:
+                    lblCargando.setText("Cargando");
+                    break;
+
+                case 1:
+                    lblCargando.setText("Cargando.");
+                    break;
+
+                case 2:
+                    lblCargando.setText("Cargando..");
+                    break;
+
+                default:
+                    lblCargando.setText("Cargando...");
+                    break;
+            }
+        });
+
+        timerCargando.setCoalesce(true);
+        timerCargando.start();
+    }
+
+    // =================================================
+    // MAIN
+    // =================================================
+    public static void main(
+            String[] args) {
 
         java.awt.EventQueue.invokeLater(() -> {
 
-            PantallaCarga pantalla = new PantallaCarga();
+            PantallaCarga pantalla
+                    = new PantallaCarga();
+
             pantalla.setVisible(true);
         });
     }
