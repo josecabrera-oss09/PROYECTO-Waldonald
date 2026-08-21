@@ -52,7 +52,11 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+<<<<<<< HEAD
               <AbsoluteConstraints x="0" y="0" width="610" height="1080"/>
+=======
+              <AbsoluteConstraints x="0" y="0" width="410" height="810"/>
+>>>>>>> a744e5b6bf7bfad3c5bed68c090e1cf1044faf5c
             </Constraint>
           </Constraints>
 
@@ -69,7 +73,24 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+<<<<<<< HEAD
                   <AbsoluteConstraints x="-30" y="0" width="670" height="1080"/>
+=======
+                  <AbsoluteConstraints x="0" y="460" width="410" height="340"/>
+                </Constraint>
+              </Constraints>
+            </Component>
+            <Component class="Labels.LabelEscalable" name="labelEscalable6">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/Imagenes/PuntosLogo.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="labelEscalable6"/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+                  <AbsoluteConstraints x="0" y="390" width="70" height="110"/>
+>>>>>>> a744e5b6bf7bfad3c5bed68c090e1cf1044faf5c
                 </Constraint>
               </Constraints>
             </Component>

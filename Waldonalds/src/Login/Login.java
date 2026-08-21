@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.io.InputStream;
 
 
+
 /**
  *
  * @author Computacion
@@ -18,11 +19,22 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        
         jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
         
+<<<<<<< HEAD
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
+=======
+        
+        
+
+    
+    
+
+>>>>>>> a744e5b6bf7bfad3c5bed68c090e1cf1044faf5c
     }   
+    
     
     private Font cargarFuente(String archivo, float tamaño) {
     try {
@@ -74,9 +86,23 @@ public class Login extends javax.swing.JFrame {
 
         labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Panel.png"))); // NOI18N
         labelEscalable1.setText("labelEscalable1");
+<<<<<<< HEAD
         jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, 0, 670, 1080));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 610, 1080));
+=======
+        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 410, 340));
+
+        labelEscalable6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PuntosLogo.png"))); // NOI18N
+        labelEscalable6.setText("labelEscalable6");
+        jPanel2.add(labelEscalable6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 390, 70, 110));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 810));
+
+        labelEscalable7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo.png"))); // NOI18N
+        labelEscalable7.setText("labelEscalable7");
+        jPanel1.add(labelEscalable7, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 100, 110));
+>>>>>>> a744e5b6bf7bfad3c5bed68c090e1cf1044faf5c
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
@@ -154,3 +180,5 @@ public class Login extends javax.swing.JFrame {
     private Labels.TexBoxPassword texBoxPassword1;
     // End of variables declaration//GEN-END:variables
 }
+
+
