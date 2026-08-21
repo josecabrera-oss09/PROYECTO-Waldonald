@@ -20,12 +20,8 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
         
-     // Borde gris claro
-    jTextField1.setBorder(
-        javax.swing.BorderFactory.createLineBorder(
-            new java.awt.Color(220, 220, 220)
-        )
-    );
+
+    
     
     // Borde gris claro
     jPasswordField1.setBorder(
@@ -67,16 +63,17 @@ public class Login extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        labelEscalable8 = new Labels.LabelEscalable();
-        labelEscalable3 = new Labels.LabelEscalable();
-        labelEscalable5 = new Labels.LabelEscalable();
-        labelEscalable4 = new Labels.LabelEscalable();
         labelEscalable2 = new Labels.LabelEscalable();
+        labelEscalable4 = new Labels.LabelEscalable();
+        labelEscalable5 = new Labels.LabelEscalable();
+        labelEscalable3 = new Labels.LabelEscalable();
         labelEscalable1 = new Labels.LabelEscalable();
+        labelEscalable6 = new Labels.LabelEscalable();
+        labelEscalable7 = new Labels.LabelEscalable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jPasswordField1 = new javax.swing.JPasswordField();
         botonDerretido1 = new Componentes.BotonDerretido();
+        texBox1 = new Labels.TexBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -87,31 +84,35 @@ public class Login extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(236, 236, 236));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        labelEscalable8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Logo.png"))); // NOI18N
-        labelEscalable8.setText("labelEscalable8");
-        jPanel2.add(labelEscalable8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, 330, 220));
-
-        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/BebidaLogo.png"))); // NOI18N
-        labelEscalable3.setText("labelEscalable3");
-        jPanel2.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 360, 190, 330));
-
-        labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PuntosLogo.png"))); // NOI18N
-        labelEscalable5.setText("labelEscalable5");
-        jPanel2.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 300, 80, 120));
-
-        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PapasLogo.png"))); // NOI18N
-        labelEscalable4.setText("labelEscalable4");
-        jPanel2.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 460, 200, 230));
-
-        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MesaLogo.png"))); // NOI18N
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Logo.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
-        jPanel2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 460, 210));
+        jPanel2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 300, 180));
+
+        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/BbebidaLogo.png"))); // NOI18N
+        labelEscalable4.setText("labelEscalable4");
+        jPanel2.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 450, 200, 300));
+
+        labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PapasLogo.png"))); // NOI18N
+        labelEscalable5.setText("labelEscalable5");
+        jPanel2.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 530, 160, 220));
+
+        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MeseLogo.png"))); // NOI18N
+        labelEscalable3.setText("labelEscalable3");
+        jPanel2.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 690, 400, 120));
 
         labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/FondoLogo.png"))); // NOI18N
         labelEscalable1.setText("labelEscalable1");
-        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 450, 310));
+        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 370, 330));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 460, 810));
+        labelEscalable6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PuntosLogo.png"))); // NOI18N
+        labelEscalable6.setText("labelEscalable6");
+        jPanel2.add(labelEscalable6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 390, 70, 110));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 810));
+
+        labelEscalable7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo.png"))); // NOI18N
+        labelEscalable7.setText("labelEscalable7");
+        jPanel1.add(labelEscalable7, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 100, 110));
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
@@ -119,33 +120,15 @@ public class Login extends javax.swing.JFrame {
         jLabel1.setText("¡Bienvenido a Waldonald's!");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 550, 70));
 
-<<<<<<< HEAD
-        boton21.setText("boton21");
-        jPanel1.add(boton21, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 500, 240, 50));
-=======
-        jTextField1.setText("Ingrese su Usuario");
-        jTextField1.setToolTipText("");
-        jTextField1.setName(""); // NOI18N
-        jTextField1.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                jTextField1FocusGained(evt);
-            }
-        });
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 250, 380, 50));
-
         jPasswordField1.setText("jPasswordField1");
         jPanel1.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 340, 380, 50));
         jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 510, -1, -1));
->>>>>>> 6116ef804974963123cdf8d0ef81095cd84d687d
+        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 250, 360, 50));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 810));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jTextField1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField1FocusGained
-
-    }//GEN-LAST:event_jTextField1FocusGained
 
     /**
      * @param args the command line arguments
@@ -188,12 +171,13 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
     private Labels.LabelEscalable labelEscalable1;
     private Labels.LabelEscalable labelEscalable2;
     private Labels.LabelEscalable labelEscalable3;
     private Labels.LabelEscalable labelEscalable4;
     private Labels.LabelEscalable labelEscalable5;
-    private Labels.LabelEscalable labelEscalable8;
+    private Labels.LabelEscalable labelEscalable6;
+    private Labels.LabelEscalable labelEscalable7;
+    private Labels.TexBox texBox1;
     // End of variables declaration//GEN-END:variables
 }
