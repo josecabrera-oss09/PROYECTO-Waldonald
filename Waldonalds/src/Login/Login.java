@@ -20,19 +20,9 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
         
-     // Borde gris claro
-    jTextField1.setBorder(
-        javax.swing.BorderFactory.createLineBorder(
-            new java.awt.Color(220, 220, 220)
-        )
-    );
+
     
-    // Borde gris claro
-    jPasswordField1.setBorder(
-        javax.swing.BorderFactory.createLineBorder(
-            new java.awt.Color(220, 220, 220)
-        )
-    );
+    
 
     }   
     
@@ -75,9 +65,9 @@ public class Login extends javax.swing.JFrame {
         labelEscalable6 = new Labels.LabelEscalable();
         labelEscalable7 = new Labels.LabelEscalable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
         botonDerretido1 = new Componentes.BotonDerretido();
+        texBox1 = new Labels.TexBox();
+        texBoxPassword1 = new Labels.TexBoxPassword();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -123,29 +113,14 @@ public class Login extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("¡Bienvenido a Waldonald's!");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 550, 70));
-
-        jTextField1.setText("Ingrese su Usuario");
-        jTextField1.setToolTipText("");
-        jTextField1.setName(""); // NOI18N
-        jTextField1.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                jTextField1FocusGained(evt);
-            }
-        });
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 250, 380, 50));
-
-        jPasswordField1.setText("jPasswordField1");
-        jPanel1.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 340, 380, 50));
         jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 510, -1, -1));
+        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 250, 360, 50));
+        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 330, 360, 50));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 810));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jTextField1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField1FocusGained
-
-    }//GEN-LAST:event_jTextField1FocusGained
 
     /**
      * @param args the command line arguments
@@ -187,8 +162,6 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
     private Labels.LabelEscalable labelEscalable1;
     private Labels.LabelEscalable labelEscalable2;
     private Labels.LabelEscalable labelEscalable3;
@@ -196,5 +169,7 @@ public class Login extends javax.swing.JFrame {
     private Labels.LabelEscalable labelEscalable5;
     private Labels.LabelEscalable labelEscalable6;
     private Labels.LabelEscalable labelEscalable7;
+    private Labels.TexBox texBox1;
+    private Labels.TexBoxPassword texBoxPassword1;
     // End of variables declaration//GEN-END:variables
 }
