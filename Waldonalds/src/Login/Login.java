@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.io.InputStream;
 
 
+
 /**
  *
  * @author Computacion
@@ -18,13 +19,17 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        
         jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
+        
+        
         
 
     
     
 
     }   
+    
     
     private Font cargarFuente(String archivo, float tamaño) {
     try {
@@ -96,13 +101,13 @@ public class Login extends javax.swing.JFrame {
 
         labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/FondoLogo.png"))); // NOI18N
         labelEscalable1.setText("labelEscalable1");
-        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 370, 330));
+        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 410, 340));
 
         labelEscalable6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PuntosLogo.png"))); // NOI18N
         labelEscalable6.setText("labelEscalable6");
         jPanel2.add(labelEscalable6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 390, 70, 110));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 810));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 810));
 
         labelEscalable7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo.png"))); // NOI18N
         labelEscalable7.setText("labelEscalable7");
@@ -173,3 +178,5 @@ public class Login extends javax.swing.JFrame {
     private Labels.TexBoxPassword texBoxPassword1;
     // End of variables declaration//GEN-END:variables
 }
+
+
