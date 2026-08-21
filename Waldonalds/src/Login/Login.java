@@ -5,6 +5,9 @@
 package Login;
 import java.awt.Font;
 import java.io.InputStream;
+
+
+
 /**
  *
  * @author Computacion
@@ -16,8 +19,22 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        
         jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
+        
+<<<<<<< HEAD
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        setLocationRelativeTo(null);
+=======
+        
+        
+
+    
+    
+
+>>>>>>> a744e5b6bf7bfad3c5bed68c090e1cf1044faf5c
     }   
+    
     
     private Font cargarFuente(String archivo, float tamaño) {
     try {
@@ -50,68 +67,89 @@ public class Login extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+<<<<<<< HEAD
         labelEscalable2 = new Labels.LabelEscalable();
-        labelEscalable4 = new Labels.LabelEscalable();
         labelEscalable5 = new Labels.LabelEscalable();
-        labelEscalable3 = new Labels.LabelEscalable();
+=======
+>>>>>>> 8f8b6ad0838392c6e7ccff114b25a818eba4edf1
         labelEscalable1 = new Labels.LabelEscalable();
-        labelEscalable6 = new Labels.LabelEscalable();
-        labelEscalable7 = new Labels.LabelEscalable();
         jLabel1 = new javax.swing.JLabel();
-        boton21 = new Componentes.Boton2();
+        botonDerretido1 = new Componentes.BotonDerretido();
+        texBox1 = new Labels.TexBox();
+        texBoxPassword1 = new Labels.TexBoxPassword();
+        labelEscalable2 = new Labels.LabelEscalable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(1920, 1020));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(236, 236, 236));
+        jPanel2.setBackground(new java.awt.Color(237, 237, 237));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+<<<<<<< HEAD
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Logo.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
         jPanel2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 300, 180));
-
-        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/BbebidaLogo.png"))); // NOI18N
-        labelEscalable4.setText("labelEscalable4");
-        jPanel2.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 450, 200, 300));
 
         labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PapasLogo.png"))); // NOI18N
         labelEscalable5.setText("labelEscalable5");
         jPanel2.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 530, 160, 220));
 
-        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MeseLogo.png"))); // NOI18N
-        labelEscalable3.setText("labelEscalable3");
-        jPanel2.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 690, 400, 120));
-
         labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/FondoLogo.png"))); // NOI18N
+=======
+        labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Panel.png"))); // NOI18N
+>>>>>>> 8f8b6ad0838392c6e7ccff114b25a818eba4edf1
         labelEscalable1.setText("labelEscalable1");
-        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 370, 330));
+<<<<<<< HEAD
+        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, 0, 670, 1080));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 610, 1080));
+=======
+        jPanel2.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 410, 340));
 
         labelEscalable6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PuntosLogo.png"))); // NOI18N
         labelEscalable6.setText("labelEscalable6");
         jPanel2.add(labelEscalable6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 390, 70, 110));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 810));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 410, 810));
 
         labelEscalable7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo.png"))); // NOI18N
         labelEscalable7.setText("labelEscalable7");
         jPanel1.add(labelEscalable7, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 20, 100, 110));
+>>>>>>> a744e5b6bf7bfad3c5bed68c090e1cf1044faf5c
 
-        jLabel1.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(102, 51, 255));
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 550, 70));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 260, 660, 140));
 
-        boton21.setText("boton21");
-        jPanel1.add(boton21, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 490, 240, 50));
+        botonDerretido1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonDerretido1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1050, 740, 390, 90));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 810));
+        texBox1.setPlaceholder("Ingresa tu usuario");
+        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 440, 450, 70));
+        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 610, 450, 70));
+
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Fondo (2).png"))); // NOI18N
+        labelEscalable2.setText("labelEscalable2");
+        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void botonDerretido1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonDerretido1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_botonDerretido1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -149,16 +187,21 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private Componentes.Boton2 boton21;
+    private Componentes.BotonDerretido botonDerretido1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private Labels.LabelEscalable labelEscalable1;
     private Labels.LabelEscalable labelEscalable2;
-    private Labels.LabelEscalable labelEscalable3;
-    private Labels.LabelEscalable labelEscalable4;
+<<<<<<< HEAD
     private Labels.LabelEscalable labelEscalable5;
     private Labels.LabelEscalable labelEscalable6;
     private Labels.LabelEscalable labelEscalable7;
+=======
+>>>>>>> 8f8b6ad0838392c6e7ccff114b25a818eba4edf1
+    private Labels.TexBox texBox1;
+    private Labels.TexBoxPassword texBoxPassword1;
     // End of variables declaration//GEN-END:variables
 }
+
+
