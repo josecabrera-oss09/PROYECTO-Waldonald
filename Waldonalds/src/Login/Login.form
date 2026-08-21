@@ -70,19 +70,6 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="Labels.LabelEscalable" name="labelEscalable4">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/Imagenes/BbebidaLogo.png"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="labelEscalable4"/>
-              </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="180" y="450" width="200" height="300"/>
-                </Constraint>
-              </Constraints>
-            </Component>
             <Component class="Labels.LabelEscalable" name="labelEscalable5">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
@@ -93,19 +80,6 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
                   <AbsoluteConstraints x="50" y="530" width="160" height="220"/>
-                </Constraint>
-              </Constraints>
-            </Component>
-            <Component class="Labels.LabelEscalable" name="labelEscalable3">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/Imagenes/MeseLogo.png"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="labelEscalable3"/>
-              </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="0" y="690" width="400" height="120"/>
                 </Constraint>
               </Constraints>
             </Component>

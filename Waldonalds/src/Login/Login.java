@@ -63,9 +63,7 @@ public class Login extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         labelEscalable2 = new Labels.LabelEscalable();
-        labelEscalable4 = new Labels.LabelEscalable();
         labelEscalable5 = new Labels.LabelEscalable();
-        labelEscalable3 = new Labels.LabelEscalable();
         labelEscalable1 = new Labels.LabelEscalable();
         labelEscalable6 = new Labels.LabelEscalable();
         labelEscalable7 = new Labels.LabelEscalable();
@@ -87,17 +85,9 @@ public class Login extends javax.swing.JFrame {
         labelEscalable2.setText("labelEscalable2");
         jPanel2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 300, 180));
 
-        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/BbebidaLogo.png"))); // NOI18N
-        labelEscalable4.setText("labelEscalable4");
-        jPanel2.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 450, 200, 300));
-
         labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/PapasLogo.png"))); // NOI18N
         labelEscalable5.setText("labelEscalable5");
         jPanel2.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 530, 160, 220));
-
-        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MeseLogo.png"))); // NOI18N
-        labelEscalable3.setText("labelEscalable3");
-        jPanel2.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 690, 400, 120));
 
         labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/FondoLogo.png"))); // NOI18N
         labelEscalable1.setText("labelEscalable1");
@@ -169,8 +159,6 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private Labels.LabelEscalable labelEscalable1;
     private Labels.LabelEscalable labelEscalable2;
-    private Labels.LabelEscalable labelEscalable3;
-    private Labels.LabelEscalable labelEscalable4;
     private Labels.LabelEscalable labelEscalable5;
     private Labels.LabelEscalable labelEscalable6;
     private Labels.LabelEscalable labelEscalable7;
