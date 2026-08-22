@@ -69,6 +69,7 @@ public class Login extends javax.swing.JFrame {
         labelEscalable3 = new Labels.LabelEscalable();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        labelEscalable2 = new Labels.LabelEscalable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -106,7 +107,11 @@ public class Login extends javax.swing.JFrame {
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 170, 620, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 170, 620, -1));
+
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
+        labelEscalable2.setText("labelEscalable2");
+        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 0, 170, 190));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1360, 768));
 
@@ -159,6 +164,7 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private Labels.LabelEscalable labelEscalable2;
     private Labels.LabelEscalable labelEscalable3;
     private Labels.TexBox texBox1;
     private Labels.TexBoxPassword texBoxPassword1;
