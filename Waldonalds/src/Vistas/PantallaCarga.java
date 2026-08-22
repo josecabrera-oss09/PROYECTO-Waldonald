@@ -1,9 +1,16 @@
 package Vistas;
 
 import Componentes.CargaW;
-import java.awt.BorderLayout;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.io.IOException;
+import java.io.InputStream;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,282 +19,137 @@ import javax.swing.Timer;
 
 public class PantallaCarga extends JFrame {
 
+    private static final int ANCHO_VENTANA = 560;
+    private static final int ALTO_VENTANA = 360;
+    private static final Color ROJO_SUPERIOR = new Color(207, 31, 25);
+    private static final Color ROJO_INFERIOR = new Color(166, 19, 18);
+
     private CargaW cargaW;
-
-    private JPanel pnlFondo;
-    private JPanel pnlCargaW;
-    private JLabel lblDerechos;
+    private FondoCarga pnlFondo;
     private JLabel lblCargando;
+    private JLabel lblDerechos;
 
-    // ===============================
-    // ANIMACIÓN DEL TEXTO
-    // ===============================
     private Timer timerCargando;
-
-    private int frameTexto = 0;
-
-    private final int cargandoX = 100;
-    private final int cargandoY = 230;
+    private int frameTexto;
 
     public PantallaCarga() {
-
         configurarVentana();
-
         crearComponentes();
-
-        configurarCargaW();
-
-        iniciarAnimacionCargando();
+        iniciarAnimacionTexto();
     }
 
-    // =================================================
-    // VENTANA
-    // =================================================
     private void configurarVentana() {
-
-        setSize(
-                500,
-                320
-        );
-
+        setSize(ANCHO_VENTANA, ALTO_VENTANA);
         setResizable(false);
-
-        setDefaultCloseOperation(
-                JFrame.EXIT_ON_CLOSE
-        );
-
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setUndecorated(true);
-
         setLocationRelativeTo(null);
     }
 
-    // =================================================
-    // COMPONENTES
-    // =================================================
     private void crearComponentes() {
-
-        // ==========================================
-        // FONDO
-        // ==========================================
-        pnlFondo
-                = new JPanel();
-
+        pnlFondo = new FondoCarga();
         pnlFondo.setLayout(null);
+        setContentPane(pnlFondo);
 
-        /*
-         * ROJO
-         *
-         * RGB(218, 41, 28)
-         * #DA291C
-         */
-        pnlFondo.setBackground(
-                new Color(
-                        218,
-                        41,
-                        28
-                )
-        );
+        cargaW = new CargaW();
+        cargaW.setTamanoLogo(198);
+        cargaW.setVelocidad(1.0f);
+        cargaW.setAnchoLuz(70);
+        cargaW.setOpacidadBase(0.20f);
+        cargaW.setBounds(130, 25, 300, 205);
+        pnlFondo.add(cargaW);
 
-        add(
-                pnlFondo
-        );
-
-        // ==========================================
-        // ÁREA DE LA W
-        // ==========================================
-        pnlCargaW
-                = new JPanel();
-
-        pnlCargaW.setOpaque(false);
-
-        pnlCargaW.setLayout(
-                new BorderLayout()
-        );
-
-        /*
-         * Panel bastante más grande.
-         *
-         * Antes:
-         * 200 × 140
-         *
-         * Ahora:
-         * 320 × 200
-         */
-        pnlCargaW.setBounds(
-                90,
-                25,
-                320,
-                200
-        );
-
-        pnlFondo.add(
-                pnlCargaW
-        );
-
-        // ==========================================
-        // CARGANDO
-        // ==========================================
-        lblCargando
-                = new JLabel(
-                        "Cargando"
-                );
-
-        lblCargando.setHorizontalAlignment(
-                SwingConstants.CENTER
-        );
-
-        lblCargando.setFont(
-                new Font(
-                        "Arial",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        lblCargando.setForeground(
-                Color.WHITE
-        );
-
-        lblCargando.setBounds(
-                cargandoX,
-                cargandoY,
-                300,
-                30
-        );
-
-        pnlFondo.add(
-                lblCargando
-        );
+        lblCargando = new JLabel("Preparando tu experiencia", SwingConstants.CENTER);
+        lblCargando.setFont(cargarFuente("DMSans-Bold.ttf", 15f, Font.BOLD));
+        lblCargando.setForeground(Color.WHITE);
+        lblCargando.setBounds(100, 238, 360, 28);
+        pnlFondo.add(lblCargando);
 
         lblDerechos = new JLabel(
-                "©2026 WalDonald’s. Todos los derechos reservados.");
-        lblDerechos.setHorizontalAlignment(
+                "\u00A9 2026. Todos los derechos reservados.",
                 SwingConstants.CENTER
         );
-
-        lblDerechos.setFont(
-                new Font(
-                        "Arial",
-                        Font.PLAIN,
-                        11
-                )
-        );
-
-        lblDerechos.setForeground(
-                new Color(255, 230, 230)
-        );
-
-        lblDerechos.setBounds(
-                50,
-                260,
-                400,
-                25
-        );
-
-        pnlFondo.add(
-                lblDerechos
-        );
+        lblDerechos.setFont(cargarFuente("DMSans-Regular.ttf", 11f, Font.PLAIN));
+        lblDerechos.setForeground(new Color(255, 218, 214));
+        lblDerechos.setBounds(60, 306, 440, 22);
+        pnlFondo.add(lblDerechos);
     }
 
-    // =================================================
-    // CONFIGURAR W
-    // =================================================
-    private void configurarCargaW() {
-
-        cargaW
-                = new CargaW();
-
-        /*
-         * ==========================================
-         * TAMAÑO DEL LOGO
-         * ==========================================
-         *
-         * Antes estabas usando 110.
-         *
-         * Ahora usamos 180.
-         */
-        cargaW.setTamanoLogo(
-                180
-        );
-
-        /*
-         * Movimiento suave.
-         */
-        cargaW.setVelocidad(
-                3.0f
-        );
-
-        /*
-         * Franja más amplia para que
-         * se note mejor.
-         */
-        cargaW.setAnchoLuz(
-                65
-        );
-
-        /*
-         * W de fondo tenue.
-         */
-        cargaW.setOpacidadBase(
-                0.12f
-        );
-
-        pnlCargaW.add(
-                cargaW,
-                BorderLayout.CENTER
-        );
-
-        pnlCargaW.revalidate();
-
-        pnlCargaW.repaint();
-    }
-
-    // =================================================
-    // ANIMACIÓN DE "CARGANDO"
-    // =================================================
-    private void iniciarAnimacionCargando() {
-
-        timerCargando = new Timer(350, e -> {
-
-            frameTexto++;
-
-            int fasePuntos = frameTexto % 4;
-
-            switch (fasePuntos) {
-
-                case 0:
-                    lblCargando.setText("Cargando");
-                    break;
-
-                case 1:
-                    lblCargando.setText("Cargando.");
-                    break;
-
-                case 2:
-                    lblCargando.setText("Cargando..");
-                    break;
-
-                default:
-                    lblCargando.setText("Cargando...");
-                    break;
+    private Font cargarFuente(String archivo, float tamano, int estiloAlternativo) {
+        try (InputStream fuente = getClass().getResourceAsStream(
+                "/Font/DMSans/" + archivo)) {
+            if (fuente != null) {
+                return Font.createFont(Font.TRUETYPE_FONT, fuente).deriveFont(tamano);
             }
-        });
+        } catch (FontFormatException | IOException e) {
+            System.err.println("No se pudo cargar la fuente " + archivo + ": "
+                    + e.getMessage());
+        }
+        return new Font("SansSerif", estiloAlternativo, Math.round(tamano));
+    }
 
+    private void iniciarAnimacionTexto() {
+        timerCargando = new Timer(360, e -> {
+            frameTexto = (frameTexto + 1) % 4;
+            lblCargando.setText(
+                    "Preparando tu experiencia" + ".".repeat(frameTexto)
+            );
+        });
         timerCargando.setCoalesce(true);
         timerCargando.start();
     }
 
-    // =================================================
-    // MAIN
-    // =================================================
-    public static void main(
-            String[] args) {
+    /** Detiene los timers y libera la ventana al pasar al login. */
+    public void cerrar() {
+        if (timerCargando != null) {
+            timerCargando.stop();
+        }
+        if (cargaW != null) {
+            cargaW.detener();
+        }
+        setVisible(false);
+        dispose();
+    }
 
+    private static class FondoCarga extends JPanel {
+
+        FondoCarga() {
+            setOpaque(true);
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setPaint(new GradientPaint(
+                    0,
+                    0,
+                    ROJO_SUPERIOR,
+                    0,
+                    getHeight(),
+                    ROJO_INFERIOR
+            ));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            g2.setColor(new Color(255, 255, 255, 12));
+            g2.fillOval(-92, -126, 270, 270);
+            g2.setStroke(new BasicStroke(2f));
+            g2.setColor(new Color(255, 199, 44, 26));
+            g2.drawOval(getWidth() - 146, getHeight() - 138, 210, 210);
+
+            g2.setColor(new Color(255, 255, 255, 16));
+            g2.fillRoundRect(85, 288, getWidth() - 170, 1, 1, 1);
+            g2.dispose();
+        }
+    }
+
+    public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> {
-
-            PantallaCarga pantalla
-                    = new PantallaCarga();
-
+            PantallaCarga pantalla = new PantallaCarga();
             pantalla.setVisible(true);
         });
     }
