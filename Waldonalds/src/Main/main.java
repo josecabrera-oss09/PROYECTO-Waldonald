@@ -1,22 +1,36 @@
 package Main;
 
+import Vistas.PantallaCarga;
 import Login.Login;
+import javax.swing.Timer;
 
 public class main {
 
     public static void main(String[] args) {
-
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
 
-                Login login = new Login();
+                PantallaCarga carga = new PantallaCarga();
+                carga.setLocationRelativeTo(null);
+                carga.setVisible(true);
 
-                login.setLocationRelativeTo(null);
+                // Esperar 3 segundos
+                Timer timer = new Timer(8000, e -> {
 
-                login.setVisible(true);
+                    // Cerrar pantalla de carga
+                    carga.dispose();
+
+                    // Abrir siguiente interfaz
+                    Login login = new Login();
+                    login.setLocationRelativeTo(null);
+                    login.setVisible(true);
+                });
+
+                timer.setRepeats(false);
+                timer.start();
             }
+
         });
-        
     }
 }
