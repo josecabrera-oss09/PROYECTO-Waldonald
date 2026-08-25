@@ -30,6 +30,7 @@ public class PantallaCarga extends JFrame {
     private final int cargandoY = 230;
 
     public PantallaCarga() {
+        
 
         configurarVentana();
 
