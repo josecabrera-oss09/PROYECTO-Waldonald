@@ -20,6 +20,8 @@ public class Login extends javax.swing.JFrame {
         
         jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
         
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        
          javax.swing.SwingUtilities.invokeLater(() -> {
 
         Utilidades.Escalador.escalar(
