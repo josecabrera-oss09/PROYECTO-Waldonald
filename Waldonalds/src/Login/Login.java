@@ -3,8 +3,24 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package Login;
+
+import Conexion.Conexion;
+
+import GUI_ADMINISTRADOR.Menu_Administrador;
+import GUI_CAJERO.Cajero;
+
 import java.awt.Font;
 import java.io.InputStream;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -17,40 +33,186 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
-        
-        jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
-        
-        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        
-         javax.swing.SwingUtilities.invokeLater(() -> {
 
-        Utilidades.Escalador.escalar(
-                getContentPane()
-        );
+        jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
+
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+
+        javax.swing.SwingUtilities.invokeLater(() -> {
+
+            Utilidades.Escalador.escalar(
+                    getContentPane()
+            );
 
         });
-    }   
-    
-    
-    private Font cargarFuente(String archivo, float tamaño) {
-    try {
-        InputStream fuente = getClass().getResourceAsStream(
-                "/Font/DMSans/" + archivo
-        );
+    }
 
-        if (fuente == null) {
-            System.out.println("No se encontró la fuente: " + archivo);
+    private Font cargarFuente(String archivo, float tamaño) {
+        try {
+            InputStream fuente = getClass().getResourceAsStream(
+                    "/Font/DMSans/" + archivo
+            );
+
+            if (fuente == null) {
+                System.out.println("No se encontró la fuente: " + archivo);
+                return new Font("Arial", Font.PLAIN, (int) tamaño);
+            }
+
+            return Font.createFont(Font.TRUETYPE_FONT, fuente)
+                    .deriveFont(tamaño);
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return new Font("Arial", Font.PLAIN, (int) tamaño);
         }
-
-        return Font.createFont(Font.TRUETYPE_FONT, fuente)
-                   .deriveFont(tamaño);
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return new Font("Arial", Font.PLAIN, (int) tamaño);
     }
-}
+
+    private String sha256(String contraseña) {
+
+        try {
+
+            MessageDigest digest
+                    = MessageDigest.getInstance("SHA-256");
+
+            byte[] hash = digest.digest(
+                    contraseña.getBytes(StandardCharsets.UTF_8)
+            );
+
+            StringBuilder resultado = new StringBuilder();
+
+            for (byte b : hash) {
+
+                resultado.append(
+                        String.format("%02x", b)
+                );
+            }
+
+            return resultado.toString();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void iniciarSesion() {
+
+        // Obtener datos de los campos
+        String usuario = texBox1.getText().trim();
+        String contraseña = new String(texBoxPassword1.getPassword());
+
+        // Verificar campos vacíos
+        if (usuario.isEmpty() || contraseña.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Por favor ingrese su usuario y contraseña.",
+                    "Campos incompletos",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+
+        // Conectar a MySQL
+        Connection conexion = Conexion.conectar();
+
+        if (conexion == null) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo conectar con la base de datos.",
+                    "Error de conexión",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
+        // Consulta
+        String sql = """
+                 SELECT id_usuario,
+                        nombre,
+                        apellido,
+                        rol
+                 FROM usuario
+                 WHERE usuario = ?
+                   AND password_hash = ?
+                   AND estado = TRUE
+                 """;
+
+        try (
+                Connection con = conexion; PreparedStatement ps = con.prepareStatement(sql)) {
+
+            // Mandar usuario y contraseña
+            ps.setString(1, usuario);
+            ps.setString(2, sha256(contraseña));
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                // Si encontró el usuario
+                if (rs.next()) {
+
+                    int idUsuario = rs.getInt("id_usuario");
+                    String nombre = rs.getString("nombre");
+                    String apellido = rs.getString("apellido");
+                    String rol = rs.getString("rol");
+
+                    System.out.println("Sesión iniciada");
+                    System.out.println("ID: " + idUsuario);
+                    System.out.println("Nombre: " + nombre + " " + apellido);
+                    System.out.println("Rol: " + rol);
+
+                    // ADMINISTRADOR
+                    if (rol.equalsIgnoreCase("ADMINISTRADOR")) {
+
+                        Menu_Administrador ventanaAdministrador
+                                = new Menu_Administrador();
+
+                        ventanaAdministrador.setLocationRelativeTo(null);
+                        ventanaAdministrador.setVisible(true);
+
+                        dispose();
+                    } // CAJERO
+                    else if (rol.equalsIgnoreCase("CAJERO")) {
+
+                        Cajero ventanaCajero
+                                = new Cajero();
+
+                        ventanaCajero.setLocationRelativeTo(null);
+                        ventanaCajero.setVisible(true);
+
+                        dispose();
+                    }
+
+                } else {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Usuario o contraseña incorrectos.",
+                            "Inicio de sesión",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                    texBoxPassword1.setText("");
+                    texBoxPassword1.requestFocus();
+                }
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ocurrió un error al iniciar sesión.\n"
+                    + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            e.printStackTrace();
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -112,6 +274,7 @@ public class Login extends javax.swing.JFrame {
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/visualizar.png"))); // NOI18N
         jButton2.setBorderPainted(false);
         jButton2.setContentAreaFilled(false);
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton2.setFocusPainted(false);
         jButton2.setMaximumSize(new java.awt.Dimension(40, 40));
         jButton2.setMinimumSize(new java.awt.Dimension(40, 40));
@@ -135,7 +298,7 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void botonDerretido1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonDerretido1ActionPerformed
-        // TODO add your handling code here:
+        iniciarSesion();
     }//GEN-LAST:event_botonDerretido1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -190,5 +353,3 @@ public class Login extends javax.swing.JFrame {
     private Labels.TexBoxPassword texBoxPassword1;
     // End of variables declaration//GEN-END:variables
 }
-
-
