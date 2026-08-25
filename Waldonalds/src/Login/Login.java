@@ -64,13 +64,14 @@ public class Login extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         botonDerretido1 = new Componentes.BotonDerretido();
-        texBox1 = new Labels.TexBox();
         labelEscalable3 = new Labels.LabelEscalable();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
-        texBoxPassword1 = new Labels.TexBoxPassword();
         labelEscalable2 = new Labels.LabelEscalable();
+        labelEscalable1 = new Labels.LabelEscalable();
+        textBox_Login2 = new Labels.TextBox_Login();
+        textbox_Contrasena1 = new Labels.Textbox_Contrasena();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -78,40 +79,42 @@ public class Login extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Contraseña");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 510, 240, 40));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 520, 240, 40));
 
+        botonDerretido1.setForeground(new java.awt.Color(0, 0, 0));
+        botonDerretido1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         botonDerretido1.setLabel("Iniciar Sesion");
         botonDerretido1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonDerretido1ActionPerformed(evt);
             }
         });
-        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 680, 330, 80));
-        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 380, 440, 50));
+        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 660, 440, 80));
 
         labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Panel2.png"))); // NOI18N
         labelEscalable3.setText("labelEscalable3");
-        jPanel1.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 610, 1080));
+        jPanel1.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 670, 1080));
 
-        jLabel2.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel2.setText("Usuario");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 320, 190, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1080, 372, 190, 40));
 
-        jLabel3.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Dialog", 1, 48)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 210, 730, 60));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 270, 730, 60));
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/visualizar.png"))); // NOI18N
         jButton2.setBorderPainted(false);
         jButton2.setContentAreaFilled(false);
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton2.setFocusPainted(false);
         jButton2.setMaximumSize(new java.awt.Dimension(40, 40));
         jButton2.setMinimumSize(new java.awt.Dimension(40, 40));
@@ -121,12 +124,19 @@ public class Login extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1460, 580, 40, 30));
-        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 570, 440, 50));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1510, 570, 60, 50));
 
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
-        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 10, 180, 190));
+        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 80, 140, 180));
+
+        labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Usuarios.png"))); // NOI18N
+        labelEscalable1.setText("labelEscalable1");
+        jPanel1.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 420, 50, 50));
+
+        textBox_Login2.setPlaceholder("Ingresa tu usuario");
+        jPanel1.add(textBox_Login2, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 400, -1, -1));
+        jPanel1.add(textbox_Contrasena1, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 550, -1, -1));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-20, 0, 1940, 1090));
 
@@ -184,10 +194,11 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private Labels.LabelEscalable labelEscalable1;
     private Labels.LabelEscalable labelEscalable2;
     private Labels.LabelEscalable labelEscalable3;
-    private Labels.TexBox texBox1;
-    private Labels.TexBoxPassword texBoxPassword1;
+    private Labels.TextBox_Login textBox_Login2;
+    private Labels.Textbox_Contrasena textbox_Contrasena1;
     // End of variables declaration//GEN-END:variables
 }
 
