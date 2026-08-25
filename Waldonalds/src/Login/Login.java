@@ -65,10 +65,11 @@ public class Login extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         botonDerretido1 = new Componentes.BotonDerretido();
         texBox1 = new Labels.TexBox();
-        texBoxPassword1 = new Labels.TexBoxPassword();
         labelEscalable3 = new Labels.LabelEscalable();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        texBoxPassword1 = new Labels.TexBoxPassword();
         labelEscalable2 = new Labels.LabelEscalable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -89,9 +90,8 @@ public class Login extends javax.swing.JFrame {
                 botonDerretido1ActionPerformed(evt);
             }
         });
-        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1130, 680, 330, 80));
-        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 380, 420, 50));
-        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 570, 420, 50));
+        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 680, 330, 80));
+        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 380, 440, 50));
 
         labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Panel2.png"))); // NOI18N
         labelEscalable3.setText("labelEscalable3");
@@ -109,6 +109,21 @@ public class Login extends javax.swing.JFrame {
         jLabel3.setText("¡Bienvenido a Waldonald's!");
         jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 210, 730, 60));
 
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/visualizar.png"))); // NOI18N
+        jButton2.setBorderPainted(false);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setFocusPainted(false);
+        jButton2.setMaximumSize(new java.awt.Dimension(40, 40));
+        jButton2.setMinimumSize(new java.awt.Dimension(40, 40));
+        jButton2.setPreferredSize(new java.awt.Dimension(40, 40));
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1470, 580, 40, 30));
+        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 570, 450, 50));
+
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
         jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1180, 10, 180, 190));
@@ -122,6 +137,10 @@ public class Login extends javax.swing.JFrame {
     private void botonDerretido1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonDerretido1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_botonDerretido1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -160,6 +179,7 @@ public class Login extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Componentes.BotonDerretido botonDerretido1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
