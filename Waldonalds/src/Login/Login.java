@@ -6,8 +6,6 @@ package Login;
 import java.awt.Font;
 import java.io.InputStream;
 
-
-
 /**
  *
  * @author Computacion
@@ -79,9 +77,9 @@ public class Login extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel1.setText("Contraseña");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 440, 200, 40));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 510, 240, 40));
 
         botonDerretido1.setLabel("Iniciar Sesion");
         botonDerretido1.addActionListener(new java.awt.event.ActionListener() {
@@ -89,31 +87,31 @@ public class Login extends javax.swing.JFrame {
                 botonDerretido1ActionPerformed(evt);
             }
         });
-        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 590, 280, 80));
-        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 330, 420, 50));
-        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 500, 420, 50));
+        jPanel1.add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1130, 680, 330, 80));
+        jPanel1.add(texBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 380, 420, 50));
+        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 570, 420, 50));
 
         labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Panel2.png"))); // NOI18N
         labelEscalable3.setText("labelEscalable3");
-        jPanel1.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 638, 770));
+        jPanel1.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 610, 1080));
 
         jLabel2.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel2.setText("Usuario");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 270, 140, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 320, 190, -1));
 
         jLabel3.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 170, 620, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 210, 730, 60));
 
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
-        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 0, 170, 190));
+        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1180, 10, 180, 190));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1360, 768));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
 
         pack();
         setLocationRelativeTo(null);
