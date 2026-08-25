@@ -121,14 +121,14 @@ public class Login extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1470, 580, 40, 30));
-        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 570, 450, 50));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1460, 580, 40, 30));
+        jPanel1.add(texBoxPassword1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1070, 570, 440, 50));
 
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
         jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 10, 180, 190));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-20, 10, 1920, 1080));
 
         pack();
         setLocationRelativeTo(null);

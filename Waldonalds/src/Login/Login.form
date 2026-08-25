@@ -33,7 +33,7 @@
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="0" y="0" width="1920" height="1080"/>
+          <AbsoluteConstraints x="-20" y="10" width="1920" height="1080"/>
         </Constraint>
       </Constraints>
 
@@ -148,14 +148,14 @@
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="1470" y="580" width="40" height="30"/>
+              <AbsoluteConstraints x="1460" y="580" width="40" height="30"/>
             </Constraint>
           </Constraints>
         </Component>
         <Component class="Labels.TexBoxPassword" name="texBoxPassword1">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="1070" y="570" width="450" height="50"/>
+              <AbsoluteConstraints x="1070" y="570" width="440" height="50"/>
             </Constraint>
           </Constraints>
         </Component>
