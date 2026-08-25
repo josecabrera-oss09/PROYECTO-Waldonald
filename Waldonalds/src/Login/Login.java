@@ -128,7 +128,7 @@ public class Login extends javax.swing.JFrame {
         labelEscalable2.setText("labelEscalable2");
         jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 10, 180, 190));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-20, 10, 1920, 1080));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-20, 0, 1940, 1090));
 
         pack();
         setLocationRelativeTo(null);
