@@ -35,6 +35,7 @@ public class Menu extends javax.swing.JFrame {
         botonCategoria6 = new Componentes.BotonCategoria();
         botonCategoria7 = new Componentes.BotonCategoria();
         botonLetras1 = new Componentes.BotonLetras();
+        scrollPane1 = new java.awt.ScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -48,18 +49,19 @@ public class Menu extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1940, Short.MAX_VALUE)
+            .addGap(0, 1920, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 80, Short.MAX_VALUE)
         );
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(-20, 0, 1940, 80));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 80));
         jPanel1.add(botonCategoria2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 140, -1, -1));
         jPanel1.add(botonCategoria6, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 130, -1, -1));
         jPanel1.add(botonCategoria7, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 140, -1, -1));
         jPanel1.add(botonLetras1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 270, 120, 30));
+        jPanel1.add(scrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 270, 420, 30));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
 
@@ -109,5 +111,6 @@ public class Menu extends javax.swing.JFrame {
     private Componentes.BotonLetras botonLetras1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private java.awt.ScrollPane scrollPane1;
     // End of variables declaration//GEN-END:variables
 }
