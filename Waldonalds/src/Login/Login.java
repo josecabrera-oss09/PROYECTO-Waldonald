@@ -126,7 +126,7 @@ public class Login extends javax.swing.JFrame {
 
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");
-        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1180, 10, 180, 190));
+        jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 10, 180, 190));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
 
