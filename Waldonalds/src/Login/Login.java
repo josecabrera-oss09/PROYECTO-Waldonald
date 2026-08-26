@@ -96,11 +96,11 @@ public class Login extends javax.swing.JFrame {
         }
     }
 
-    private void iniciarSesion() {
+        private void iniciarSesion() {
 
-        // Obtener datos de los campos
-        String usuario = texBox1.getText().trim();
-        String contraseña = new String(texBoxPassword1.getPassword());
+        // Obtener datos de los campos personalizados
+        String usuario = textBox_Login2.getText().trim();
+        String contraseña = new String(textbox_Contrasena1.getPassword());
 
         // Verificar campos vacíos
         if (usuario.isEmpty() || contraseña.isEmpty()) {
@@ -130,28 +130,25 @@ public class Login extends javax.swing.JFrame {
             return;
         }
 
-        // Consulta
         String sql = """
-                 SELECT id_usuario,
-                        nombre,
-                        apellido,
-                        rol
-                 FROM usuario
-                 WHERE usuario = ?
-                   AND password_hash = ?
-                   AND estado = TRUE
-                 """;
+                SELECT id_usuario,
+                       nombre,
+                       apellido,
+                       rol
+                FROM usuario
+                WHERE usuario = ?
+                  AND password_hash = ?
+                  AND estado = TRUE
+                """;
 
-        try (
-                Connection con = conexion; PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion;
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            // Mandar usuario y contraseña
             ps.setString(1, usuario);
             ps.setString(2, sha256(contraseña));
 
             try (ResultSet rs = ps.executeQuery()) {
 
-                // Si encontró el usuario
                 if (rs.next()) {
 
                     int idUsuario = rs.getInt("id_usuario");
@@ -164,21 +161,19 @@ public class Login extends javax.swing.JFrame {
                     System.out.println("Nombre: " + nombre + " " + apellido);
                     System.out.println("Rol: " + rol);
 
-                    // ADMINISTRADOR
                     if (rol.equalsIgnoreCase("ADMINISTRADOR")) {
 
-                        Menu_Administrador ventanaAdministrador
-                                = new Menu_Administrador();
+                        Menu_Administrador ventanaAdministrador =
+                                new Menu_Administrador();
 
                         ventanaAdministrador.setLocationRelativeTo(null);
                         ventanaAdministrador.setVisible(true);
 
                         dispose();
-                    } // CAJERO
-                    else if (rol.equalsIgnoreCase("CAJERO")) {
 
-                        Cajero ventanaCajero
-                                = new Cajero();
+                    } else if (rol.equalsIgnoreCase("CAJERO")) {
+
+                        Cajero ventanaCajero = new Cajero();
 
                         ventanaCajero.setLocationRelativeTo(null);
                         ventanaCajero.setVisible(true);
@@ -195,8 +190,8 @@ public class Login extends javax.swing.JFrame {
                             JOptionPane.ERROR_MESSAGE
                     );
 
-                    texBoxPassword1.setText("");
-                    texBoxPassword1.requestFocus();
+                    textbox_Contrasena1.setText("");
+                    textbox_Contrasena1.requestFocus();
                 }
             }
 
@@ -204,8 +199,7 @@ public class Login extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Ocurrió un error al iniciar sesión.\n"
-                    + e.getMessage(),
+                    "Error al iniciar sesión:\n" + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
@@ -271,7 +265,7 @@ public class Login extends javax.swing.JFrame {
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("¡Bienvenido a Waldonald's!");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 270, 730, 60));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 260, 730, 60));
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/visualizar.png"))); // NOI18N
         jButton2.setBorderPainted(false);
@@ -286,7 +280,7 @@ public class Login extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1510, 570, 60, 50));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1520, 570, 50, 50));
 
         labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/MiniLogo 2.png"))); // NOI18N
         labelEscalable2.setText("labelEscalable2");

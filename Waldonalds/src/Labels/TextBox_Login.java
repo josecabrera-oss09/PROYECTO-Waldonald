@@ -218,7 +218,6 @@ public class TextBox_Login extends JPanel {
 
         int alto = getHeight();
 
-        // El cuadro izquierdo es casi del alto total
         int tamanoIcono =
                 Math.min(
                         alto - 8,
@@ -382,7 +381,6 @@ public class TextBox_Login extends JPanel {
                 / 2;
 
 
-        // Fondo amarillo claro / rojo claro
         g2.setColor(
                 colorClaro
         );
@@ -551,9 +549,10 @@ public class TextBox_Login extends JPanel {
 
 
     // =====================================================
-    // TEXTO
+    // GET TEXT
+    // ESTE ES EL MÉTODO IMPORTANTE PARA EL LOGIN
     // =====================================================
-    public String getTexto() {
+    public String getText() {
 
         if (mostrandoPlaceholder) {
             return "";
@@ -563,7 +562,10 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    public void setTexto(String textoNuevo) {
+    // =====================================================
+    // SET TEXT
+    // =====================================================
+    public void setText(String textoNuevo) {
 
         if (
                 textoNuevo == null
@@ -598,6 +600,30 @@ public class TextBox_Login extends JPanel {
 
 
     // =====================================================
+    // MÉTODOS ANTERIORES
+    // =====================================================
+    public String getTexto() {
+
+        return getText();
+    }
+
+
+    public void setTexto(String textoNuevo) {
+
+        setText(textoNuevo);
+    }
+
+
+    // =====================================================
+    // DAR FOCO AL CAMPO
+    // =====================================================
+    public void enfocar() {
+
+        txtCampo.requestFocusInWindow();
+    }
+
+
+    // =====================================================
     // PLACEHOLDER
     // =====================================================
     public void setPlaceholder(
@@ -610,6 +636,10 @@ public class TextBox_Login extends JPanel {
 
             txtCampo.setText(
                     placeholder
+            );
+
+            txtCampo.setForeground(
+                    textoPlaceholder
             );
         }
     }
