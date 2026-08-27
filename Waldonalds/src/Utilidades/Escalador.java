@@ -20,8 +20,8 @@ public class Escalador {
     // =========================================================
     // RESOLUCIÓN EN LA QUE DISEÑASTE EL PROYECTO EN NETBEANS
     // =========================================================
-    private static final int ANCHO_BASE = 1360;
-    private static final int ALTO_BASE = 768;
+    private static final int ANCHO_BASE = 1920;
+    private static final int ALTO_BASE = 1080;
 
     private Escalador() {
         // Evita crear objetos de esta clase.
