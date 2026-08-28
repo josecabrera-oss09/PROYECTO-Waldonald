@@ -113,17 +113,16 @@ public class Escalador {
         // ==========================================
         // GUARDAR BOUNDS ORIGINALES
         // ==========================================
-
         Rectangle bounds = componente.getBounds();
 
         int nuevaX = (int) Math.round(bounds.x * escalaX);
         int nuevaY = (int) Math.round(bounds.y * escalaY);
 
-        int nuevoAncho =
-                (int) Math.round(bounds.width * escalaX);
+        int nuevoAncho
+                = (int) Math.round(bounds.width * escalaX);
 
-        int nuevoAlto =
-                (int) Math.round(bounds.height * escalaY);
+        int nuevoAlto
+                = (int) Math.round(bounds.height * escalaY);
 
         componente.setBounds(
                 nuevaX,
@@ -135,7 +134,6 @@ public class Escalador {
         // ==========================================
         // ESCALAR FUENTE
         // ==========================================
-
         escalarFuente(
                 componente,
                 escalaX,
@@ -145,12 +143,12 @@ public class Escalador {
         // ==========================================
         // ESCALAR IMAGEN DE JLABEL
         // ==========================================
-
         if (componente instanceof JLabel) {
 
             JLabel label = (JLabel) componente;
 
-            if (label.getIcon() instanceof ImageIcon) {
+            if (!(label instanceof Labels.LabelEscalable)
+                    && label.getIcon() instanceof ImageIcon) {
 
                 escalarIconoLabel(
                         label,
@@ -163,13 +161,20 @@ public class Escalador {
         // ==========================================
         // ESCALAR ICONO DE BOTONES
         // ==========================================
-
         if (componente instanceof AbstractButton) {
 
-            AbstractButton boton =
-                    (AbstractButton) componente;
+            AbstractButton boton
+                    = (AbstractButton) componente;
 
-            if (boton.getIcon() instanceof ImageIcon) {
+            // Comprobar si este botón debe conservar
+            // el tamaño original de su icono
+            boolean noEscalarIcono
+                    = Boolean.TRUE.equals(
+                            boton.getClientProperty("noEscalarIcono")
+                    );
+
+            if (!noEscalarIcono
+                    && boton.getIcon() instanceof ImageIcon) {
 
                 escalarIconoBoton(
                         boton,
@@ -182,15 +187,14 @@ public class Escalador {
         // ==========================================
         // AJUSTAR FILAS DE JTABLE
         // ==========================================
-
         if (componente instanceof JTable) {
 
             JTable tabla = (JTable) componente;
 
             int alturaOriginal = tabla.getRowHeight();
 
-            int nuevaAlturaFila =
-                    (int) Math.round(
+            int nuevaAlturaFila
+                    = (int) Math.round(
                             alturaOriginal * escalaY
                     );
 
@@ -218,18 +222,16 @@ public class Escalador {
          * Usamos la escala menor para evitar
          * que las letras crezcan demasiado.
          */
-        double escalaFuente =
-                Math.min(escalaX, escalaY);
+        double escalaFuente
+                = Math.min(escalaX, escalaY);
 
-        float nuevoTamano =
-                (float) (
-                        fuente.getSize2D()
-                        * escalaFuente
-                );
+        float nuevoTamano
+                = (float) (fuente.getSize2D()
+                * escalaFuente);
 
         // Tamaño mínimo para evitar fuentes invisibles.
-        nuevoTamano =
-                Math.max(nuevoTamano, 8f);
+        nuevoTamano
+                = Math.max(nuevoTamano, 8f);
 
         componente.setFont(
                 fuente.deriveFont(nuevoTamano)
@@ -244,8 +246,8 @@ public class Escalador {
             int ancho,
             int alto) {
 
-        ImageIcon iconoOriginal =
-                (ImageIcon) label.getIcon();
+        ImageIcon iconoOriginal
+                = (ImageIcon) label.getIcon();
 
         if (iconoOriginal == null) {
             return;
@@ -257,8 +259,8 @@ public class Escalador {
 
         Image imagen = iconoOriginal.getImage();
 
-        Image imagenEscalada =
-                imagen.getScaledInstance(
+        Image imagenEscalada
+                = imagen.getScaledInstance(
                         ancho,
                         alto,
                         Image.SCALE_SMOOTH
@@ -277,8 +279,8 @@ public class Escalador {
             int ancho,
             int alto) {
 
-        ImageIcon iconoOriginal =
-                (ImageIcon) boton.getIcon();
+        ImageIcon iconoOriginal
+                = (ImageIcon) boton.getIcon();
 
         if (iconoOriginal == null) {
             return;
@@ -292,16 +294,16 @@ public class Escalador {
          * Se deja un pequeño margen para que
          * el icono no toque los bordes.
          */
-        int anchoIcono =
-                Math.max(ancho - 10, 1);
+        int anchoIcono
+                = Math.max(ancho - 10, 1);
 
-        int altoIcono =
-                Math.max(alto - 10, 1);
+        int altoIcono
+                = Math.max(alto - 10, 1);
 
         Image imagen = iconoOriginal.getImage();
 
-        Image imagenEscalada =
-                imagen.getScaledInstance(
+        Image imagenEscalada
+                = imagen.getScaledInstance(
                         anchoIcono,
                         altoIcono,
                         Image.SCALE_SMOOTH

@@ -637,10 +637,10 @@ public class Textbox_Contrasena extends JPanel {
     }
 
     public void setText(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+       setTexto(string);
     }
 
     public String getPassword() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+          return getTexto();
     }
 }

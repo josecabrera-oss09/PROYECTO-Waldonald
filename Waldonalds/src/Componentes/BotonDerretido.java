@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
+import java.beans.BeanProperty;
 import javax.swing.JButton;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
@@ -18,6 +19,20 @@ public class BotonDerretido extends JButton {
 
     // Color amarillo del botón
     private Color colorBoton = new Color(255, 188, 13);
+
+    @BeanProperty(preferred = true, description = "Color de fondo del botón derretido.")
+    public Color getColorBoton() {
+        return colorBoton;
+    }
+
+    public void setColorBoton(Color colorBoton) {
+        Color anterior = this.colorBoton;
+        this.colorBoton = colorBoton != null
+                ? colorBoton
+                : new Color(255, 188, 13);
+        firePropertyChange("colorBoton", anterior, this.colorBoton);
+        repaint();
+    }
 
     // Cuánto se ha derretido
     private float derretido = 0f;

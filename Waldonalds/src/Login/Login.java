@@ -6,7 +6,7 @@ package Login;
 
 import Conexion.Conexion;
 
-import GUI_ADMINISTRADOR.Menu_Administrador;
+import GUI_ADMINISTRADOR.InicioAdminForm;
 import GUI_CAJERO.Cajero;
 
 import java.awt.Font;
@@ -163,8 +163,8 @@ public class Login extends javax.swing.JFrame {
 
                     if (rol.equalsIgnoreCase("ADMINISTRADOR")) {
 
-                        Menu_Administrador ventanaAdministrador =
-                                new Menu_Administrador();
+                        InicioAdminForm ventanaAdministrador =
+                                new InicioAdminForm();
 
                         ventanaAdministrador.setLocationRelativeTo(null);
                         ventanaAdministrador.setVisible(true);
