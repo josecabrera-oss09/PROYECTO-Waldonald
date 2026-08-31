@@ -26,7 +26,6 @@ public class Textbox_Contrasena extends JPanel {
     private JPasswordField txtPassword;
     private JLabel lblIcono;
 
-
     // ==========================================
     // PLACEHOLDER
     // ==========================================
@@ -34,31 +33,28 @@ public class Textbox_Contrasena extends JPanel {
 
     private boolean mostrandoPlaceholder = true;
 
-
     // ==========================================
     // COLORES
     // ==========================================
-    private final Color rojo =
-            new Color(215, 25, 25);
+    private final Color rojo
+            = new Color(215, 25, 25);
 
-    private final Color rojoClaro =
-            new Color(255, 205, 205);
+    private final Color rojoClaro
+            = new Color(255, 205, 205);
 
-    private final Color fondoCampo =
-            new Color(248, 248, 248);
+    private final Color fondoCampo
+            = new Color(248, 248, 248);
 
-    private final Color colorTexto =
-            new Color(35, 35, 35);
+    private final Color colorTexto
+            = new Color(35, 35, 35);
 
-    private final Color colorPlaceholder =
-            new Color(145, 145, 145);
-
+    private final Color colorPlaceholder
+            = new Color(145, 145, 145);
 
     // ==========================================
     // CARÁCTER DE CONTRASEÑA
     // ==========================================
     private char caracterPassword;
-
 
     // ==========================================
     // CONSTRUCTOR
@@ -77,7 +73,6 @@ public class Textbox_Contrasena extends JPanel {
                 new Dimension(300, 70)
         );
 
-
         // ======================================
         // ICONO
         // ======================================
@@ -95,16 +90,14 @@ public class Textbox_Contrasena extends JPanel {
 
         add(lblIcono);
 
-
         // ======================================
         // CAMPO DE CONTRASEÑA
         // ======================================
-        txtPassword =
-                new JPasswordField();
+        txtPassword
+                = new JPasswordField();
 
-        caracterPassword =
-                txtPassword.getEchoChar();
-
+        caracterPassword
+                = txtPassword.getEchoChar();
 
         // Placeholder visible
         txtPassword.setEchoChar(
@@ -145,69 +138,63 @@ public class Textbox_Contrasena extends JPanel {
 
         add(txtPassword);
 
-
         // ======================================
         // PLACEHOLDER
         // ======================================
         txtPassword.addFocusListener(
                 new FocusAdapter() {
 
-                    @Override
-                    public void focusGained(
-                            FocusEvent e) {
+            @Override
+            public void focusGained(
+                    FocusEvent e) {
 
-                        if (mostrandoPlaceholder) {
+                if (mostrandoPlaceholder) {
 
-                            txtPassword.setText("");
+                    txtPassword.setText("");
 
-                            txtPassword.setEchoChar(
-                                    caracterPassword
-                            );
+                    txtPassword.setEchoChar(
+                            caracterPassword
+                    );
 
-                            txtPassword.setForeground(
-                                    colorTexto
-                            );
+                    txtPassword.setForeground(
+                            colorTexto
+                    );
 
-                            mostrandoPlaceholder =
-                                    false;
-                        }
-
-                        repaint();
-                    }
-
-
-                    @Override
-                    public void focusLost(
-                            FocusEvent e) {
-
-                        if (
-                                txtPassword
-                                        .getPassword()
-                                        .length == 0
-                        ) {
-
-                            txtPassword.setEchoChar(
-                                    (char) 0
-                            );
-
-                            txtPassword.setText(
-                                    placeholder
-                            );
-
-                            txtPassword.setForeground(
-                                    colorPlaceholder
-                            );
-
-                            mostrandoPlaceholder =
-                                    true;
-                        }
-
-                        repaint();
-                    }
+                    mostrandoPlaceholder
+                            = false;
                 }
+
+                repaint();
+            }
+
+            @Override
+            public void focusLost(
+                    FocusEvent e) {
+
+                if (txtPassword
+                        .getPassword().length == 0) {
+
+                    txtPassword.setEchoChar(
+                            (char) 0
+                    );
+
+                    txtPassword.setText(
+                            placeholder
+                    );
+
+                    txtPassword.setForeground(
+                            colorPlaceholder
+                    );
+
+                    mostrandoPlaceholder
+                            = true;
+                }
+
+                repaint();
+            }
+        }
         );
     }
-
 
     // ==========================================
     // POSICIONAR COMPONENTES
@@ -217,19 +204,18 @@ public class Textbox_Contrasena extends JPanel {
 
         super.doLayout();
 
-        int alto =
-                getHeight();
+        int alto
+                = getHeight();
 
-        int tamanoCuadro =
-                Math.min(
+        int tamanoCuadro
+                = Math.min(
                         alto - 8,
                         90
                 );
 
-        int y =
-                (alto - tamanoCuadro)
+        int y
+                = (alto - tamanoCuadro)
                 / 2;
-
 
         // Icono
         lblIcono.setBounds(
@@ -239,21 +225,19 @@ public class Textbox_Contrasena extends JPanel {
                 tamanoCuadro
         );
 
-
         // Campo password
-        int inicioTexto =
-                tamanoCuadro + 25;
+        int inicioTexto
+                = tamanoCuadro + 25;
 
         txtPassword.setBounds(
                 inicioTexto,
                 10,
                 getWidth()
-                        - inicioTexto
-                        - 30,
+                - inicioTexto
+                - 30,
                 alto - 20
         );
     }
-
 
     // ==========================================
     // DIBUJAR COMPONENTE
@@ -264,45 +248,42 @@ public class Textbox_Contrasena extends JPanel {
 
         super.paintComponent(g);
 
-        Graphics2D g2 =
-                (Graphics2D) g.create();
+        Graphics2D g2
+                = (Graphics2D) g.create();
 
         g2.setRenderingHint(
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON
         );
 
+        int ancho
+                = getWidth();
 
-        int ancho =
-                getWidth();
+        int alto
+                = getHeight();
 
-        int alto =
-                getHeight();
-
-        int tamanoCuadro =
-                Math.min(
+        int tamanoCuadro
+                = Math.min(
                         alto - 8,
                         90
                 );
 
-
         // ======================================
         // CAJA PRINCIPAL
         // ======================================
-        int xCaja =
-                tamanoCuadro / 2;
+        int xCaja
+                = tamanoCuadro / 2;
 
-        int yCaja =
-                10;
+        int yCaja
+                = 10;
 
-        int anchoCaja =
-                ancho
+        int anchoCaja
+                = ancho
                 - xCaja
                 - 3;
 
-        int altoCaja =
-                alto - 20;
-
+        int altoCaja
+                = alto - 20;
 
         // Fondo gris claro
         g2.setColor(
@@ -317,7 +298,6 @@ public class Textbox_Contrasena extends JPanel {
                 35,
                 35
         );
-
 
         // Borde rojo
         g2.setColor(
@@ -337,17 +317,15 @@ public class Textbox_Contrasena extends JPanel {
                 35
         );
 
-
         // ======================================
         // CUADRO IZQUIERDO
         // ======================================
-        int xCuadro =
-                3;
+        int xCuadro
+                = 3;
 
-        int yCuadro =
-                (alto - tamanoCuadro)
+        int yCuadro
+                = (alto - tamanoCuadro)
                 / 2;
-
 
         // Fondo rojo claro
         g2.setColor(
@@ -362,7 +340,6 @@ public class Textbox_Contrasena extends JPanel {
                 28,
                 28
         );
-
 
         // Borde rojo
         g2.setColor(
@@ -382,21 +359,17 @@ public class Textbox_Contrasena extends JPanel {
                 28
         );
 
-
         // ======================================
         // LÍNEAS DECORATIVAS
         // ======================================
-        int inicioLinea =
-                tamanoCuadro + 15;
+        int inicioLinea
+                = tamanoCuadro + 15;
 
-        int centro =
-                (int) (
-                        ancho * 0.70
-                );
+        int centro
+                = (int) (ancho * 0.70);
 
-        int finalLinea =
-                ancho - 45;
-
+        int finalLinea
+                = ancho - 45;
 
         g2.setStroke(
                 new BasicStroke(2f)
@@ -406,7 +379,6 @@ public class Textbox_Contrasena extends JPanel {
                 rojo
         );
 
-
         // Línea superior izquierda
         g2.drawLine(
                 inicioLinea,
@@ -414,7 +386,6 @@ public class Textbox_Contrasena extends JPanel {
                 centro - 50,
                 10
         );
-
 
         // Línea superior derecha
         g2.drawLine(
@@ -424,7 +395,6 @@ public class Textbox_Contrasena extends JPanel {
                 10
         );
 
-
         // Línea inferior izquierda
         g2.drawLine(
                 inicioLinea,
@@ -432,7 +402,6 @@ public class Textbox_Contrasena extends JPanel {
                 centro - 50,
                 alto - 10
         );
-
 
         // Línea inferior derecha
         g2.drawLine(
@@ -442,32 +411,25 @@ public class Textbox_Contrasena extends JPanel {
                 alto - 10
         );
 
-
         // ======================================
         // PUNTOS DECORATIVOS
         // ======================================
-        int cantidad =
-                6;
+        int cantidad
+                = 6;
 
-        int separacion =
-                11;
+        int separacion
+                = 11;
 
-        int inicioPuntos =
-                centro - 28;
+        int inicioPuntos
+                = centro - 28;
 
-
-        for (
-                int i = 0;
+        for (int i = 0;
                 i < cantidad;
-                i++
-        ) {
+                i++) {
 
-            int x =
-                    inicioPuntos
-                    + (
-                    i * separacion
-                    );
-
+            int x
+                    = inicioPuntos
+                    + (i * separacion);
 
             // Puntos superiores
             g2.fillOval(
@@ -476,7 +438,6 @@ public class Textbox_Contrasena extends JPanel {
                     5,
                     5
             );
-
 
             // Puntos inferiores
             g2.fillOval(
@@ -487,10 +448,8 @@ public class Textbox_Contrasena extends JPanel {
             );
         }
 
-
         g2.dispose();
     }
-
 
     // ==========================================
     // OBTENER CONTRASEÑA
@@ -507,17 +466,14 @@ public class Textbox_Contrasena extends JPanel {
         );
     }
 
-
     // ==========================================
     // CAMBIAR CONTRASEÑA
     // ==========================================
     public void setTexto(
             String texto) {
 
-        if (
-                texto == null
-                || texto.isEmpty()
-        ) {
+        if (texto == null
+                || texto.isEmpty()) {
 
             txtPassword.setEchoChar(
                     (char) 0
@@ -531,8 +487,8 @@ public class Textbox_Contrasena extends JPanel {
                     colorPlaceholder
             );
 
-            mostrandoPlaceholder =
-                    true;
+            mostrandoPlaceholder
+                    = true;
 
         } else {
 
@@ -548,29 +504,27 @@ public class Textbox_Contrasena extends JPanel {
                     colorTexto
             );
 
-            mostrandoPlaceholder =
-                    false;
+            mostrandoPlaceholder
+                    = false;
         }
     }
-
 
     // ==========================================
     // CAMBIAR PLACEHOLDER
     // ==========================================
-    public void setPlaceholder(
-            String placeholder) {
+    public void setPlaceholder(String placeholder) {
 
-        this.placeholder =
-                placeholder;
+        this.placeholder = placeholder;
 
         if (mostrandoPlaceholder) {
 
-            txtPassword.setText(
-                    placeholder
-            );
+            txtPassword.setEchoChar((char) 0);
+
+            txtPassword.setText(placeholder);
+
+            txtPassword.setForeground(colorPlaceholder);
         }
     }
-
 
     // ==========================================
     // OBTENER PLACEHOLDER
@@ -579,7 +533,6 @@ public class Textbox_Contrasena extends JPanel {
 
         return placeholder;
     }
-
 
     // ==========================================
     // COLOCAR ICONO
@@ -592,7 +545,6 @@ public class Textbox_Contrasena extends JPanel {
         );
     }
 
-
     // ==========================================
     // OBTENER ICONO
     // ==========================================
@@ -601,7 +553,6 @@ public class Textbox_Contrasena extends JPanel {
         return lblIcono.getIcon();
     }
 
-
     // ==========================================
     // OBTENER JPASSWORDFIELD
     // ==========================================
@@ -609,7 +560,6 @@ public class Textbox_Contrasena extends JPanel {
 
         return txtPassword;
     }
-
 
     // ==========================================
     // MOSTRAR / OCULTAR CONTRASEÑA
@@ -637,10 +587,18 @@ public class Textbox_Contrasena extends JPanel {
     }
 
     public void setText(String string) {
-       setTexto(string);
+        setTexto(string);
     }
 
     public String getPassword() {
-          return getTexto();
+        return getTexto();
+    }
+
+    public void setEchoChar(char caracter) {
+        txtPassword.setEchoChar(caracter);
+    }
+
+    public char getEchoChar() {
+        return txtPassword.getEchoChar();
     }
 }

@@ -28,22 +28,32 @@ import javax.swing.JOptionPane;
  */
 public class Login extends javax.swing.JFrame {
 
+    private boolean contraseñaVisible = false;
+
     /**
      * Creates new form Login
      */
     public Login() {
         initComponents();
 
-        jLabel1.setFont(cargarFuente("DMSans-Bold.ttf", 28f));
+        jLabel1.setFont(
+                cargarFuente(
+                        "DMSans-Bold.ttf",
+                        28f
+                )
+        );
 
-        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        Utilidades.Escalador.aplicar(this);
+
+        // Placeholders
+        textBox_Login2.setPlaceholder("Ingresa tu usuario");
+        textbox_Contrasena1.setPlaceholder("Ingresa contraseña");
+
+        // Evitar que un textbox obtenga el foco automáticamente
+        jPanel1.setFocusable(true);
 
         javax.swing.SwingUtilities.invokeLater(() -> {
-
-            Utilidades.Escalador.escalar(
-                    getContentPane()
-            );
-
+            jPanel1.requestFocusInWindow();
         });
     }
 
@@ -96,7 +106,7 @@ public class Login extends javax.swing.JFrame {
         }
     }
 
-        private void iniciarSesion() {
+    private void iniciarSesion() {
 
         // Obtener datos de los campos personalizados
         String usuario = textBox_Login2.getText().trim();
@@ -141,8 +151,7 @@ public class Login extends javax.swing.JFrame {
                   AND estado = TRUE
                 """;
 
-        try (Connection con = conexion;
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion; PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario);
             ps.setString(2, sha256(contraseña));
@@ -163,8 +172,8 @@ public class Login extends javax.swing.JFrame {
 
                     if (rol.equalsIgnoreCase("ADMINISTRADOR")) {
 
-                        InicioAdminForm ventanaAdministrador =
-                                new InicioAdminForm();
+                        InicioAdminForm ventanaAdministrador
+                                = new InicioAdminForm();
 
                         ventanaAdministrador.setLocationRelativeTo(null);
                         ventanaAdministrador.setVisible(true);
@@ -305,7 +314,9 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_botonDerretido1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        contraseñaVisible = !contraseñaVisible;
+
+        textbox_Contrasena1.mostrarPassword(contraseñaVisible);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
