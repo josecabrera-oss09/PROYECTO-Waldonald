@@ -38,7 +38,6 @@ public class Cajero extends javax.swing.JFrame {
     private javax.swing.JPanel panelMenu;
     private javax.swing.JPanel panelPromociones;
     private javax.swing.JPanel panelNovedades;
-    private javax.swing.JPanel panelAlergenos;
     private javax.swing.JPanel panelInformacion;
 
     private javax.swing.JPanel panelPedido;
@@ -46,7 +45,6 @@ public class Cajero extends javax.swing.JFrame {
     private javax.swing.JButton btnMenu;
     private javax.swing.JButton btnPromociones;
     private javax.swing.JButton btnNovedades;
-    private javax.swing.JButton btnAlergenos;
     private javax.swing.JButton btnInformacion;
     private javax.swing.JButton btnOrdenar;
     private Componentes.EscaladorPantalla escalador;
@@ -72,25 +70,64 @@ public class Cajero extends javax.swing.JFrame {
     // Escalar todos los componentes
     escalador.escalar(getContentPane());
 }   
+    
+   private double obtenerEscala() {
+
+    java.awt.Dimension pantalla =
+            java.awt.Toolkit
+                    .getDefaultToolkit()
+                    .getScreenSize();
+
+    // Resolución base donde estás diseñando
+    double escalaX =
+            pantalla.getWidth() / 1360.0;
+
+    double escalaY =
+            pantalla.getHeight() / 720.0;
+
+    // Mantener proporciones
+    return Math.min(escalaX, escalaY);
+}
+
+
+private int escalar(int valor) {
+
+    return Math.max(
+            1,
+            (int) Math.round(
+                    valor * obtenerEscala()
+            )
+    );
+}
+
+
+private int escalarFuente(int valor) {
+
+    return Math.max(
+            10,
+            (int) Math.round(
+                    valor * obtenerEscala()
+            )
+    );
+}
 
     private void configurarInterfaz() {
 
     // =====================================================
-    // HACER QUE EL PANEL PRINCIPAL SE ADAPTE A LA PANTALLA
+    // CONTENEDOR PRINCIPAL
     // =====================================================
 
     getContentPane().removeAll();
-    getContentPane().setLayout(new java.awt.BorderLayout());
+
+    getContentPane().setLayout(
+            new java.awt.BorderLayout()
+    );
 
     getContentPane().add(
             jPanel1,
             java.awt.BorderLayout.CENTER
     );
 
-
-    // =====================================================
-    // PANEL PRINCIPAL
-    // =====================================================
 
     jPanel1.removeAll();
 
@@ -100,21 +137,14 @@ public class Cajero extends javax.swing.JFrame {
 
 
     // =====================================================
-    // BARRA AZUL
+    // CREAR CARDLAYOUT
     // =====================================================
 
-    configurarBarra();
+    cardLayout =
+            new java.awt.CardLayout();
 
-
-    // =====================================================
-    // CREAR CARD LAYOUT
-    // =====================================================
-
-    cardLayout = new java.awt.CardLayout();
-
-    panelContenido = new javax.swing.JPanel();
-
-    panelContenido.setLayout(cardLayout);
+    panelContenido =
+            new javax.swing.JPanel(cardLayout);
 
     panelContenido.setBackground(
             new java.awt.Color(252, 252, 253)
@@ -122,10 +152,11 @@ public class Cajero extends javax.swing.JFrame {
 
 
     // =====================================================
-    // CREAR LAS DIFERENTES PANTALLAS
+    // CREAR CADA SECCIÓN
     // =====================================================
 
-    panelMenu = crearPantalla("Menú");
+    panelMenu =
+            crearPantalla("Menú");
 
     panelPromociones =
             crearPantalla("Promociones");
@@ -133,15 +164,12 @@ public class Cajero extends javax.swing.JFrame {
     panelNovedades =
             crearPantalla("Novedades");
 
-    panelAlergenos =
-            crearPantalla("Alérgenos");
-
     panelInformacion =
             crearPantalla("Información");
 
 
     // =====================================================
-    // AGREGAR LAS PANTALLAS AL CARDLAYOUT
+    // AGREGAR AL CARDLAYOUT
     // =====================================================
 
     panelContenido.add(
@@ -160,18 +188,13 @@ public class Cajero extends javax.swing.JFrame {
     );
 
     panelContenido.add(
-            panelAlergenos,
-            "ALERGENOS"
-    );
-
-    panelContenido.add(
             panelInformacion,
             "INFORMACION"
     );
 
 
     // =====================================================
-    // PANEL DE PEDIDO
+    // CREAR PEDIDO
     // =====================================================
 
     crearPanelPedido();
@@ -186,6 +209,11 @@ public class Cajero extends javax.swing.JFrame {
                     new java.awt.BorderLayout()
             );
 
+    zonaCentral.setBackground(
+            new java.awt.Color(252, 252, 253)
+    );
+
+
     zonaCentral.add(
             panelContenido,
             java.awt.BorderLayout.CENTER
@@ -195,6 +223,13 @@ public class Cajero extends javax.swing.JFrame {
             panelPedido,
             java.awt.BorderLayout.EAST
     );
+
+
+    // =====================================================
+    // CONFIGURAR BARRA
+    // =====================================================
+
+    configurarBarra();
 
 
     // =====================================================
@@ -221,12 +256,15 @@ public class Cajero extends javax.swing.JFrame {
             "MENU"
     );
 
+    seleccionarBoton(btnMenu);
+
 
     jPanel1.revalidate();
     jPanel1.repaint();
 }
 
-    private javax.swing.JPanel crearPantalla(String titulo) {
+    private javax.swing.JPanel crearPantalla(
+        String titulo) {
 
     javax.swing.JPanel panel =
             new javax.swing.JPanel();
@@ -236,11 +274,20 @@ public class Cajero extends javax.swing.JFrame {
     );
 
     panel.setLayout(null);
+    
+    javax.swing.Box espacioLogo =
+        javax.swing.Box.createHorizontalBox();
 
+    espacioLogo.setPreferredSize(
+            new java.awt.Dimension(
+                    escalar(95),
+                    escalar(60)
+            )
+    );
 
-    // =========================================
+    // =====================================================
     // TÍTULO
-    // =========================================
+    // =====================================================
 
     javax.swing.JLabel lblTitulo =
             new javax.swing.JLabel(titulo);
@@ -249,7 +296,7 @@ public class Cajero extends javax.swing.JFrame {
             new java.awt.Font(
                     "Arial",
                     java.awt.Font.BOLD,
-                    60
+                    escalarFuente(60)
             )
     );
 
@@ -258,10 +305,10 @@ public class Cajero extends javax.swing.JFrame {
     );
 
     lblTitulo.setBounds(
-            50,
-            30,
-            700,
-            100
+            escalar(50),
+            escalar(30),
+            escalar(700),
+            escalar(100)
     );
 
 
@@ -269,6 +316,7 @@ public class Cajero extends javax.swing.JFrame {
 
     return panel;
 }
+    
 private void configurarBarra() {
 
     jPanel2.removeAll();
@@ -276,7 +324,10 @@ private void configurarBarra() {
     jPanel2.setBackground(AZUL_BARRA);
 
     jPanel2.setPreferredSize(
-            new java.awt.Dimension(0, 80)
+            new java.awt.Dimension(
+                    0,
+                    escalar(80)
+            )
     );
 
     jPanel2.setLayout(
@@ -284,601 +335,69 @@ private void configurarBarra() {
     );
 
 
-    // ====================================================
-    // ZONA IZQUIERDA: LOGO + BOTONES
-    // ====================================================
+    // =====================================================
+    // PARTE IZQUIERDA DE LA BARRA
+    // =====================================================
 
     javax.swing.JPanel panelIzquierdo =
-            new javax.swing.JPanel();
+            new javax.swing.JPanel(
+                    new java.awt.FlowLayout(
+                            java.awt.FlowLayout.LEFT,
+                            escalar(18),
+                            escalar(10)
+                    )
+            );
 
     panelIzquierdo.setOpaque(false);
 
-    panelIzquierdo.setLayout(
-            new java.awt.FlowLayout(
-                    java.awt.FlowLayout.LEFT,
-                    25,
-                    10
+
+    // =====================================================
+    // ESPACIO PARA TU LabelEscalable DEL LOGO
+    // =====================================================
+
+    javax.swing.JPanel espacioLogo =
+            new javax.swing.JPanel();
+
+    espacioLogo.setOpaque(false);
+
+    espacioLogo.setPreferredSize(
+            new java.awt.Dimension(
+                    escalar(95),
+                    escalar(60)
             )
     );
 
-
-    // ====================================================
-    // ESPACIO PARA EL LOGO
-    // ====================================================
-
-    javax.swing.JLabel lblLogo =
-            new javax.swing.JLabel();
-
-    lblLogo.setPreferredSize(
-            new java.awt.Dimension(75, 60)
-    );
-
-    lblLogo.setHorizontalAlignment(
-            javax.swing.SwingConstants.CENTER
-    );
-
-    /*
-     * CUANDO TENGAS EL LOGO:
-     *
-     * lblLogo.setIcon(
-     *     new javax.swing.ImageIcon(
-     *         getClass().getResource("/Imagenes/logo.png")
-     *     )
-     * );
-     */
-
-    panelIzquierdo.add(lblLogo);
+    panelIzquierdo.add(espacioLogo);
 
 
-    // ====================================================
-    // BOTONES
-    // ====================================================
+    // =====================================================
+    // BOTONES DE LA BARRA
+    // =====================================================
 
-    btnMenu = crearBotonBarra("Menú");
-    btnPromociones = crearBotonBarra("Promociones");
-    btnNovedades = crearBotonBarra("Novedades");
-    btnAlergenos = crearBotonBarra("Alérgenos");
-    btnInformacion = crearBotonBarra("Información");
+    btnMenu =
+            crearBotonBarra("Menú");
+
+    btnPromociones =
+            crearBotonBarra("Promociones");
+
+    btnNovedades =
+            crearBotonBarra("Novedades");
+
+    btnInformacion =
+            crearBotonBarra("Información");
 
 
     panelIzquierdo.add(btnMenu);
     panelIzquierdo.add(btnPromociones);
     panelIzquierdo.add(btnNovedades);
-    panelIzquierdo.add(btnAlergenos);
     panelIzquierdo.add(btnInformacion);
 
 
-    // ====================================================
+    // =====================================================
     // BOTÓN ORDENAR
-    // ====================================================
+    // =====================================================
 
-    btnOrdenar = new javax.swing.JButton("🛒   Ordenar") {
-
-        @Override
-        protected void paintComponent(java.awt.Graphics g) {
-
-            java.awt.Graphics2D g2 =
-                    (java.awt.Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    java.awt.RenderingHints.KEY_ANTIALIASING,
-                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            g2.setColor(AMARILLO);
-
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    18,
-                    18
-            );
-
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
-    };
-
-    btnOrdenar.setPreferredSize(
-            new java.awt.Dimension(145, 48)
-    );
-
-    btnOrdenar.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    16
-            )
-    );
-
-    btnOrdenar.setForeground(
-            java.awt.Color.BLACK
-    );
-
-    btnOrdenar.setOpaque(false);
-    btnOrdenar.setContentAreaFilled(false);
-    btnOrdenar.setBorderPainted(false);
-    btnOrdenar.setFocusPainted(false);
-
-    btnOrdenar.setCursor(
-            new java.awt.Cursor(
-                    java.awt.Cursor.HAND_CURSOR
-            )
-    );
-
-
-    javax.swing.JPanel panelDerecho =
-            new javax.swing.JPanel(
-                    new java.awt.FlowLayout(
-                            java.awt.FlowLayout.RIGHT,
-                            25,
-                            15
-                    )
-            );
-
-    panelDerecho.setOpaque(false);
-
-    panelDerecho.add(btnOrdenar);
-
-
-    // ====================================================
-    // AGREGAR A LA BARRA
-    // ====================================================
-
-    jPanel2.add(
-            panelIzquierdo,
-            java.awt.BorderLayout.WEST
-    );
-
-    jPanel2.add(
-            panelDerecho,
-            java.awt.BorderLayout.EAST
-    );
-
-
-    // ====================================================
-    // ACCIONES
-    // ====================================================
-
-    btnMenu.addActionListener(e -> {
-
-        cardLayout.show(
-                panelContenido,
-                "MENU"
-        );
-
-        seleccionarBoton(btnMenu);
-    });
-
-
-    btnPromociones.addActionListener(e -> {
-
-        cardLayout.show(
-                panelContenido,
-                "PROMOCIONES"
-        );
-
-        seleccionarBoton(btnPromociones);
-    });
-
-
-    btnNovedades.addActionListener(e -> {
-
-        cardLayout.show(
-                panelContenido,
-                "NOVEDADES"
-        );
-
-        seleccionarBoton(btnNovedades);
-    });
-
-
-    btnAlergenos.addActionListener(e -> {
-
-        cardLayout.show(
-                panelContenido,
-                "ALERGENOS"
-        );
-
-        seleccionarBoton(btnAlergenos);
-    });
-
-
-    btnInformacion.addActionListener(e -> {
-
-        cardLayout.show(
-                panelContenido,
-                "INFORMACION"
-        );
-
-        seleccionarBoton(btnInformacion);
-    });
-
-
-    btnOrdenar.addActionListener(e -> {
-
-        panelPedido.setVisible(
-                !panelPedido.isVisible()
-        );
-
-        jPanel1.revalidate();
-        jPanel1.repaint();
-    });
-
-
-    // Menú seleccionado al iniciar
-    seleccionarBoton(btnMenu);
-
-
-    jPanel2.revalidate();
-    jPanel2.repaint();
-}
-
-private void seleccionarBoton(
-        javax.swing.JButton boton) {
-
-    botonActivo = boton;
-
-    btnMenu.repaint();
-    btnPromociones.repaint();
-    btnNovedades.repaint();
-    btnAlergenos.repaint();
-    btnInformacion.repaint();
-}
-
-private javax.swing.JButton crearBotonBarra(String texto) {
-
-    javax.swing.JButton boton =
-            new javax.swing.JButton(texto);
-
-    boton.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    14
-            )
-    );
-
-    boton.setForeground(
-            java.awt.Color.WHITE
-    );
-
-    boton.setContentAreaFilled(false);
-    boton.setBorderPainted(false);
-    boton.setFocusPainted(false);
-
-    boton.setCursor(
-            new java.awt.Cursor(
-                    java.awt.Cursor.HAND_CURSOR
-            )
-    );
-
-    return boton;
-}
-
-private void crearPanelPedido() {
-
-    panelPedido = new javax.swing.JPanel() {
-
-        @Override
-        protected void paintComponent(java.awt.Graphics g) {
-
-            java.awt.Graphics2D g2 =
-                    (java.awt.Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    java.awt.RenderingHints.KEY_ANTIALIASING,
-                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            // Fondo exterior gris claro
-            g2.setColor(
-                    new java.awt.Color(247, 247, 247)
-            );
-
-            g2.fillRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight()
-            );
-
-            // Tarjeta blanca redondeada
-            g2.setColor(java.awt.Color.WHITE);
-
-            g2.fillRoundRect(
-                    15,
-                    15,
-                    getWidth() - 30,
-                    getHeight() - 30,
-                    25,
-                    25
-            );
-
-            g2.dispose();
-        }
-    };
-
-    panelPedido.setOpaque(false);
-
-    panelPedido.setPreferredSize(
-            new java.awt.Dimension(
-                    350,
-                    0
-            )
-    );
-
-    /*
-     * IMPORTANTE:
-     * Ya no usamos null layout.
-     * BorderLayout adapta todo automáticamente.
-     */
-    panelPedido.setLayout(
-            new java.awt.BorderLayout()
-    );
-
-
-    // =========================================================
-    // CONTENEDOR INTERIOR
-    // =========================================================
-
-    javax.swing.JPanel contenidoPedido =
-            new javax.swing.JPanel(
-                    new java.awt.BorderLayout()
-            );
-
-    contenidoPedido.setOpaque(false);
-
-    /*
-     * Espacio entre los componentes y
-     * los bordes de la tarjeta blanca.
-     */
-    contenidoPedido.setBorder(
-            javax.swing.BorderFactory.createEmptyBorder(
-                    35,
-                    35,
-                    35,
-                    35
-            )
-    );
-
-    panelPedido.add(
-            contenidoPedido,
-            java.awt.BorderLayout.CENTER
-    );
-
-
-    // =========================================================
-    // PARTE SUPERIOR
-    // =========================================================
-
-    javax.swing.JPanel panelSuperior =
-            new javax.swing.JPanel();
-
-    panelSuperior.setOpaque(false);
-
-    panelSuperior.setLayout(
-            new javax.swing.BoxLayout(
-                    panelSuperior,
-                    javax.swing.BoxLayout.Y_AXIS
-            )
-    );
-
-
-    // Título
-    javax.swing.JLabel titulo =
-            new javax.swing.JLabel(
-                    "Tu pedido"
-            );
-
-    titulo.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    22
-            )
-    );
-
-    titulo.setForeground(
-            new java.awt.Color(
-                    15,
-                    15,
-                    15
-            )
-    );
-
-    titulo.setAlignmentX(
-            java.awt.Component.LEFT_ALIGNMENT
-    );
-
-
-    // Separador
-    javax.swing.JSeparator separador =
-            new javax.swing.JSeparator();
-
-    separador.setForeground(
-            new java.awt.Color(
-                    210,
-                    210,
-                    210
-            )
-    );
-
-    separador.setMaximumSize(
-            new java.awt.Dimension(
-                    Integer.MAX_VALUE,
-                    2
-            )
-    );
-
-    separador.setAlignmentX(
-            java.awt.Component.LEFT_ALIGNMENT
-    );
-
-
-    panelSuperior.add(titulo);
-
-    panelSuperior.add(
-            javax.swing.Box.createVerticalStrut(20)
-    );
-
-    panelSuperior.add(separador);
-
-
-    contenidoPedido.add(
-            panelSuperior,
-            java.awt.BorderLayout.NORTH
-    );
-
-
-    // =========================================================
-    // CENTRO - AQUÍ IRÁN LOS PRODUCTOS
-    // =========================================================
-
-    javax.swing.JPanel panelProductos =
-            new javax.swing.JPanel(
-                    new java.awt.BorderLayout()
-            );
-
-    panelProductos.setOpaque(false);
-
-
-    javax.swing.JLabel lblVacio =
-            new javax.swing.JLabel(
-                    "Aún no has agregado productos"
-            );
-
-    lblVacio.setHorizontalAlignment(
-            javax.swing.SwingConstants.CENTER
-    );
-
-    lblVacio.setVerticalAlignment(
-            javax.swing.SwingConstants.TOP
-    );
-
-    lblVacio.setForeground(GRIS_TEXTO);
-
-    lblVacio.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.PLAIN,
-                    14
-            )
-    );
-
-    lblVacio.setBorder(
-            javax.swing.BorderFactory.createEmptyBorder(
-                    45,
-                    0,
-                    0,
-                    0
-            )
-    );
-
-
-    panelProductos.add(
-            lblVacio,
-            java.awt.BorderLayout.CENTER
-    );
-
-
-    contenidoPedido.add(
-            panelProductos,
-            java.awt.BorderLayout.CENTER
-    );
-
-
-    // =========================================================
-    // PARTE INFERIOR
-    // =========================================================
-
-    javax.swing.JPanel panelInferior =
-            new javax.swing.JPanel();
-
-    panelInferior.setOpaque(false);
-
-    panelInferior.setLayout(
-            new javax.swing.BoxLayout(
-                    panelInferior,
-                    javax.swing.BoxLayout.Y_AXIS
-            )
-    );
-
-
-    // =========================================================
-    // TOTAL
-    // =========================================================
-
-    javax.swing.JPanel panelTotal =
-            new javax.swing.JPanel(
-                    new java.awt.BorderLayout()
-            );
-
-    panelTotal.setOpaque(false);
-
-
-    javax.swing.JLabel lblTotal =
-            new javax.swing.JLabel(
-                    "Total"
-            );
-
-    lblTotal.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    19
-            )
-    );
-
-
-    javax.swing.JLabel lblPrecio =
-            new javax.swing.JLabel(
-                    "$0.00"
-            );
-
-    lblPrecio.setHorizontalAlignment(
-            javax.swing.SwingConstants.RIGHT
-    );
-
-    lblPrecio.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    20
-            )
-    );
-
-
-    panelTotal.add(
-            lblTotal,
-            java.awt.BorderLayout.WEST
-    );
-
-    panelTotal.add(
-            lblPrecio,
-            java.awt.BorderLayout.EAST
-    );
-
-
-    panelTotal.setMaximumSize(
-            new java.awt.Dimension(
-                    Integer.MAX_VALUE,
-                    35
-            )
-    );
-
-
-    // =========================================================
-    // BOTÓN CONTINUAR
-    // =========================================================
-
-    javax.swing.JButton btnContinuar =
-            new javax.swing.JButton(
-                    "Continuar    →"
-            ) {
+    btnOrdenar = new javax.swing.JButton("Ordenar") {
 
         @Override
         protected void paintComponent(
@@ -899,9 +418,737 @@ private void crearPanelPedido() {
                     0,
                     getWidth(),
                     getHeight(),
-                    15,
-                    15
+                    escalar(14),
+                    escalar(14)
             );
+
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
+    };
+
+
+    btnOrdenar.setPreferredSize(
+            new java.awt.Dimension(
+                    escalar(145),
+                    escalar(48)
+            )
+    );
+
+
+    btnOrdenar.setFont(
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.BOLD,
+                    escalarFuente(16)
+            )
+    );
+
+
+    btnOrdenar.setForeground(
+            java.awt.Color.BLACK
+    );
+
+    btnOrdenar.setOpaque(false);
+
+    btnOrdenar.setContentAreaFilled(false);
+
+    btnOrdenar.setBorderPainted(false);
+
+    btnOrdenar.setFocusPainted(false);
+    
+    // Texto hacia la derecha para dejar espacio al icono
+    btnOrdenar.setHorizontalAlignment(
+            javax.swing.SwingConstants.RIGHT
+    );
+
+    btnOrdenar.setBorder(
+            javax.swing.BorderFactory.createEmptyBorder(
+                    0,
+                    escalar(45),   // espacio izquierdo para imagen
+                    0,
+                    escalar(20)
+            )
+    );
+
+    btnOrdenar.setCursor(
+            new java.awt.Cursor(
+                    java.awt.Cursor.HAND_CURSOR
+            )
+    );
+
+
+    // =====================================================
+    // PARTE DERECHA
+    // =====================================================
+
+    javax.swing.JPanel panelDerecho =
+            new javax.swing.JPanel(
+                    new java.awt.FlowLayout(
+                            java.awt.FlowLayout.RIGHT,
+                            escalar(25),
+                            escalar(15)
+                    )
+            );
+
+    panelDerecho.setOpaque(false);
+
+    panelDerecho.add(btnOrdenar);
+
+
+    // =====================================================
+    // AGREGAR TODO A LA BARRA
+    // =====================================================
+
+    jPanel2.add(
+            panelIzquierdo,
+            java.awt.BorderLayout.WEST
+    );
+
+    jPanel2.add(
+            panelDerecho,
+            java.awt.BorderLayout.EAST
+    );
+
+
+    // =====================================================
+    // MENÚ
+    // =====================================================
+
+    btnMenu.addActionListener(e -> {
+
+        cardLayout.show(
+                panelContenido,
+                "MENU"
+        );
+
+        seleccionarBoton(btnMenu);
+    });
+
+
+    // =====================================================
+    // PROMOCIONES
+    // =====================================================
+
+    btnPromociones.addActionListener(e -> {
+
+        cardLayout.show(
+                panelContenido,
+                "PROMOCIONES"
+        );
+
+        seleccionarBoton(btnPromociones);
+    });
+
+
+    // =====================================================
+    // NOVEDADES
+    // =====================================================
+
+    btnNovedades.addActionListener(e -> {
+
+        cardLayout.show(
+                panelContenido,
+                "NOVEDADES"
+        );
+
+        seleccionarBoton(btnNovedades);
+    });
+
+
+    // =====================================================
+    // INFORMACIÓN
+    // =====================================================
+
+    btnInformacion.addActionListener(e -> {
+
+        cardLayout.show(
+                panelContenido,
+                "INFORMACION"
+        );
+
+        seleccionarBoton(btnInformacion);
+    });
+
+
+    // =====================================================
+    // ORDENAR
+    // =====================================================
+
+    btnOrdenar.addActionListener(e -> {
+
+        panelPedido.setVisible(
+                !panelPedido.isVisible()
+        );
+
+        jPanel1.revalidate();
+        jPanel1.repaint();
+    });
+
+
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+
+private void seleccionarBoton(
+        javax.swing.JButton boton) {
+
+    botonActivo = boton;
+
+
+    if (btnMenu != null) {
+        btnMenu.repaint();
+    }
+
+
+    if (btnPromociones != null) {
+        btnPromociones.repaint();
+    }
+
+
+    if (btnNovedades != null) {
+        btnNovedades.repaint();
+    }
+
+
+    if (btnInformacion != null) {
+        btnInformacion.repaint();
+    }
+}
+
+private javax.swing.JButton crearBotonBarra(
+        String texto) {
+
+    javax.swing.JButton boton =
+            new javax.swing.JButton(texto) {
+
+        @Override
+        protected void paintComponent(
+                java.awt.Graphics g) {
+
+            super.paintComponent(g);
+
+
+            // =============================================
+            // LÍNEA AMARILLA DE OPCIÓN ACTIVA
+            // =============================================
+
+            if (this == botonActivo) {
+
+                java.awt.Graphics2D g2 =
+                        (java.awt.Graphics2D)
+                                g.create();
+
+
+                g2.setRenderingHint(
+                        java.awt.RenderingHints.KEY_ANTIALIASING,
+                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+                );
+
+
+                g2.setColor(
+                        AMARILLO
+                );
+
+
+                int anchoLinea =
+                        escalar(35);
+
+                int altoLinea =
+                        Math.max(
+                                3,
+                                escalar(3)
+                        );
+
+                int x =
+                        (getWidth()
+                                - anchoLinea)
+                                / 2;
+
+                int y =
+                        getHeight()
+                                - escalar(6);
+
+
+                g2.fillRoundRect(
+                        x,
+                        y,
+                        anchoLinea,
+                        altoLinea,
+                        altoLinea,
+                        altoLinea
+                );
+
+
+                g2.dispose();
+            }
+        }
+    };
+
+
+    // Ancho diferente dependiendo del texto
+    int anchoBase =
+            texto.length() * 9 + 35;
+
+
+    boton.setPreferredSize(
+            new java.awt.Dimension(
+                    escalar(anchoBase),
+                    escalar(55)
+            )
+    );
+
+
+    boton.setFont(
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.BOLD,
+                    escalarFuente(14)
+            )
+    );
+
+
+    boton.setForeground(
+            java.awt.Color.WHITE
+    );
+
+
+    boton.setOpaque(false);
+
+    boton.setContentAreaFilled(false);
+
+    boton.setBorderPainted(false);
+
+    boton.setFocusPainted(false);
+
+
+    boton.setCursor(
+            new java.awt.Cursor(
+                    java.awt.Cursor.HAND_CURSOR
+            )
+    );
+
+
+    // =====================================================
+    // EFECTO AL PASAR EL MOUSE
+    // =====================================================
+
+    boton.addMouseListener(
+            new java.awt.event.MouseAdapter() {
+
+        @Override
+        public void mouseEntered(
+                java.awt.event.MouseEvent e) {
+
+            if (boton != botonActivo) {
+
+                boton.setForeground(
+                        new java.awt.Color(
+                                220,
+                                220,
+                                220
+                        )
+                );
+            }
+        }
+
+
+        @Override
+        public void mouseExited(
+                java.awt.event.MouseEvent e) {
+
+            boton.setForeground(
+                    java.awt.Color.WHITE
+            );
+        }
+    });
+
+
+    return boton;
+}
+
+private void crearPanelPedido() {
+
+    panelPedido =
+            new javax.swing.JPanel() {
+
+        @Override
+        protected void paintComponent(
+                java.awt.Graphics g) {
+
+            java.awt.Graphics2D g2 =
+                    (java.awt.Graphics2D)
+                            g.create();
+
+
+            g2.setRenderingHint(
+                    java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+
+            // Fondo gris exterior
+            g2.setColor(
+                    new java.awt.Color(
+                            247,
+                            247,
+                            247
+                    )
+            );
+
+
+            g2.fillRect(
+                    0,
+                    0,
+                    getWidth(),
+                    getHeight()
+            );
+
+
+            // Tarjeta blanca
+            g2.setColor(
+                    java.awt.Color.WHITE
+            );
+
+
+            g2.fillRoundRect(
+                    escalar(15),
+                    escalar(15),
+
+                    getWidth()
+                            - escalar(30),
+
+                    getHeight()
+                            - escalar(30),
+
+                    escalar(25),
+                    escalar(25)
+            );
+
+
+            g2.dispose();
+        }
+    };
+
+
+    panelPedido.setOpaque(false);
+
+
+    // AQUÍ SE ESCALA EL ANCHO DEL PEDIDO
+    panelPedido.setPreferredSize(
+            new java.awt.Dimension(
+                    escalar(350),
+                    0
+            )
+    );
+
+
+    panelPedido.setLayout(
+            new java.awt.BorderLayout()
+    );
+
+
+    // =====================================================
+    // CONTENIDO INTERIOR
+    // =====================================================
+
+    javax.swing.JPanel contenidoPedido =
+            new javax.swing.JPanel(
+                    new java.awt.BorderLayout()
+            );
+
+
+    contenidoPedido.setOpaque(false);
+
+
+    contenidoPedido.setBorder(
+            javax.swing.BorderFactory
+                    .createEmptyBorder(
+                            escalar(35),
+                            escalar(35),
+                            escalar(35),
+                            escalar(35)
+                    )
+    );
+
+
+    panelPedido.add(
+            contenidoPedido,
+            java.awt.BorderLayout.CENTER
+    );
+
+
+    // =====================================================
+    // PARTE SUPERIOR
+    // =====================================================
+
+    javax.swing.JPanel panelSuperior =
+            new javax.swing.JPanel();
+
+
+    panelSuperior.setOpaque(false);
+
+
+    panelSuperior.setLayout(
+            new javax.swing.BoxLayout(
+                    panelSuperior,
+                    javax.swing.BoxLayout.Y_AXIS
+            )
+    );
+
+
+    javax.swing.JLabel titulo =
+            new javax.swing.JLabel(
+                    "Tu pedido"
+            );
+
+
+    titulo.setFont(
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.BOLD,
+                    escalarFuente(22)
+            )
+    );
+
+
+    titulo.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+
+    javax.swing.JSeparator separador =
+            new javax.swing.JSeparator();
+
+
+    separador.setMaximumSize(
+            new java.awt.Dimension(
+                    Integer.MAX_VALUE,
+                    escalar(2)
+            )
+    );
+
+
+    separador.setAlignmentX(
+            java.awt.Component.LEFT_ALIGNMENT
+    );
+
+
+    panelSuperior.add(
+            titulo
+    );
+
+
+    panelSuperior.add(
+            javax.swing.Box.createVerticalStrut(
+                    escalar(20)
+            )
+    );
+
+
+    panelSuperior.add(
+            separador
+    );
+
+
+    contenidoPedido.add(
+            panelSuperior,
+            java.awt.BorderLayout.NORTH
+    );
+
+
+    // =====================================================
+    // ÁREA DONDE IRÁN LOS PRODUCTOS
+    // =====================================================
+
+    javax.swing.JPanel panelProductos =
+            new javax.swing.JPanel(
+                    new java.awt.BorderLayout()
+            );
+
+
+    panelProductos.setOpaque(false);
+
+
+    javax.swing.JLabel lblVacio =
+            new javax.swing.JLabel(
+                    "Aún no has agregado productos"
+            );
+
+
+    lblVacio.setHorizontalAlignment(
+            javax.swing.SwingConstants.CENTER
+    );
+
+
+    lblVacio.setVerticalAlignment(
+            javax.swing.SwingConstants.TOP
+    );
+
+
+    lblVacio.setForeground(
+            GRIS_TEXTO
+    );
+
+
+    lblVacio.setFont(
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.PLAIN,
+                    escalarFuente(14)
+            )
+    );
+
+
+    lblVacio.setBorder(
+            javax.swing.BorderFactory
+                    .createEmptyBorder(
+                            escalar(45),
+                            0,
+                            0,
+                            0
+                    )
+    );
+
+
+    panelProductos.add(
+            lblVacio,
+            java.awt.BorderLayout.CENTER
+    );
+
+
+    contenidoPedido.add(
+            panelProductos,
+            java.awt.BorderLayout.CENTER
+    );
+
+
+    // =====================================================
+    // ZONA INFERIOR
+    // =====================================================
+
+    javax.swing.JPanel panelInferior =
+            new javax.swing.JPanel();
+
+
+    panelInferior.setOpaque(false);
+
+
+    panelInferior.setLayout(
+            new javax.swing.BoxLayout(
+                    panelInferior,
+                    javax.swing.BoxLayout.Y_AXIS
+            )
+    );
+
+
+    // =====================================================
+    // TOTAL
+    // =====================================================
+
+    javax.swing.JPanel panelTotal =
+            new javax.swing.JPanel(
+                    new java.awt.BorderLayout()
+            );
+
+
+    panelTotal.setOpaque(false);
+
+
+    javax.swing.JLabel lblTotal =
+            new javax.swing.JLabel(
+                    "Total"
+            );
+
+
+    lblTotal.setFont(
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.BOLD,
+                    escalarFuente(19)
+            )
+    );
+
+
+    javax.swing.JLabel lblPrecio =
+            new javax.swing.JLabel(
+                    "$0.00"
+            );
+
+
+    lblPrecio.setHorizontalAlignment(
+            javax.swing.SwingConstants.RIGHT
+    );
+
+
+    lblPrecio.setFont(
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.BOLD,
+                    escalarFuente(20)
+            )
+    );
+
+
+    panelTotal.add(
+            lblTotal,
+            java.awt.BorderLayout.WEST
+    );
+
+
+    panelTotal.add(
+            lblPrecio,
+            java.awt.BorderLayout.EAST
+    );
+
+
+    panelTotal.setMaximumSize(
+            new java.awt.Dimension(
+                    Integer.MAX_VALUE,
+                    escalar(40)
+            )
+    );
+
+
+    // =====================================================
+    // CONTINUAR
+    // =====================================================
+
+    javax.swing.JButton btnContinuar =
+            new javax.swing.JButton(
+                    "Continuar     →"
+            ) {
+
+        @Override
+        protected void paintComponent(
+                java.awt.Graphics g) {
+
+            java.awt.Graphics2D g2 =
+                    (java.awt.Graphics2D)
+                            g.create();
+
+
+            g2.setRenderingHint(
+                    java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+
+            g2.setColor(
+                    AMARILLO
+            );
+
+
+            g2.fillRoundRect(
+                    0,
+                    0,
+                    getWidth(),
+                    getHeight(),
+                    escalar(15),
+                    escalar(15)
+            );
+
 
             g2.dispose();
 
@@ -914,18 +1161,24 @@ private void crearPanelPedido() {
             new java.awt.Font(
                     "Arial",
                     java.awt.Font.BOLD,
-                    15
+                    escalarFuente(15)
             )
     );
+
 
     btnContinuar.setForeground(
             java.awt.Color.BLACK
     );
 
+
     btnContinuar.setOpaque(false);
+
     btnContinuar.setContentAreaFilled(false);
+
     btnContinuar.setBorderPainted(false);
+
     btnContinuar.setFocusPainted(false);
+
 
     btnContinuar.setCursor(
             new java.awt.Cursor(
@@ -933,41 +1186,46 @@ private void crearPanelPedido() {
             )
     );
 
-    btnContinuar.setMaximumSize(
-            new java.awt.Dimension(
-                    Integer.MAX_VALUE,
-                    50
-            )
-    );
 
     btnContinuar.setPreferredSize(
             new java.awt.Dimension(
-                    280,
-                    50
+                    escalar(280),
+                    escalar(50)
             )
     );
+
+
+    btnContinuar.setMaximumSize(
+            new java.awt.Dimension(
+                    Integer.MAX_VALUE,
+                    escalar(50)
+            )
+    );
+
 
     btnContinuar.setAlignmentX(
             java.awt.Component.CENTER_ALIGNMENT
     );
 
 
-    // =========================================================
+    // =====================================================
     // CANCELAR PEDIDO
-    // =========================================================
+    // =====================================================
 
     javax.swing.JButton btnCancelar =
             new javax.swing.JButton(
                     "Cancelar pedido"
             );
 
+
     btnCancelar.setFont(
             new java.awt.Font(
                     "Arial",
                     java.awt.Font.PLAIN,
-                    13
+                    escalarFuente(13)
             )
     );
+
 
     btnCancelar.setForeground(
             new java.awt.Color(
@@ -977,64 +1235,90 @@ private void crearPanelPedido() {
             )
     );
 
-    btnCancelar.setBackground(
-            java.awt.Color.WHITE
-    );
 
+    // SIN BORDE
+    btnCancelar.setBorderPainted(true);
+    btnCancelar.setContentAreaFilled(false);
     btnCancelar.setFocusPainted(false);
+    btnCancelar.setOpaque(false);
 
-    btnCancelar.setMaximumSize(
-            new java.awt.Dimension(
-                    Integer.MAX_VALUE,
-                    42
+    btnCancelar.setBorder(
+            javax.swing.BorderFactory.createLineBorder(
+                    new java.awt.Color(190, 190, 190),
+                    Math.max(1, escalar(1))
             )
     );
 
-    btnCancelar.setPreferredSize(
-            new java.awt.Dimension(
-                    280,
-                    42
-            )
-    );
-
-    btnCancelar.setAlignmentX(
-            java.awt.Component.CENTER_ALIGNMENT
-    );
-
-    btnCancelar.setBorderPainted(false);
 
     btnCancelar.setCursor(
             new java.awt.Cursor(
                     java.awt.Cursor.HAND_CURSOR
             )
     );
-    
+
+
+    btnCancelar.setPreferredSize(
+            new java.awt.Dimension(
+                    escalar(280),
+                    escalar(42)
+            )
+    );
+
+
+    btnCancelar.setMaximumSize(
+            new java.awt.Dimension(
+                    Integer.MAX_VALUE,
+                    escalar(42)
+            )
+    );
+
+
+    btnCancelar.setAlignmentX(
+            java.awt.Component.CENTER_ALIGNMENT
+    );
+
+
     btnCancelar.addActionListener(e -> {
 
         panelPedido.setVisible(false);
 
         jPanel1.revalidate();
+
         jPanel1.repaint();
     });
 
 
-    // =========================================================
+    // =====================================================
     // AGREGAR PARTE INFERIOR
-    // =========================================================
-
-    panelInferior.add(panelTotal);
+    // =====================================================
 
     panelInferior.add(
-            javax.swing.Box.createVerticalStrut(20)
+            panelTotal
     );
 
-    panelInferior.add(btnContinuar);
 
     panelInferior.add(
-            javax.swing.Box.createVerticalStrut(10)
+            javax.swing.Box.createVerticalStrut(
+                    escalar(20)
+            )
     );
 
-    panelInferior.add(btnCancelar);
+
+    panelInferior.add(
+            btnContinuar
+    );
+
+
+    panelInferior.add(
+            javax.swing.Box.createVerticalStrut(
+                    escalar(10)
+            )
+    );
+
+
+    panelInferior.add(
+            btnCancelar
+    );
 
 
     contenidoPedido.add(
@@ -1043,9 +1327,9 @@ private void crearPanelPedido() {
     );
 
 
-    // =========================================================
-    // INICIA OCULTO
-    // =========================================================
+    // =====================================================
+    // OCULTO AL INICIAR
+    // =====================================================
 
     panelPedido.setVisible(false);
 }
