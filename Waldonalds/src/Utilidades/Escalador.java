@@ -2,14 +2,16 @@ package Utilidades;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -18,111 +20,337 @@ import javax.swing.SwingUtilities;
 public class Escalador {
 
     // =========================================================
-    // RESOLUCIÓN EN LA QUE DISEÑASTE EL PROYECTO EN NETBEANS
+    // RESOLUCIÓN ORIGINAL DEL DISEÑO EN NETBEANS
     // =========================================================
     private static final int ANCHO_BASE = 1920;
     private static final int ALTO_BASE = 1080;
 
+    // =========================================================
+    // GUARDAR INFORMACIÓN ORIGINAL DE CADA VENTANA
+    // =========================================================
+    private static final Map<JFrame, DatosVentana> ventanas
+            = new IdentityHashMap<>();
+
     private Escalador() {
-        // Evita crear objetos de esta clase.
+        // Evita crear objetos de esta clase
     }
 
-    /**
-     * Escala todos los componentes dentro del contenedor.
+    // =========================================================
+    // MÉTODO PRINCIPAL
+    // ESTE ES EL QUE UTILIZARÁS EN TODOS LOS FORMS
+    // =========================================================
+    public static void aplicar(JFrame ventana) {
+
+    // Evitar aplicar el escalador dos veces
+    if (ventanas.containsKey(ventana)) {
+        return;
+    }
+
+    /*
+     * Primero obligamos a NetBeans a colocar
+     * todos los componentes en sus posiciones originales.
+     */
+    ventana.pack();
+
+    /*
+     * IMPORTANTE:
+     * AbsoluteLayout volvería a colocar los componentes
+     * después de modificarlos con setBounds().
      *
-     * @param contenedor JPanel principal, contentPane, etc.
+     * Por eso lo desactivamos después de que NetBeans
+     * haya colocado todo por primera vez.
      */
-    public static void escalar(Container contenedor) {
+    desactivarAbsoluteLayout(
+            ventana.getContentPane()
+    );
 
-        // Obtener resolución actual del monitor.
-        Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+    // Crear almacenamiento de valores originales
+    DatosVentana datos = new DatosVentana();
 
-        double escalaX = pantalla.getWidth() / ANCHO_BASE;
-        double escalaY = pantalla.getHeight() / ALTO_BASE;
+    // Guardar posiciones, tamaños, fuentes, etc.
+    guardarOriginales(
+            ventana.getContentPane(),
+            datos
+    );
 
-        escalarContenedor(contenedor, escalaX, escalaY);
+    ventanas.put(
+            ventana,
+            datos
+    );
 
-        contenedor.revalidate();
-        contenedor.repaint();
+    // Maximizar la ventana
+    ventana.setExtendedState(
+            JFrame.MAXIMIZED_BOTH
+    );
+
+    // Detectar cambios de tamaño
+    ventana.addComponentListener(
+            new ComponentAdapter() {
+
+        @Override
+        public void componentResized(
+                ComponentEvent e) {
+
+            escalarVentana(
+                    ventana,
+                    datos
+            );
+        }
+    });
+
+    /*
+     * Esperamos hasta que JFrame haya terminado
+     * de maximizarse.
+     */
+    SwingUtilities.invokeLater(() -> {
+
+        escalarVentana(
+                ventana,
+                datos
+        );
+
+    });
+}
+    
+    
+    private static void desactivarAbsoluteLayout(
+        Container contenedor) {
+
+    /*
+     * Primero permitimos que el layout coloque
+     * los componentes en su posición original.
+     */
+    contenedor.doLayout();
+
+    /*
+     * Verificar si el contenedor utiliza
+     * AbsoluteLayout de NetBeans.
+     */
+    if (contenedor.getLayout() != null
+            && contenedor.getLayout()
+                    .getClass()
+                    .getName()
+                    .equals(
+                        "org.netbeans.lib.awtextra.AbsoluteLayout"
+                    )) {
+
+        /*
+         * Al poner null conservamos las posiciones
+         * actuales pero evitamos que AbsoluteLayout
+         * las vuelva a modificar.
+         */
+        contenedor.setLayout(null);
     }
 
-    /**
-     * Escala usando un ancho y alto específicos.
-     */
-    public static void escalar(
-            Container contenedor,
-            int anchoActual,
-            int altoActual) {
+    // Revisar componentes internos
+    for (Component componente
+            : contenedor.getComponents()) {
 
-        double escalaX = (double) anchoActual / ANCHO_BASE;
-        double escalaY = (double) altoActual / ALTO_BASE;
+        if (componente instanceof Container
+                && !(componente
+                instanceof JScrollPane)) {
 
-        escalarContenedor(contenedor, escalaX, escalaY);
+            desactivarAbsoluteLayout(
+                    (Container) componente
+            );
+        }
+    }
+}
 
-        contenedor.revalidate();
-        contenedor.repaint();
+    // =========================================================
+    // ESCALAR VENTANA
+    // =========================================================
+    private static void escalarVentana(
+            JFrame ventana,
+            DatosVentana datos) {
+
+        int anchoActual
+                = ventana.getContentPane().getWidth();
+
+        int altoActual
+                = ventana.getContentPane().getHeight();
+
+        if (anchoActual <= 0 || altoActual <= 0) {
+            return;
+        }
+
+        double escalaX
+                = (double) anchoActual / ANCHO_BASE;
+
+        double escalaY
+                = (double) altoActual / ALTO_BASE;
+
+        escalarContenedor(
+                ventana.getContentPane(),
+                datos,
+                escalaX,
+                escalaY
+        );
+
+        ventana.revalidate();
+        ventana.repaint();
     }
 
-    /**
-     * Recorre todos los componentes del formulario.
-     */
-    private static void escalarContenedor(
+    // =========================================================
+    // GUARDAR VALORES ORIGINALES
+    // =========================================================
+    private static void guardarOriginales(
             Container contenedor,
-            double escalaX,
-            double escalaY) {
+            DatosVentana datos) {
 
-        for (Component componente : contenedor.getComponents()) {
+        for (Component componente
+                : contenedor.getComponents()) {
 
-            escalarComponente(
+            // Guardar posición y tamaño
+            datos.bounds.put(
                     componente,
-                    escalaX,
-                    escalaY
+                    new Rectangle(
+                            componente.getBounds()
+                    )
             );
 
-            // Si también contiene otros componentes,
-            // los escala recursivamente.
-            if (componente instanceof Container) {
+            // Guardar fuente
+            if (componente.getFont() != null) {
 
-                Container hijo = (Container) componente;
+                datos.fuentes.put(
+                        componente,
+                        componente.getFont()
+                );
+            }
 
-                /*
-                 * JScrollPane tiene una estructura interna especial.
-                 * No conviene modificar manualmente todos sus componentes
-                 * internos.
-                 */
-                if (!(componente instanceof JScrollPane)) {
+            // Guardar altura original de las filas
+            if (componente instanceof JTable) {
 
-                    escalarContenedor(
-                            hijo,
-                            escalaX,
-                            escalaY
+                JTable tabla = (JTable) componente;
+
+                datos.alturaFilas.put(
+                        tabla,
+                        tabla.getRowHeight()
+                );
+            }
+
+            // Guardar icono ORIGINAL de JLabel
+            if (componente instanceof JLabel) {
+
+                JLabel label = (JLabel) componente;
+
+                if (!(label
+                        instanceof Labels.LabelEscalable)
+                        && label.getIcon()
+                        instanceof ImageIcon) {
+
+                    datos.iconos.put(
+                            componente,
+                            (ImageIcon) label.getIcon()
                     );
                 }
+            }
+
+            // Guardar icono ORIGINAL de botones
+            if (componente instanceof AbstractButton) {
+
+                AbstractButton boton
+                        = (AbstractButton) componente;
+
+                if (boton.getIcon()
+                        instanceof ImageIcon) {
+
+                    datos.iconos.put(
+                            componente,
+                            (ImageIcon) boton.getIcon()
+                    );
+                }
+            }
+
+            // Recorrer componentes hijos
+            if (componente instanceof Container
+                    && !(componente
+                    instanceof JScrollPane)) {
+
+                guardarOriginales(
+                        (Container) componente,
+                        datos
+                );
             }
         }
     }
 
-    /**
-     * Escala posición, tamaño, fuente e imágenes.
-     */
-    private static void escalarComponente(
-            Component componente,
+    // =========================================================
+    // ESCALAR CONTENEDOR
+    // =========================================================
+    private static void escalarContenedor(
+            Container contenedor,
+            DatosVentana datos,
             double escalaX,
             double escalaY) {
 
-        // ==========================================
-        // GUARDAR BOUNDS ORIGINALES
-        // ==========================================
-        Rectangle bounds = componente.getBounds();
+        for (Component componente
+                : contenedor.getComponents()) {
 
-        int nuevaX = (int) Math.round(bounds.x * escalaX);
-        int nuevaY = (int) Math.round(bounds.y * escalaY);
+            escalarComponente(
+                    componente,
+                    datos,
+                    escalaX,
+                    escalaY
+            );
+
+            if (componente instanceof Container
+                    && !(componente
+                    instanceof JScrollPane)) {
+
+                escalarContenedor(
+                        (Container) componente,
+                        datos,
+                        escalaX,
+                        escalaY
+                );
+            }
+        }
+    }
+
+    // =========================================================
+    // ESCALAR COMPONENTE
+    // =========================================================
+    private static void escalarComponente(
+            Component componente,
+            DatosVentana datos,
+            double escalaX,
+            double escalaY) {
+
+        Rectangle original
+                = datos.bounds.get(componente);
+
+        if (original == null) {
+            return;
+        }
+
+        // ==========================================
+        // POSICIÓN
+        // ==========================================
+
+        int nuevaX
+                = (int) Math.round(
+                        original.x * escalaX
+                );
+
+        int nuevaY
+                = (int) Math.round(
+                        original.y * escalaY
+                );
+
+        // ==========================================
+        // TAMAÑO
+        // ==========================================
 
         int nuevoAncho
-                = (int) Math.round(bounds.width * escalaX);
+                = (int) Math.round(
+                        original.width * escalaX
+                );
 
         int nuevoAlto
-                = (int) Math.round(bounds.height * escalaY);
+                = (int) Math.round(
+                        original.height * escalaY
+                );
 
         componente.setBounds(
                 nuevaX,
@@ -132,185 +360,166 @@ public class Escalador {
         );
 
         // ==========================================
-        // ESCALAR FUENTE
+        // FUENTE
         // ==========================================
-        escalarFuente(
-                componente,
-                escalaX,
-                escalaY
-        );
+
+        Font fuenteOriginal
+                = datos.fuentes.get(componente);
+
+        if (fuenteOriginal != null) {
+
+            double escalaFuente
+                    = Math.min(
+                            escalaX,
+                            escalaY
+                    );
+
+            float nuevoTamano
+                    = (float) (
+                            fuenteOriginal.getSize2D()
+                            * escalaFuente
+                    );
+
+            nuevoTamano
+                    = Math.max(
+                            nuevoTamano,
+                            8f
+                    );
+
+            componente.setFont(
+                    fuenteOriginal.deriveFont(
+                            nuevoTamano
+                    )
+            );
+        }
 
         // ==========================================
-        // ESCALAR IMAGEN DE JLABEL
+        // JTABLE
         // ==========================================
-        if (componente instanceof JLabel) {
 
-            JLabel label = (JLabel) componente;
+        if (componente instanceof JTable) {
 
-            if (!(label instanceof Labels.LabelEscalable)
-                    && label.getIcon() instanceof ImageIcon) {
+            JTable tabla
+                    = (JTable) componente;
 
-                escalarIconoLabel(
-                        label,
-                        nuevoAncho,
-                        nuevoAlto
+            Integer alturaOriginal
+                    = datos.alturaFilas.get(tabla);
+
+            if (alturaOriginal != null) {
+
+                int nuevaAltura
+                        = (int) Math.round(
+                                alturaOriginal
+                                * escalaY
+                        );
+
+                tabla.setRowHeight(
+                        Math.max(
+                                nuevaAltura,
+                                1
+                        )
                 );
             }
         }
 
         // ==========================================
-        // ESCALAR ICONO DE BOTONES
+        // IMÁGENES DE JLABEL
         // ==========================================
+
+        if (componente instanceof JLabel
+                && !(componente
+                instanceof Labels.LabelEscalable)) {
+
+            JLabel label
+                    = (JLabel) componente;
+
+            ImageIcon originalIcono
+                    = datos.iconos.get(componente);
+
+            if (originalIcono != null
+                    && nuevoAncho > 0
+                    && nuevoAlto > 0) {
+
+                label.setIcon(
+                        new ImageIcon(
+                                originalIcono
+                                        .getImage()
+                                        .getScaledInstance(
+                                                nuevoAncho,
+                                                nuevoAlto,
+                                                java.awt.Image.SCALE_SMOOTH
+                                        )
+                        )
+                );
+            }
+        }
+
+        // ==========================================
+        // ICONOS DE BOTONES
+        // ==========================================
+
         if (componente instanceof AbstractButton) {
 
             AbstractButton boton
                     = (AbstractButton) componente;
 
-            // Comprobar si este botón debe conservar
-            // el tamaño original de su icono
             boolean noEscalarIcono
                     = Boolean.TRUE.equals(
-                            boton.getClientProperty("noEscalarIcono")
+                            boton.getClientProperty(
+                                    "noEscalarIcono"
+                            )
                     );
 
-            if (!noEscalarIcono
-                    && boton.getIcon() instanceof ImageIcon) {
+            ImageIcon iconoOriginal
+                    = datos.iconos.get(componente);
 
-                escalarIconoBoton(
-                        boton,
-                        nuevoAncho,
-                        nuevoAlto
+            if (!noEscalarIcono
+                    && iconoOriginal != null
+                    && nuevoAncho > 0
+                    && nuevoAlto > 0) {
+
+                int anchoIcono
+                        = Math.max(
+                                nuevoAncho - 10,
+                                1
+                        );
+
+                int altoIcono
+                        = Math.max(
+                                nuevoAlto - 10,
+                                1
+                        );
+
+                boton.setIcon(
+                        new ImageIcon(
+                                iconoOriginal
+                                        .getImage()
+                                        .getScaledInstance(
+                                                anchoIcono,
+                                                altoIcono,
+                                                java.awt.Image.SCALE_SMOOTH
+                                        )
+                        )
                 );
             }
         }
-
-        // ==========================================
-        // AJUSTAR FILAS DE JTABLE
-        // ==========================================
-        if (componente instanceof JTable) {
-
-            JTable tabla = (JTable) componente;
-
-            int alturaOriginal = tabla.getRowHeight();
-
-            int nuevaAlturaFila
-                    = (int) Math.round(
-                            alturaOriginal * escalaY
-                    );
-
-            tabla.setRowHeight(
-                    Math.max(nuevaAlturaFila, 1)
-            );
-        }
     }
 
-    /**
-     * Escala automáticamente las fuentes.
-     */
-    private static void escalarFuente(
-            Component componente,
-            double escalaX,
-            double escalaY) {
+    // =========================================================
+    // CLASE INTERNA PARA GUARDAR DATOS ORIGINALES
+    // =========================================================
+    private static class DatosVentana {
 
-        Font fuente = componente.getFont();
+        private final Map<Component, Rectangle> bounds
+                = new IdentityHashMap<>();
 
-        if (fuente == null) {
-            return;
-        }
+        private final Map<Component, Font> fuentes
+                = new IdentityHashMap<>();
 
-        /*
-         * Usamos la escala menor para evitar
-         * que las letras crezcan demasiado.
-         */
-        double escalaFuente
-                = Math.min(escalaX, escalaY);
+        private final Map<Component, ImageIcon> iconos
+                = new IdentityHashMap<>();
 
-        float nuevoTamano
-                = (float) (fuente.getSize2D()
-                * escalaFuente);
-
-        // Tamaño mínimo para evitar fuentes invisibles.
-        nuevoTamano
-                = Math.max(nuevoTamano, 8f);
-
-        componente.setFont(
-                fuente.deriveFont(nuevoTamano)
-        );
-    }
-
-    /**
-     * Escala una imagen dentro de un JLabel.
-     */
-    private static void escalarIconoLabel(
-            JLabel label,
-            int ancho,
-            int alto) {
-
-        ImageIcon iconoOriginal
-                = (ImageIcon) label.getIcon();
-
-        if (iconoOriginal == null) {
-            return;
-        }
-
-        if (ancho <= 0 || alto <= 0) {
-            return;
-        }
-
-        Image imagen = iconoOriginal.getImage();
-
-        Image imagenEscalada
-                = imagen.getScaledInstance(
-                        ancho,
-                        alto,
-                        Image.SCALE_SMOOTH
-                );
-
-        label.setIcon(
-                new ImageIcon(imagenEscalada)
-        );
-    }
-
-    /**
-     * Escala imágenes colocadas dentro de botones.
-     */
-    private static void escalarIconoBoton(
-            AbstractButton boton,
-            int ancho,
-            int alto) {
-
-        ImageIcon iconoOriginal
-                = (ImageIcon) boton.getIcon();
-
-        if (iconoOriginal == null) {
-            return;
-        }
-
-        if (ancho <= 0 || alto <= 0) {
-            return;
-        }
-
-        /*
-         * Se deja un pequeño margen para que
-         * el icono no toque los bordes.
-         */
-        int anchoIcono
-                = Math.max(ancho - 10, 1);
-
-        int altoIcono
-                = Math.max(alto - 10, 1);
-
-        Image imagen = iconoOriginal.getImage();
-
-        Image imagenEscalada
-                = imagen.getScaledInstance(
-                        anchoIcono,
-                        altoIcono,
-                        Image.SCALE_SMOOTH
-                );
-
-        boton.setIcon(
-                new ImageIcon(imagenEscalada)
-        );
+        private final Map<JTable, Integer> alturaFilas
+                = new IdentityHashMap<>();
     }
 }

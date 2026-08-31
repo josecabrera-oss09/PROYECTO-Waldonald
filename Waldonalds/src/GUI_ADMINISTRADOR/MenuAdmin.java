@@ -10,7 +10,9 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import javax.swing.JPanel;
 
-/** Pantalla contenedora del modulo administrativo. */
+/**
+ * Pantalla contenedora del modulo administrativo.
+ */
 @SuppressWarnings({"serial", "this-escape"})
 public class MenuAdmin extends javax.swing.JFrame {
 
@@ -26,17 +28,16 @@ public class MenuAdmin extends javax.swing.JFrame {
 
     public MenuAdmin() {
         tema = new TemaAdmin();
+
         initComponents();
+
         aplicarTipografia();
         configurarSecciones();
         mostrarSeccion(DASHBOARD, botonDashboard);
+
         setLocationRelativeTo(null);
-        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            Utilidades.Escalador.escalar(getContentPane());
-            panelContenido.revalidate();
-            panelContenido.repaint();
-        });
+
+        Utilidades.Escalador.aplicar(this);
     }
 
     private void aplicarTipografia() {

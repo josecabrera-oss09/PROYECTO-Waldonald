@@ -17,6 +17,7 @@ public class InicioAdminForm extends javax.swing.JFrame {
     private final TemaAdmin tema;
     private Runnable accionMenuAdmin;
 
+
     public InicioAdminForm() {
         tema = new TemaAdmin();
         accionMenuAdmin = this::abrirMenuAdmin;
@@ -26,10 +27,9 @@ public class InicioAdminForm extends javax.swing.JFrame {
         botonMenu.putClientProperty("noEscalarIcono", true);
         botonAdmin.putClientProperty("noEscalarIcono", true);
         setLocationRelativeTo(null);
-        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        javax.swing.SwingUtilities.invokeLater(() ->
-                Utilidades.Escalador.escalar(getContentPane()));
+        Utilidades.Escalador.aplicar(this);
     }
+
 
     private void aplicarTipografia() {
         labelMarca.setFont(tema.negrita(34f));
