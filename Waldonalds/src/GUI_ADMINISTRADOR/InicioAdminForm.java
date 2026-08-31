@@ -7,136 +7,28 @@ import GUI_CAJERO.Cajero;
 import Login.Login;
 import Utilidades.TemaAdmin;
 import java.awt.EventQueue;
-import javax.swing.JMenuItem;
+import java.awt.event.ActionEvent;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import Login.Login;
-
-/**
- * Pantalla administrativa construida como JFrame Form de NetBeans.
- */
+/** Pantalla administrativa construida como JFrame Form de NetBeans. */
 @SuppressWarnings({"serial", "this-escape"})
 public class InicioAdminForm extends javax.swing.JFrame {
-    private void abrirMenuCerrarSesion() {
 
-    // Crear menú desplegable
-    JPopupMenu menu = new JPopupMenu();
-
-    // Fondo y borde del menú
-    menu.setBackground(new Color(1, 15, 30));
-
-    menu.setBorder(
-        BorderFactory.createLineBorder(
-            new Color(254, 195, 6),
-            1
-        )
-    );
-
-    // Crear opción
-    JMenuItem cerrarSesion = new JMenuItem("Cerrar sesión");
-
-    // Fuente
-    cerrarSesion.setFont(tema.media(16f));
-
-    // Colores
-    cerrarSesion.setForeground(Color.WHITE);
-    cerrarSesion.setBackground(new Color(1, 15, 30));
-
-    // Necesario para mostrar el color de fondo
-    cerrarSesion.setOpaque(true);
-
-    // Tamaño
-    cerrarSesion.setPreferredSize(
-        new Dimension(215, 50)
-    );
-
-    // Espacio interno
-    cerrarSesion.setBorder(
-        BorderFactory.createEmptyBorder(
-            0,
-            18,
-            0,
-            18
-        )
-    );
-
-    // Cursor
-    cerrarSesion.setCursor(
-        new java.awt.Cursor(
-            java.awt.Cursor.HAND_CURSOR
-        )
-    );
-
-    // ==========================================
-    // EFECTO AL PASAR EL MOUSE
-    // ==========================================
-    cerrarSesion.addMouseListener(
-        new MouseAdapter() {
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-                cerrarSesion.setBackground(
-                    new Color(198, 0, 10)
-                );
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-                cerrarSesion.setBackground(
-                    new Color(1, 15, 30)
-                );
-            }
-        }
-    );
-
-    // ==========================================
-    // ACCIÓN CERRAR SESIÓN
-    // ==========================================
-    cerrarSesion.addActionListener(
-        e -> cerrarSesion()
-    );
-
-    // Agregar opción al menú
-    menu.add(cerrarSesion);
-
-    // Mostrar debajo del botón Administrador
-    menu.show(
-        botonUsuario,
-        0,
-        botonUsuario.getHeight()
-    );
-}
-    
     private final TemaAdmin tema;
     private Runnable accionMenuAdmin;
 
     public InicioAdminForm() {
-
         tema = new TemaAdmin();
-        accionMenuAdmin = this::mostrarModuloPendiente;
+        accionMenuAdmin = this::abrirMenuAdmin;
         initComponents();
         aplicarTipografia();
+        botonUsuario.addMenuOpcionListener(this::procesarOpcionUsuario);
         botonMenu.putClientProperty("noEscalarIcono", true);
         botonAdmin.putClientProperty("noEscalarIcono", true);
-
         setLocationRelativeTo(null);
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        javax.swing.SwingUtilities.invokeLater(()
-                -> Utilidades.Escalador.escalar(getContentPane()));
-
+        javax.swing.SwingUtilities.invokeLater(() ->
+                Utilidades.Escalador.escalar(getContentPane()));
     }
 
     private void aplicarTipografia() {
@@ -158,7 +50,16 @@ public class InicioAdminForm extends javax.swing.JFrame {
     public void setAccionMenuAdmin(Runnable accionMenuAdmin) {
         this.accionMenuAdmin = accionMenuAdmin != null
                 ? accionMenuAdmin
-                : this::mostrarModuloPendiente;
+                : this::abrirMenuAdmin;
+    }
+
+    private void procesarOpcionUsuario(ActionEvent evento) {
+        switch (botonUsuario.getIndiceOpcionSeleccionada()) {
+            case 0 -> mostrarPerfil();
+            case 1 -> cerrarSesion();
+            default -> {
+            }
+        }
     }
 
     private void abrirMenu() {
@@ -168,22 +69,20 @@ public class InicioAdminForm extends javax.swing.JFrame {
         dispose();
     }
 
-    private void mostrarModuloPendiente() {
-        JOptionPane.showMessageDialog(
-                this,
-                "Conecta aquí la pantalla principal de administración.",
-                "Menú administrativo",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+    private void abrirMenuAdmin() {
+        MenuAdmin menuAdmin = new MenuAdmin();
+        menuAdmin.setLocationRelativeTo(null);
+        menuAdmin.setVisible(true);
+        dispose();
     }
 
-    private void mostrarMenuUsuario() {
-        JPopupMenu menu = new JPopupMenu();
-        JMenuItem cerrar = new JMenuItem("Cerrar sesión");
-        cerrar.setFont(tema.media(15f));
-        cerrar.addActionListener(evento -> cerrarSesion());
-        menu.add(cerrar);
-        menu.show(botonUsuario, 0, botonUsuario.getHeight());
+    private void mostrarPerfil() {
+        JOptionPane.showMessageDialog(
+                this,
+                "Sesión activa como Administrador.",
+                "Mi perfil",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     private void cerrarSesion() {
@@ -206,7 +105,7 @@ public class InicioAdminForm extends javax.swing.JFrame {
         labelMarca = new javax.swing.JLabel();
         labelRol = new javax.swing.JLabel();
         labelIconoUsuario = new Labels.LabelEscalable();
-        botonUsuario = new javax.swing.JButton();
+        botonUsuario = new Componentes.BotonDesplegable();
         labelTitulo = new javax.swing.JLabel();
         labelSubtitulo = new javax.swing.JLabel();
         tarjetaMenu = new Componentes.PanelFlotante();
@@ -253,19 +152,9 @@ public class InicioAdminForm extends javax.swing.JFrame {
         labelIconoUsuario.setMantenerProporcion(true);
         panelCabecera.add(labelIconoUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1618, 34, 54, 54));
 
+        botonUsuario.setTextoDesplegable("Cerrar sesión");
         botonUsuario.setFont(new java.awt.Font("Dialog", 1, 19)); // NOI18N
-        botonUsuario.setForeground(new java.awt.Color(255, 255, 255));
-        botonUsuario.setText("Administrador   ⌄");
-        botonUsuario.setBorderPainted(false);
-        botonUsuario.setContentAreaFilled(false);
-        botonUsuario.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        botonUsuario.setFocusPainted(false);
-        botonUsuario.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonUsuarioActionPerformed(evt);
-            }
-        });
-        panelCabecera.add(botonUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1680, 31, 215, 62));
+        panelCabecera.add(botonUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1680, 30, 215, 62));
 
         panelRaiz.add(panelCabecera, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 135));
 
@@ -378,12 +267,9 @@ public class InicioAdminForm extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void botonUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonUsuarioActionPerformed
-        abrirMenuCerrarSesion();
-    }//GEN-LAST:event_botonUsuarioActionPerformed
 
     private void botonAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAdminActionPerformed
-        // TODO add your handling code here:
+        accionMenuAdmin.run();
     }//GEN-LAST:event_botonAdminActionPerformed
 
     private void botonMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonMenuActionPerformed
@@ -397,7 +283,7 @@ public class InicioAdminForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Componentes.BotonDerretido botonAdmin;
     private Componentes.BotonDerretido botonMenu;
-    private javax.swing.JButton botonUsuario;
+    private Componentes.BotonDesplegable botonUsuario;
     private Componentes.PanelCircular circuloAdmin;
     private Componentes.PanelCircular circuloMenu;
     private GUI_ADMINISTRADOR.IconoMenuAdmin iconoMenu;
