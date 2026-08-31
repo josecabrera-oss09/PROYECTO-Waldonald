@@ -198,6 +198,7 @@ public class MenuAdmin extends javax.swing.JFrame {
         panelRaiz.add(panelLateral, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 340, 1080));
 
         panelCabecera.setBackground(new java.awt.Color(255, 255, 255));
+        panelCabecera.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         panelCabecera.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         labelHamburguesa.setFont(new java.awt.Font("Dialog", 0, 32)); // NOI18N
@@ -222,8 +223,10 @@ public class MenuAdmin extends javax.swing.JFrame {
 
         labelUsuario.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
         labelUsuario.setForeground(new java.awt.Color(18, 37, 63));
+        labelUsuario.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         labelUsuario.setText("Administrador");
-        panelCabecera.add(labelUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1430, 30, 125, 40));
+        labelUsuario.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        panelCabecera.add(labelUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1440, 15, 123, 50));
 
         separadorCabecera.setForeground(new java.awt.Color(225, 229, 235));
         panelCabecera.add(separadorCabecera, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 99, 1580, 1));

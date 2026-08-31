@@ -26,19 +26,28 @@ public class ReportesPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1580, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 980, Short.MAX_VALUE)
-        );
+        labelTitulo2 = new javax.swing.JLabel();
+        labelTitulo3 = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTitulo2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        labelTitulo2.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo2.setText("Resumen detallado de las ventas del día");
+        add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 80, 390, 76));
+
+        labelTitulo3.setFont(new java.awt.Font("Dialog", 1, 55)); // NOI18N
+        labelTitulo3.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo3.setText("Reporte-Ventas del día");
+        add(labelTitulo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 650, 76));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel labelTitulo2;
+    private javax.swing.JLabel labelTitulo3;
     // End of variables declaration//GEN-END:variables
 }

@@ -26,19 +26,36 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1580, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 980, Short.MAX_VALUE)
-        );
+        labelTitulo3 = new javax.swing.JLabel();
+        labelTitulo2 = new javax.swing.JLabel();
+        botonDerretido3 = new Componentes.BotonDerretido();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTitulo3.setFont(new java.awt.Font("Dialog", 1, 55)); // NOI18N
+        labelTitulo3.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo3.setText("Gestión del Menú");
+        add(labelTitulo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 460, 76));
+
+        labelTitulo2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        labelTitulo2.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo2.setText("Administra productos y combos");
+        add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 80, 320, 76));
+
+        botonDerretido3.setForeground(new java.awt.Color(0, 0, 0));
+        botonDerretido3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icono_agregar.png"))); // NOI18N
+        botonDerretido3.setText("Agregar producto");
+        botonDerretido3.setIconTextGap(15);
+        add(botonDerretido3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1020, 80, 230, 80));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Componentes.BotonDerretido botonDerretido3;
+    private javax.swing.JLabel labelTitulo2;
+    private javax.swing.JLabel labelTitulo3;
     // End of variables declaration//GEN-END:variables
 }

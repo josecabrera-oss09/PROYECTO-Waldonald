@@ -55,7 +55,7 @@ public class BotonDerretido extends JButton {
         setOpaque(false);
 
         setCursor(new Cursor(Cursor.HAND_CURSOR));
-
+        putClientProperty("noEscalarIcono", true);
         // Espacio extra abajo para que puedan aparecer las gotas
         setBorder(new EmptyBorder(5, 15, 18, 15));
 
@@ -153,7 +153,6 @@ public class BotonDerretido extends JButton {
          * PARTE DERRETIDA
          * ===============================
          */
-
         // Primera curva
         forma.curveTo(
                 ancho * 0.10,

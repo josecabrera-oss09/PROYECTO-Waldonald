@@ -35,15 +35,15 @@ public class UsuariosPanel extends javax.swing.JPanel {
 
         labelTitulo2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         labelTitulo2.setForeground(new java.awt.Color(127, 137, 154));
-        labelTitulo2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelTitulo2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         labelTitulo2.setText("Administra los usuarios del sistema");
-        add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(-740, 80, 1920, 76));
+        add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 80, 320, 76));
 
         labelTitulo3.setFont(new java.awt.Font("Dialog", 1, 55)); // NOI18N
         labelTitulo3.setForeground(new java.awt.Color(13, 17, 23));
-        labelTitulo3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelTitulo3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         labelTitulo3.setText("Gestión de Usuarios");
-        add(labelTitulo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(-630, 30, 1920, 76));
+        add(labelTitulo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 540, 76));
 
         botonDerretido1.setForeground(new java.awt.Color(0, 0, 0));
         botonDerretido1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icono_agregar.png"))); // NOI18N
