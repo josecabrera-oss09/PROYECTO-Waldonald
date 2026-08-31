@@ -9,84 +9,95 @@ package GUI_CAJERO;
  * @author Computacion
  */
 public class Cajero extends javax.swing.JFrame {
-    // ==========================================
-    // COLORES DE LA INTERFAZ
-    // ==========================================
+    // =====================================================
+// COLORES
+// =====================================================
 
-    private final java.awt.Color AZUL_BARRA =
-            new java.awt.Color(1, 20, 36);
+private final java.awt.Color AZUL_BARRA =
+        new java.awt.Color(1, 20, 36);
 
-    private final java.awt.Color AMARILLO =
-            new java.awt.Color(255, 188, 13);
+private final java.awt.Color AMARILLO =
+        new java.awt.Color(255, 188, 13);
 
-    private final java.awt.Color GRIS_TEXTO =
-            new java.awt.Color(110, 110, 110);
+private final java.awt.Color GRIS_TEXTO =
+        new java.awt.Color(110, 110, 110);
 
 
-    // ==========================================
-    // BOTÓN ACTUALMENTE SELECCIONADO
-    // ==========================================
+// =====================================================
+// CARD LAYOUT
+// =====================================================
 
-    private javax.swing.JButton botonActivo;
-/**
-     * Creates new form Menu
-     */
-    private java.awt.CardLayout cardLayout;
+private java.awt.CardLayout cardLayout;
 
-    private javax.swing.JPanel panelContenido;
+private javax.swing.JPanel panelContenido;
 
-    private javax.swing.JPanel panelMenu;
-    private javax.swing.JPanel panelPromociones;
-    private javax.swing.JPanel panelNovedades;
-    private javax.swing.JPanel panelInformacion;
+private MenuCajeroPanel menuCajeroPanel;
 
-    private javax.swing.JPanel panelPedido;
+private promocionesPanel promocionesPanel;
 
-    private javax.swing.JButton btnMenu;
-    private javax.swing.JButton btnPromociones;
-    private javax.swing.JButton btnNovedades;
-    private javax.swing.JButton btnInformacion;
-    private javax.swing.JButton btnOrdenar;
-    private Componentes.EscaladorPantalla escalador;
-    
-    public Cajero() {
-        
+private informacionPanel informacionPanel;
+
+private novedadesPanel novedadesPanel;
+
+
+// =====================================================
+// ZONA CENTRAL Y PEDIDO
+// =====================================================
+
+private javax.swing.JPanel zonaCentral;
+private javax.swing.JPanel panelPedido;
+
+
+// =====================================================
+// BOTONES
+// =====================================================
+
+private javax.swing.JButton btnMenu;
+private javax.swing.JButton btnPromociones;
+private javax.swing.JButton btnNovedades;
+private javax.swing.JButton btnInformacion;
+private javax.swing.JButton btnOrdenar;
+
+private javax.swing.JButton botonActivo;
+
+
+// =====================================================
+// CONSTRUCTOR
+// =====================================================
+
+public Cajero() {
+
     initComponents();
-    
-    configurarInterfaz();
-    
-    // Resolución en la que diseñaste el JFrame
-    escalador = new Componentes.EscaladorPantalla(
-            getContentPane(),
-            1360,
-            720
-    );
-    
-    // Maximizar ventana
-    setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-    
-    setLocationRelativeTo(null);
 
-    // Escalar todos los componentes
-    escalador.escalar(getContentPane());
-}   
-    
-   private double obtenerEscala() {
+    configurarInterfaz();
+
+    setExtendedState(
+            javax.swing.JFrame.MAXIMIZED_BOTH
+    );
+
+    setLocationRelativeTo(null);
+}
+
+
+// =====================================================
+// ESCALA
+// =====================================================
+
+private double obtenerEscala() {
 
     java.awt.Dimension pantalla =
-            java.awt.Toolkit
-                    .getDefaultToolkit()
-                    .getScreenSize();
+            java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
-    // Resolución base donde estás diseñando
     double escalaX =
             pantalla.getWidth() / 1360.0;
 
     double escalaY =
             pantalla.getHeight() / 720.0;
 
-    // Mantener proporciones
-    return Math.min(escalaX, escalaY);
+    return Math.min(
+            escalaX,
+            escalaY
+    );
 }
 
 
@@ -103,20 +114,28 @@ private int escalar(int valor) {
 
 private int escalarFuente(int valor) {
 
+    double escala = obtenerEscala();
+
+    // Evitar letras exageradamente grandes
+    double escalaFuente =
+            Math.min(escala, 1.20);
+
     return Math.max(
             10,
             (int) Math.round(
-                    valor * obtenerEscala()
+                    valor * escalaFuente
             )
     );
 }
 
-    private void configurarInterfaz() {
 
-    // =====================================================
-    // CONTENEDOR PRINCIPAL
-    // =====================================================
+// =====================================================
+// CONFIGURAR INTERFAZ PRINCIPAL
+// =====================================================
 
+private void configurarInterfaz() {
+
+    // Limpiar JFrame
     getContentPane().removeAll();
 
     getContentPane().setLayout(
@@ -129,6 +148,7 @@ private int escalarFuente(int valor) {
     );
 
 
+    // Panel principal
     jPanel1.removeAll();
 
     jPanel1.setLayout(
@@ -136,9 +156,9 @@ private int escalarFuente(int valor) {
     );
 
 
-    // =====================================================
-    // CREAR CARDLAYOUT
-    // =====================================================
+    // =================================================
+    // CARD LAYOUT
+    // =================================================
 
     cardLayout =
             new java.awt.CardLayout();
@@ -147,94 +167,105 @@ private int escalarFuente(int valor) {
             new javax.swing.JPanel(cardLayout);
 
     panelContenido.setBackground(
-            new java.awt.Color(252, 252, 253)
+            new java.awt.Color(
+                    252,
+                    252,
+                    253
+            )
     );
 
 
-    // =====================================================
-    // CREAR CADA SECCIÓN
-    // =====================================================
+    // =================================================
+    // CREAR LOS JPanel Form
+    // =================================================
 
-    panelMenu =
-            crearPantalla("Menú");
+    menuCajeroPanel =
+            new MenuCajeroPanel();
+    
+    promocionesPanel =
+            new promocionesPanel();
 
-    panelPromociones =
-            crearPantalla("Promociones");
+    novedadesPanel =
+            new novedadesPanel();
 
-    panelNovedades =
-            crearPantalla("Novedades");
-
-    panelInformacion =
-            crearPantalla("Información");
+    informacionPanel =
+            new informacionPanel();
 
 
-    // =====================================================
-    // AGREGAR AL CARDLAYOUT
-    // =====================================================
+    // =================================================
+    // AGREGAR AL CARD LAYOUT
+    // =================================================
 
     panelContenido.add(
-            panelMenu,
+            menuCajeroPanel,
             "MENU"
     );
-
+    
     panelContenido.add(
-            panelPromociones,
+            promocionesPanel,
             "PROMOCIONES"
     );
 
     panelContenido.add(
-            panelNovedades,
+            novedadesPanel,
             "NOVEDADES"
     );
 
     panelContenido.add(
-            panelInformacion,
+            informacionPanel,
             "INFORMACION"
     );
 
 
-    // =====================================================
+    // =================================================
     // CREAR PEDIDO
-    // =====================================================
+    // =================================================
 
     crearPanelPedido();
 
 
-    // =====================================================
+    // =================================================
     // ZONA CENTRAL
-    // =====================================================
+    // =================================================
 
-    javax.swing.JPanel zonaCentral =
+    zonaCentral =
             new javax.swing.JPanel(
                     new java.awt.BorderLayout()
             );
 
     zonaCentral.setBackground(
-            new java.awt.Color(252, 252, 253)
+            new java.awt.Color(
+                    252,
+                    252,
+                    253
+            )
     );
 
 
+    // Los JPanel Form van en el centro
     zonaCentral.add(
             panelContenido,
             java.awt.BorderLayout.CENTER
     );
 
+
+    // El pedido va a la derecha
     zonaCentral.add(
             panelPedido,
             java.awt.BorderLayout.EAST
     );
 
 
-    // =====================================================
-    // CONFIGURAR BARRA
-    // =====================================================
+    // =================================================
+    // BARRA SUPERIOR
+    // =================================================
 
     configurarBarra();
 
 
-    // =====================================================
-    // AGREGAR TODO
-    // =====================================================
+    // =================================================
+    // AGREGAR AL JFrame
+    // =================================================
 
     jPanel1.add(
             jPanel2,
@@ -247,81 +278,50 @@ private int escalarFuente(int valor) {
     );
 
 
-    // =====================================================
-    // MOSTRAR MENÚ AL INICIAR
-    // =====================================================
+    // =================================================
+    // MENÚ AL INICIAR
+    // =================================================
 
-    cardLayout.show(
-            panelContenido,
-            "MENU"
+    mostrarPanel("MENU");
+
+    seleccionarBoton(
+            btnMenu
     );
-
-    seleccionarBoton(btnMenu);
 
 
     jPanel1.revalidate();
     jPanel1.repaint();
 }
 
-    private javax.swing.JPanel crearPantalla(
-        String titulo) {
 
-    javax.swing.JPanel panel =
-            new javax.swing.JPanel();
+// =====================================================
+// MOSTRAR UN PANEL
+// =====================================================
 
-    panel.setBackground(
-            new java.awt.Color(252, 252, 253)
+private void mostrarPanel(
+        String nombrePanel) {
+
+    cardLayout.show(
+            panelContenido,
+            nombrePanel
     );
 
-    panel.setLayout(null);
-    
-    javax.swing.Box espacioLogo =
-        javax.swing.Box.createHorizontalBox();
-
-    espacioLogo.setPreferredSize(
-            new java.awt.Dimension(
-                    escalar(95),
-                    escalar(60)
-            )
-    );
-
-    // =====================================================
-    // TÍTULO
-    // =====================================================
-
-    javax.swing.JLabel lblTitulo =
-            new javax.swing.JLabel(titulo);
-
-    lblTitulo.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    escalarFuente(60)
-            )
-    );
-
-    lblTitulo.setForeground(
-            java.awt.Color.BLACK
-    );
-
-    lblTitulo.setBounds(
-            escalar(50),
-            escalar(30),
-            escalar(700),
-            escalar(100)
-    );
-
-
-    panel.add(lblTitulo);
-
-    return panel;
+    panelContenido.revalidate();
+    panelContenido.repaint();
 }
-    
+
+
+// =====================================================
+// BARRA SUPERIOR
+// =====================================================
+
 private void configurarBarra() {
 
     jPanel2.removeAll();
 
-    jPanel2.setBackground(AZUL_BARRA);
+    jPanel2.setBackground(
+            AZUL_BARRA
+    );
 
     jPanel2.setPreferredSize(
             new java.awt.Dimension(
@@ -335,9 +335,9 @@ private void configurarBarra() {
     );
 
 
-    // =====================================================
-    // PARTE IZQUIERDA DE LA BARRA
-    // =====================================================
+    // =================================================
+    // IZQUIERDA
+    // =================================================
 
     javax.swing.JPanel panelIzquierdo =
             new javax.swing.JPanel(
@@ -351,9 +351,9 @@ private void configurarBarra() {
     panelIzquierdo.setOpaque(false);
 
 
-    // =====================================================
-    // ESPACIO PARA TU LabelEscalable DEL LOGO
-    // =====================================================
+    // =================================================
+    // ESPACIO PARA LOGO
+    // =================================================
 
     javax.swing.JPanel espacioLogo =
             new javax.swing.JPanel();
@@ -367,51 +367,78 @@ private void configurarBarra() {
             )
     );
 
-    panelIzquierdo.add(espacioLogo);
+    panelIzquierdo.add(
+            espacioLogo
+    );
 
 
-    // =====================================================
-    // BOTONES DE LA BARRA
-    // =====================================================
+    // =================================================
+    // BOTONES
+    // =================================================
 
     btnMenu =
-            crearBotonBarra("Menú");
+            crearBotonBarra(
+                    "Menú"
+            );
 
     btnPromociones =
-            crearBotonBarra("Promociones");
+            crearBotonBarra(
+                    "Promociones"
+            );
 
     btnNovedades =
-            crearBotonBarra("Novedades");
+            crearBotonBarra(
+                    "Novedades"
+            );
 
     btnInformacion =
-            crearBotonBarra("Información");
+            crearBotonBarra(
+                    "Información"
+            );
 
 
-    panelIzquierdo.add(btnMenu);
-    panelIzquierdo.add(btnPromociones);
-    panelIzquierdo.add(btnNovedades);
-    panelIzquierdo.add(btnInformacion);
+    panelIzquierdo.add(
+            btnMenu
+    );
+
+    panelIzquierdo.add(
+            btnPromociones
+    );
+
+    panelIzquierdo.add(
+            btnNovedades
+    );
+
+    panelIzquierdo.add(
+            btnInformacion
+    );
 
 
-    // =====================================================
-    // BOTÓN ORDENAR
-    // =====================================================
+    // =================================================
+    // ORDENAR
+    // =================================================
 
-    btnOrdenar = new javax.swing.JButton("Ordenar") {
+    btnOrdenar =
+            new javax.swing.JButton(
+                    "Ordenar"
+            ) {
 
         @Override
         protected void paintComponent(
                 java.awt.Graphics g) {
 
             java.awt.Graphics2D g2 =
-                    (java.awt.Graphics2D) g.create();
+                    (java.awt.Graphics2D)
+                            g.create();
 
             g2.setRenderingHint(
                     java.awt.RenderingHints.KEY_ANTIALIASING,
                     java.awt.RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            g2.setColor(AMARILLO);
+            g2.setColor(
+                    AMARILLO
+            );
 
             g2.fillRoundRect(
                     0,
@@ -457,20 +484,24 @@ private void configurarBarra() {
     btnOrdenar.setBorderPainted(false);
 
     btnOrdenar.setFocusPainted(false);
-    
-    // Texto hacia la derecha para dejar espacio al icono
+
+
+    // Espacio a la izquierda para icono
     btnOrdenar.setHorizontalAlignment(
             javax.swing.SwingConstants.RIGHT
     );
 
+
     btnOrdenar.setBorder(
-            javax.swing.BorderFactory.createEmptyBorder(
-                    0,
-                    escalar(45),   // espacio izquierdo para imagen
-                    0,
-                    escalar(20)
-            )
+            javax.swing.BorderFactory
+                    .createEmptyBorder(
+                            0,
+                            escalar(45),
+                            0,
+                            escalar(20)
+                    )
     );
+
 
     btnOrdenar.setCursor(
             new java.awt.Cursor(
@@ -479,9 +510,9 @@ private void configurarBarra() {
     );
 
 
-    // =====================================================
-    // PARTE DERECHA
-    // =====================================================
+    // =================================================
+    // DERECHA
+    // =================================================
 
     javax.swing.JPanel panelDerecho =
             new javax.swing.JPanel(
@@ -494,12 +525,14 @@ private void configurarBarra() {
 
     panelDerecho.setOpaque(false);
 
-    panelDerecho.add(btnOrdenar);
+    panelDerecho.add(
+            btnOrdenar
+    );
 
 
-    // =====================================================
-    // AGREGAR TODO A LA BARRA
-    // =====================================================
+    // =================================================
+    // AGREGAR A BARRA
+    // =================================================
 
     jPanel2.add(
             panelIzquierdo,
@@ -512,78 +545,78 @@ private void configurarBarra() {
     );
 
 
-    // =====================================================
+    // =================================================
     // MENÚ
-    // =====================================================
+    // =================================================
 
     btnMenu.addActionListener(e -> {
 
-        cardLayout.show(
-                panelContenido,
+        mostrarPanel(
                 "MENU"
         );
 
-        seleccionarBoton(btnMenu);
+        seleccionarBoton(
+                btnMenu
+        );
     });
 
 
-    // =====================================================
+    // =================================================
     // PROMOCIONES
-    // =====================================================
+    // =================================================
 
     btnPromociones.addActionListener(e -> {
 
-        cardLayout.show(
-                panelContenido,
+        mostrarPanel(
                 "PROMOCIONES"
         );
 
-        seleccionarBoton(btnPromociones);
+        seleccionarBoton(
+                btnPromociones
+        );
     });
 
 
-    // =====================================================
+    // =================================================
     // NOVEDADES
-    // =====================================================
+    // =================================================
 
     btnNovedades.addActionListener(e -> {
 
-        cardLayout.show(
-                panelContenido,
+        mostrarPanel(
                 "NOVEDADES"
         );
 
-        seleccionarBoton(btnNovedades);
+        seleccionarBoton(
+                btnNovedades
+        );
     });
 
 
-    // =====================================================
+    // =================================================
     // INFORMACIÓN
-    // =====================================================
+    // =================================================
 
     btnInformacion.addActionListener(e -> {
 
-        cardLayout.show(
-                panelContenido,
+        mostrarPanel(
                 "INFORMACION"
         );
 
-        seleccionarBoton(btnInformacion);
+        seleccionarBoton(
+                btnInformacion
+        );
     });
 
 
-    // =====================================================
+    // =================================================
     // ORDENAR
-    // =====================================================
+    // =================================================
 
     btnOrdenar.addActionListener(e -> {
 
-        panelPedido.setVisible(
-                !panelPedido.isVisible()
-        );
+        abrirPedido();
 
-        jPanel1.revalidate();
-        jPanel1.repaint();
     });
 
 
@@ -591,37 +624,18 @@ private void configurarBarra() {
     jPanel2.repaint();
 }
 
-private void seleccionarBoton(
-        javax.swing.JButton boton) {
 
-    botonActivo = boton;
-
-
-    if (btnMenu != null) {
-        btnMenu.repaint();
-    }
-
-
-    if (btnPromociones != null) {
-        btnPromociones.repaint();
-    }
-
-
-    if (btnNovedades != null) {
-        btnNovedades.repaint();
-    }
-
-
-    if (btnInformacion != null) {
-        btnInformacion.repaint();
-    }
-}
+// =====================================================
+// CREAR BOTONES DE LA BARRA
+// =====================================================
 
 private javax.swing.JButton crearBotonBarra(
         String texto) {
 
     javax.swing.JButton boton =
-            new javax.swing.JButton(texto) {
+            new javax.swing.JButton(
+                    texto
+            ) {
 
         @Override
         protected void paintComponent(
@@ -630,27 +644,21 @@ private javax.swing.JButton crearBotonBarra(
             super.paintComponent(g);
 
 
-            // =============================================
-            // LÍNEA AMARILLA DE OPCIÓN ACTIVA
-            // =============================================
-
+            // Línea amarilla
             if (this == botonActivo) {
 
                 java.awt.Graphics2D g2 =
                         (java.awt.Graphics2D)
                                 g.create();
 
-
                 g2.setRenderingHint(
                         java.awt.RenderingHints.KEY_ANTIALIASING,
                         java.awt.RenderingHints.VALUE_ANTIALIAS_ON
                 );
 
-
                 g2.setColor(
                         AMARILLO
                 );
-
 
                 int anchoLinea =
                         escalar(35);
@@ -662,14 +670,14 @@ private javax.swing.JButton crearBotonBarra(
                         );
 
                 int x =
-                        (getWidth()
-                                - anchoLinea)
-                                / 2;
+                        (
+                                getWidth()
+                                - anchoLinea
+                        ) / 2;
 
                 int y =
                         getHeight()
                                 - escalar(6);
-
 
                 g2.fillRoundRect(
                         x,
@@ -680,47 +688,84 @@ private javax.swing.JButton crearBotonBarra(
                         altoLinea
                 );
 
-
                 g2.dispose();
             }
         }
     };
 
 
-    // Ancho diferente dependiendo del texto
-    int anchoBase =
-            texto.length() * 9 + 35;
+    // =================================================
+    // FUENTE
+    // =================================================
+
+    java.awt.Font fuente =
+            new java.awt.Font(
+                    "Arial",
+                    java.awt.Font.BOLD,
+                    escalarFuente(14)
+            );
+
+    boton.setFont(
+            fuente
+    );
+
+
+    // =================================================
+    // ANCHO SEGÚN TEXTO
+    // =================================================
+
+    java.awt.FontMetrics fm =
+            boton.getFontMetrics(
+                    fuente
+            );
+
+    int anchoTexto =
+            fm.stringWidth(
+                    texto
+            );
+
+    int anchoBoton =
+            anchoTexto
+                    + escalar(45);
 
 
     boton.setPreferredSize(
             new java.awt.Dimension(
-                    escalar(anchoBase),
+                    anchoBoton,
                     escalar(55)
             )
     );
 
 
-    boton.setFont(
-            new java.awt.Font(
-                    "Arial",
-                    java.awt.Font.BOLD,
-                    escalarFuente(14)
+    boton.setMinimumSize(
+            new java.awt.Dimension(
+                    anchoBoton,
+                    escalar(55)
             )
     );
 
+
+    // =================================================
+    // ESTILO
+    // =================================================
 
     boton.setForeground(
             java.awt.Color.WHITE
     );
 
-
     boton.setOpaque(false);
 
-    boton.setContentAreaFilled(false);
+    boton.setContentAreaFilled(
+            false
+    );
 
-    boton.setBorderPainted(false);
+    boton.setBorderPainted(
+            false
+    );
 
-    boton.setFocusPainted(false);
+    boton.setFocusPainted(
+            false
+    );
 
 
     boton.setCursor(
@@ -730,9 +775,9 @@ private javax.swing.JButton crearBotonBarra(
     );
 
 
-    // =====================================================
-    // EFECTO AL PASAR EL MOUSE
-    // =====================================================
+    // =================================================
+    // EFECTO MOUSE
+    // =================================================
 
     boton.addMouseListener(
             new java.awt.event.MouseAdapter() {
@@ -768,6 +813,93 @@ private javax.swing.JButton crearBotonBarra(
     return boton;
 }
 
+
+// =====================================================
+// BOTÓN ACTIVO
+// =====================================================
+
+private void seleccionarBoton(
+        javax.swing.JButton boton) {
+
+    botonActivo =
+            boton;
+
+
+    if (btnMenu != null) {
+
+        btnMenu.setForeground(
+                java.awt.Color.WHITE
+        );
+
+        btnMenu.repaint();
+    }
+
+
+    if (btnPromociones != null) {
+
+        btnPromociones.setForeground(
+                java.awt.Color.WHITE
+        );
+
+        btnPromociones.repaint();
+    }
+
+
+    if (btnNovedades != null) {
+
+        btnNovedades.setForeground(
+                java.awt.Color.WHITE
+        );
+
+        btnNovedades.repaint();
+    }
+
+
+    if (btnInformacion != null) {
+
+        btnInformacion.setForeground(
+                java.awt.Color.WHITE
+        );
+
+        btnInformacion.repaint();
+    }
+}
+
+
+// =====================================================
+// ABRIR PEDIDO
+// =====================================================
+
+private void abrirPedido() {
+
+    panelPedido.setVisible(
+            true
+    );
+
+    zonaCentral.revalidate();
+    zonaCentral.repaint();
+}
+
+
+// =====================================================
+// CERRAR PEDIDO
+// =====================================================
+
+private void cerrarPedido() {
+
+    panelPedido.setVisible(
+            false
+    );
+
+    zonaCentral.revalidate();
+    zonaCentral.repaint();
+}
+
+
+// =====================================================
+// CREAR PANEL PEDIDO
+// =====================================================
+
 private void crearPanelPedido() {
 
     panelPedido =
@@ -788,7 +920,7 @@ private void crearPanelPedido() {
             );
 
 
-            // Fondo gris exterior
+            // Fondo exterior
             g2.setColor(
                     new java.awt.Color(
                             247,
@@ -832,10 +964,11 @@ private void crearPanelPedido() {
     };
 
 
-    panelPedido.setOpaque(false);
+    panelPedido.setOpaque(
+            false
+    );
 
 
-    // AQUÍ SE ESCALA EL ANCHO DEL PEDIDO
     panelPedido.setPreferredSize(
             new java.awt.Dimension(
                     escalar(350),
@@ -849,9 +982,9 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
-    // CONTENIDO INTERIOR
-    // =====================================================
+    // =================================================
+    // CONTENIDO
+    // =================================================
 
     javax.swing.JPanel contenidoPedido =
             new javax.swing.JPanel(
@@ -859,7 +992,9 @@ private void crearPanelPedido() {
             );
 
 
-    contenidoPedido.setOpaque(false);
+    contenidoPedido.setOpaque(
+            false
+    );
 
 
     contenidoPedido.setBorder(
@@ -879,15 +1014,17 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
-    // PARTE SUPERIOR
-    // =====================================================
+    // =================================================
+    // SUPERIOR
+    // =================================================
 
     javax.swing.JPanel panelSuperior =
             new javax.swing.JPanel();
 
 
-    panelSuperior.setOpaque(false);
+    panelSuperior.setOpaque(
+            false
+    );
 
 
     panelSuperior.setLayout(
@@ -930,20 +1067,16 @@ private void crearPanelPedido() {
     );
 
 
-    separador.setAlignmentX(
-            java.awt.Component.LEFT_ALIGNMENT
-    );
-
-
     panelSuperior.add(
             titulo
     );
 
 
     panelSuperior.add(
-            javax.swing.Box.createVerticalStrut(
-                    escalar(20)
-            )
+            javax.swing.Box
+                    .createVerticalStrut(
+                            escalar(20)
+                    )
     );
 
 
@@ -958,9 +1091,9 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
-    // ÁREA DONDE IRÁN LOS PRODUCTOS
-    // =====================================================
+    // =================================================
+    // PRODUCTOS
+    // =================================================
 
     javax.swing.JPanel panelProductos =
             new javax.swing.JPanel(
@@ -968,7 +1101,9 @@ private void crearPanelPedido() {
             );
 
 
-    panelProductos.setOpaque(false);
+    panelProductos.setOpaque(
+            false
+    );
 
 
     javax.swing.JLabel lblVacio =
@@ -1024,15 +1159,17 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
-    // ZONA INFERIOR
-    // =====================================================
+    // =================================================
+    // INFERIOR
+    // =================================================
 
     javax.swing.JPanel panelInferior =
             new javax.swing.JPanel();
 
 
-    panelInferior.setOpaque(false);
+    panelInferior.setOpaque(
+            false
+    );
 
 
     panelInferior.setLayout(
@@ -1043,9 +1180,9 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
+    // =================================================
     // TOTAL
-    // =====================================================
+    // =================================================
 
     javax.swing.JPanel panelTotal =
             new javax.swing.JPanel(
@@ -1053,7 +1190,9 @@ private void crearPanelPedido() {
             );
 
 
-    panelTotal.setOpaque(false);
+    panelTotal.setOpaque(
+            false
+    );
 
 
     javax.swing.JLabel lblTotal =
@@ -1111,9 +1250,9 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
+    // =================================================
     // CONTINUAR
-    // =====================================================
+    // =================================================
 
     javax.swing.JButton btnContinuar =
             new javax.swing.JButton(
@@ -1171,19 +1310,20 @@ private void crearPanelPedido() {
     );
 
 
-    btnContinuar.setOpaque(false);
+    btnContinuar.setOpaque(
+            false
+    );
 
-    btnContinuar.setContentAreaFilled(false);
+    btnContinuar.setContentAreaFilled(
+            false
+    );
 
-    btnContinuar.setBorderPainted(false);
+    btnContinuar.setBorderPainted(
+            false
+    );
 
-    btnContinuar.setFocusPainted(false);
-
-
-    btnContinuar.setCursor(
-            new java.awt.Cursor(
-                    java.awt.Cursor.HAND_CURSOR
-            )
+    btnContinuar.setFocusPainted(
+            false
     );
 
 
@@ -1208,9 +1348,9 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
-    // CANCELAR PEDIDO
-    // =====================================================
+    // =================================================
+    // CANCELAR
+    // =================================================
 
     javax.swing.JButton btnCancelar =
             new javax.swing.JButton(
@@ -1236,24 +1376,33 @@ private void crearPanelPedido() {
     );
 
 
-    // SIN BORDE
-    btnCancelar.setBorderPainted(true);
-    btnCancelar.setContentAreaFilled(false);
-    btnCancelar.setFocusPainted(false);
-    btnCancelar.setOpaque(false);
+    btnCancelar.setContentAreaFilled(
+            false
+    );
 
-    btnCancelar.setBorder(
-            javax.swing.BorderFactory.createLineBorder(
-                    new java.awt.Color(190, 190, 190),
-                    Math.max(1, escalar(1))
-            )
+    btnCancelar.setFocusPainted(
+            false
+    );
+
+    btnCancelar.setOpaque(
+            false
     );
 
 
-    btnCancelar.setCursor(
-            new java.awt.Cursor(
-                    java.awt.Cursor.HAND_CURSOR
-            )
+    // BORDE
+    btnCancelar.setBorder(
+            javax.swing.BorderFactory
+                    .createLineBorder(
+                            new java.awt.Color(
+                                    190,
+                                    190,
+                                    190
+                            ),
+                            Math.max(
+                                    1,
+                                    escalar(1)
+                            )
+                    )
     );
 
 
@@ -1278,19 +1427,17 @@ private void crearPanelPedido() {
     );
 
 
+    // CERRAR PEDIDO
     btnCancelar.addActionListener(e -> {
 
-        panelPedido.setVisible(false);
+        cerrarPedido();
 
-        jPanel1.revalidate();
-
-        jPanel1.repaint();
     });
 
 
-    // =====================================================
-    // AGREGAR PARTE INFERIOR
-    // =====================================================
+    // =================================================
+    // AGREGAR ABAJO
+    // =================================================
 
     panelInferior.add(
             panelTotal
@@ -1298,9 +1445,10 @@ private void crearPanelPedido() {
 
 
     panelInferior.add(
-            javax.swing.Box.createVerticalStrut(
-                    escalar(20)
-            )
+            javax.swing.Box
+                    .createVerticalStrut(
+                            escalar(20)
+                    )
     );
 
 
@@ -1310,9 +1458,10 @@ private void crearPanelPedido() {
 
 
     panelInferior.add(
-            javax.swing.Box.createVerticalStrut(
-                    escalar(10)
-            )
+            javax.swing.Box
+                    .createVerticalStrut(
+                            escalar(10)
+                    )
     );
 
 
@@ -1327,11 +1476,10 @@ private void crearPanelPedido() {
     );
 
 
-    // =====================================================
-    // OCULTO AL INICIAR
-    // =====================================================
-
-    panelPedido.setVisible(false);
+    // Oculto inicialmente
+    panelPedido.setVisible(
+            false
+    );
 }
     
     /**
@@ -1343,10 +1491,6 @@ private void crearPanelPedido() {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        animacionLetras1 = new Componentes.AnimacionLetras();
-        boton1 = new Componentes.Boton();
-        boton2 = new Componentes.Boton();
-        boton3 = new Componentes.Boton();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
 
@@ -1413,10 +1557,6 @@ private void crearPanelPedido() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private Componentes.AnimacionLetras animacionLetras1;
-    private Componentes.Boton boton1;
-    private Componentes.Boton boton2;
-    private Componentes.Boton boton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
