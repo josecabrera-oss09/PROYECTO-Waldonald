@@ -123,7 +123,7 @@ public class MenuAdmin extends javax.swing.JFrame {
         panelRaiz.setPreferredSize(new java.awt.Dimension(1920, 1080));
         panelRaiz.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panelLateral.setBackground(new java.awt.Color(0, 20, 43));
+        panelLateral.setBackground(new java.awt.Color(200, 0, 9));
         panelLateral.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         labelLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/LogoW.png"))); // NOI18N
