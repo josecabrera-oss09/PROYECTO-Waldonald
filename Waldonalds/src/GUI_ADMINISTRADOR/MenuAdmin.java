@@ -9,6 +9,7 @@ import Utilidades.TemaAdmin;
 import java.awt.CardLayout;
 import java.awt.Color;
 import javax.swing.JPanel;
+import GUI_ADMINISTRADOR.InicioAdminForm;
 
 /**
  * Pantalla contenedora del modulo administrativo.
@@ -82,9 +83,9 @@ public class MenuAdmin extends javax.swing.JFrame {
     }
 
     private void cerrarSesion() {
-        Login login = new Login();
-        login.setLocationRelativeTo(null);
-        login.setVisible(true);
+        InicioAdminForm inicio = new InicioAdminForm();
+        inicio.setLocationRelativeTo(null);
+        inicio.setVisible(true);
         dispose();
     }
 
@@ -184,7 +185,7 @@ public class MenuAdmin extends javax.swing.JFrame {
         });
         panelLateral.add(botonReportes, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 485, 296, 64));
 
-        botonCerrarSesion.setText("VolverAlMenu");
+        botonCerrarSesion.setText("Volver Al Menú");
         botonCerrarSesion.setMostrarBorde(true);
         botonCerrarSesion.setTipoIcono("SALIR");
         botonCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
@@ -222,7 +223,7 @@ public class MenuAdmin extends javax.swing.JFrame {
         labelUsuario.setFont(new java.awt.Font("Dialog", 1, 16)); // NOI18N
         labelUsuario.setForeground(new java.awt.Color(18, 37, 63));
         labelUsuario.setText("Administrador");
-        panelCabecera.add(labelUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1440, 32, 125, 38));
+        panelCabecera.add(labelUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1430, 30, 125, 40));
 
         separadorCabecera.setForeground(new java.awt.Color(225, 229, 235));
         panelCabecera.add(separadorCabecera, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 99, 1580, 1));

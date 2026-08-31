@@ -26,19 +26,36 @@ public class UsuariosPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        labelTitulo2 = new javax.swing.JLabel();
+        labelTitulo3 = new javax.swing.JLabel();
+        botonDerretido1 = new Componentes.BotonDerretido();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTitulo2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        labelTitulo2.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelTitulo2.setText("Administra los usuarios del sistema");
+        add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(-740, 80, 1920, 76));
+
+        labelTitulo3.setFont(new java.awt.Font("Dialog", 1, 55)); // NOI18N
+        labelTitulo3.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelTitulo3.setText("Gestión de Usuarios");
+        add(labelTitulo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(-630, 30, 1920, 76));
+
+        botonDerretido1.setForeground(new java.awt.Color(0, 0, 0));
+        botonDerretido1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icono_agregar.png"))); // NOI18N
+        botonDerretido1.setText("Agregar usuario");
+        botonDerretido1.setIconTextGap(15);
+        add(botonDerretido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1020, 80, 230, 80));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Componentes.BotonDerretido botonDerretido1;
+    private javax.swing.JLabel labelTitulo2;
+    private javax.swing.JLabel labelTitulo3;
     // End of variables declaration//GEN-END:variables
 }
