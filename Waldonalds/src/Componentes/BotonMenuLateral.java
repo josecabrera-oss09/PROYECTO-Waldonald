@@ -244,3 +244,4 @@ public class BotonMenuLateral extends JButton {
         repaint();
     }
 }
+

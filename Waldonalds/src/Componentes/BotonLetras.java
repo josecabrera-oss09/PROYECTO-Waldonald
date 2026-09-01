@@ -90,9 +90,9 @@ private final Color bordeNormal = new Color(235, 235, 235);
         int ancho = getWidth();
         int alto = getHeight();
 
-        // =====================================
+
         // CUANDO EL MOUSE ESTÁ ENCIMA
-        // =====================================
+ 
 
         if (mouseEncima || seleccionado) {
 
@@ -114,9 +114,9 @@ private final Color bordeNormal = new Color(235, 235, 235);
 
         } else {
 
-            // =====================================
+    
             // ESTADO NORMAL
-            // =====================================
+      
 
             // Fondo blanco
             g2.setColor(colorFondoNormal);
@@ -171,3 +171,4 @@ private final Color bordeNormal = new Color(235, 235, 235);
         return radio;
     }
 }
+

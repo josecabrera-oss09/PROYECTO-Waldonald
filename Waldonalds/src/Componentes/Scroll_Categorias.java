@@ -26,17 +26,17 @@ public class Scroll_Categorias extends JScrollPane {
 
     public Scroll_Categorias() {
 
-        // ==========================================
+     
         // ORIENTACIÓN IZQUIERDA A DERECHA
-        // ==========================================
+  
         setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT
         );
 
 
-        // ==========================================
+
         // PANEL DE CATEGORÍAS
-        // ==========================================
+
         panelCategorias = new JPanel();
 
         panelCategorias.setLayout(
@@ -54,9 +54,8 @@ public class Scroll_Categorias extends JScrollPane {
         );
 
 
-        // ==========================================
         // TAMAÑO DEL CONTENIDO
-        // ==========================================
+
         // Debe ser más ancho que el JScrollPane
         // para que exista desplazamiento horizontal.
         panelCategorias.setPreferredSize(
@@ -70,9 +69,9 @@ public class Scroll_Categorias extends JScrollPane {
         );
 
 
-        // ==========================================
+
         // METER PANEL DENTRO DEL SCROLL
-        // ==========================================
+
         setViewportView(panelCategorias);
 
         getViewport().setBackground(Color.WHITE);
@@ -82,9 +81,9 @@ public class Scroll_Categorias extends JScrollPane {
         );
 
 
-        // ==========================================
+   
         // CONFIGURACIÓN DEL SCROLLPANE
-        // ==========================================
+
 
         setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
@@ -108,9 +107,9 @@ public class Scroll_Categorias extends JScrollPane {
         setBackground(Color.WHITE);
 
 
-        // ==========================================
+
         // BARRA HORIZONTAL
-        // ==========================================
+     
         JScrollBar barra = getHorizontalScrollBar();
 
         barra.setComponentOrientation(
@@ -146,9 +145,9 @@ public class Scroll_Categorias extends JScrollPane {
         );
 
 
-        // ==========================================
+
         // RUEDA DEL MOUSE
-        // ==========================================
+
         addMouseWheelListener(e -> {
 
             JScrollBar scroll =
@@ -164,9 +163,9 @@ public class Scroll_Categorias extends JScrollPane {
         });
 
 
-        // ==========================================
+    
         // INICIAR EN LA IZQUIERDA
-        // ==========================================
+
         SwingUtilities.invokeLater(() -> {
 
             getViewport().setViewPosition(
@@ -180,9 +179,9 @@ public class Scroll_Categorias extends JScrollPane {
     }
 
 
-    // ==========================================
+
     // AGREGAR CATEGORÍAS
-    // ==========================================
+
     public void agregarCategoria(
             JComponent componente) {
 
@@ -198,18 +197,18 @@ public class Scroll_Categorias extends JScrollPane {
     }
 
 
-    // ==========================================
+  
     // OBTENER PANEL
-    // ==========================================
+
     public JPanel getPanelCategorias() {
 
         return panelCategorias;
     }
 
 
-    // ==========================================
+
     // REGRESAR AL INICIO
-    // ==========================================
+
     public void irAlInicio() {
 
         JScrollBar barra =
@@ -225,9 +224,9 @@ public class Scroll_Categorias extends JScrollPane {
     }
 
 
-    // ==========================================
+
     // DISEÑO DE LA BARRA
-    // ==========================================
+
     private static class BarraNaranja
             extends BasicScrollBarUI {
 
@@ -236,9 +235,9 @@ public class Scroll_Categorias extends JScrollPane {
                 new Color(255, 174, 0);
 
 
-        // ======================================
+
         // TAMAÑO REAL DE LA BARRA
-        // ======================================
+
         @Override
         protected Dimension getMinimumThumbSize() {
 
@@ -259,9 +258,9 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-        // ======================================
+   
         // QUITAR FLECHA IZQUIERDA
-        // ======================================
+
         @Override
         protected JButton createDecreaseButton(
                 int orientation) {
@@ -270,9 +269,9 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-        // ======================================
+    
         // QUITAR FLECHA DERECHA
-        // ======================================
+
         @Override
         protected JButton createIncreaseButton(
                 int orientation) {
@@ -281,9 +280,9 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-        // ======================================
+
         // BOTÓN INVISIBLE
-        // ======================================
+
         private JButton crearBotonInvisible() {
 
             JButton boton = new JButton();
@@ -314,9 +313,9 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-        // ======================================
+
         // DIBUJAR BARRA NARANJA
-        // ======================================
+
         @Override
         protected void paintThumb(
                 Graphics g,
@@ -362,9 +361,7 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-        // ======================================
         // NO DIBUJAR FONDO DEL TRACK
-        // ======================================
         @Override
         protected void paintTrack(
                 Graphics g,
@@ -376,3 +373,4 @@ public class Scroll_Categorias extends JScrollPane {
         }
     }
 }
+

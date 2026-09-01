@@ -94,9 +94,9 @@ public class BotonCategoria extends JButton {
         int ancho = getWidth();
         int alto = getHeight();
 
-        // ==============================
+      
         // FONDO
-        // ==============================
+       
 
         if (mouseEncima || seleccionado) {
             g2.setColor(colorHover);
@@ -113,9 +113,9 @@ public class BotonCategoria extends JButton {
                 radio
         );
 
-        // ==============================
+
         // BORDE
-        // ==============================
+     
 
         if (mouseEncima || seleccionado) {
 
@@ -143,9 +143,9 @@ public class BotonCategoria extends JButton {
         super.paintComponent(g);
     }
 
-    // =================================
+
     // SELECCIONAR CATEGORÍA
-    // =================================
+  
 
     public void setSeleccionado(boolean seleccionado) {
         this.seleccionado = seleccionado;
@@ -156,9 +156,9 @@ public class BotonCategoria extends JButton {
         return seleccionado;
     }
 
-    // =================================
+
     // CAMBIAR RADIO DE ESQUINAS
-    // =================================
+  
 
     public void setRadio(int radio) {
         this.radio = radio;
@@ -169,3 +169,4 @@ public class BotonCategoria extends JButton {
         return radio;
     }
 }
+

@@ -230,3 +230,4 @@ public class PanelFlotante extends JPanel {
                 RenderingHints.VALUE_STROKE_PURE);
     }
 }
+

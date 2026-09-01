@@ -27,22 +27,14 @@ public class AnimacionLetras extends JLabel {
         );
     }
 
-    // =====================================================
     // CUANDO EL COMPONENTE APARECE EN PANTALLA
-    // =====================================================
+ 
 
     @Override
     public void addNotify() {
 
         super.addNotify();
-
-        /*
-         * Si estamos ejecutando el programa,
-         * inicia automáticamente la animación.
-         *
-         * Si estamos en el diseñador de NetBeans,
-         * deja el texto completo visible.
-         */
+        
         if (!Beans.isDesignTime()) {
 
             Timer inicio = new Timer(200, e -> {
@@ -61,9 +53,8 @@ public class AnimacionLetras extends JLabel {
         }
     }
 
-    // =====================================================
     // ANIMACIÓN
-    // =====================================================
+
 
     public void iniciarAnimacion() {
 
@@ -99,18 +90,18 @@ public class AnimacionLetras extends JLabel {
         timer.start();
     }
 
-    // =====================================================
+  
     // REINICIAR ANIMACIÓN
-    // =====================================================
+  
 
     public void reiniciarAnimacion() {
 
         iniciarAnimacion();
     }
 
-    // =====================================================
+
     // TEXTO
-    // =====================================================
+
 
     public String getTextoAnimado() {
 
@@ -129,9 +120,9 @@ public class AnimacionLetras extends JLabel {
         }
     }
 
-    // =====================================================
+
     // VELOCIDAD
-    // =====================================================
+
 
     public int getVelocidad() {
 
@@ -147,3 +138,4 @@ public class AnimacionLetras extends JLabel {
         this.velocidad = velocidad;
     }
 }
+

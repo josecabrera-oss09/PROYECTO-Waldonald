@@ -148,11 +148,9 @@ public class BotonDerretido extends JButton {
 
         forma.quadTo(0, baseY, 10, baseY);
 
-        /*
-         * ===============================
-         * PARTE DERRETIDA
-         * ===============================
-         */
+      
+         // PARTE DERRETIDA
+  
         // Primera curva
         forma.curveTo(
                 ancho * 0.10,
@@ -258,3 +256,4 @@ public class BotonDerretido extends JButton {
         super.paintComponent(g);
     }
 }
+

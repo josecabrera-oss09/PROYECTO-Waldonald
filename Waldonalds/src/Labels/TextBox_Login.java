@@ -20,9 +20,9 @@ import javax.swing.SwingConstants;
 
 public class TextBox_Login extends JPanel {
 
-    // =====================================================
+  
     // TEMAS DISPONIBLES
-    // =====================================================
+
     public enum Tema {
         AMARILLO,
         ROJO
@@ -30,15 +30,15 @@ public class TextBox_Login extends JPanel {
 
     private Tema tema = Tema.AMARILLO;
 
-    // =====================================================
+
     // COMPONENTES
-    // =====================================================
+
     private JTextField txtCampo;
     private JLabel lblIcono;
 
-    // =====================================================
+
     // CONFIGURACIÓN
-    // =====================================================
+
     private String placeholder = "Ingresa texto";
 
     private boolean mostrandoPlaceholder = true;
@@ -46,9 +46,9 @@ public class TextBox_Login extends JPanel {
     private int radioCaja = 35;
     private int radioIcono = 28;
 
-    // =====================================================
+
     // COLORES
-    // =====================================================
+
 
     // Amarillo WalDonald's
     private Color amarilloPrincipal =
@@ -75,9 +75,9 @@ public class TextBox_Login extends JPanel {
             new Color(145, 145, 145);
 
 
-    // =====================================================
+
     // CONSTRUCTOR
-    // =====================================================
+
     public TextBox_Login() {
 
         setOpaque(false);
@@ -93,9 +93,9 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
+
         // ICONO
-        // =================================================
+ 
         lblIcono = new JLabel();
 
         lblIcono.setHorizontalAlignment(
@@ -111,9 +111,9 @@ public class TextBox_Login extends JPanel {
         add(lblIcono);
 
 
-        // =================================================
+
         // CAMPO DE TEXTO
-        // =================================================
+ 
         txtCampo = new JTextField();
 
         txtCampo.setText(placeholder);
@@ -153,9 +153,9 @@ public class TextBox_Login extends JPanel {
         add(txtCampo);
 
 
-        // =================================================
+
         // PLACEHOLDER
-        // =================================================
+
         txtCampo.addFocusListener(
                 new FocusAdapter() {
 
@@ -208,9 +208,9 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // POSICIONAR COMPONENTES
-    // =====================================================
+
     @Override
     public void doLayout() {
 
@@ -228,9 +228,9 @@ public class TextBox_Login extends JPanel {
                 (alto - tamanoIcono) / 2;
 
 
-        // =================================================
+
         // CUADRO DEL ICONO
-        // =================================================
+ 
         lblIcono.setBounds(
                 4,
                 yIcono,
@@ -239,9 +239,9 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
+
         // TEXTBOX
-        // =================================================
+   
         int inicioTexto =
                 tamanoIcono + 30;
 
@@ -256,9 +256,9 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+ 
     // PINTAR DISEÑO
-    // =====================================================
+
     @Override
     protected void paintComponent(Graphics g) {
 
@@ -273,9 +273,9 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
+    
         // SELECCIONAR COLORES
-        // =================================================
+ 
         Color colorPrincipal;
 
         Color colorClaro;
@@ -312,9 +312,9 @@ public class TextBox_Login extends JPanel {
                 );
 
 
-        // =================================================
+
         // CAJA PRINCIPAL
-        // =================================================
+   
 
         int xCaja =
                 tamanoIcono / 2;
@@ -345,9 +345,9 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
+
         // BORDE COLOREADO
-        // =================================================
+      
         g2.setColor(
                 colorPrincipal
         );
@@ -370,9 +370,9 @@ public class TextBox_Login extends JPanel {
         g2.draw(borde);
 
 
-        // =================================================
+
         // CUADRO IZQUIERDO
-        // =================================================
+  
 
         int xIcono = 3;
 
@@ -395,9 +395,8 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
         // BORDE DEL CUADRO
-        // =================================================
+   
         g2.setColor(
                 colorPrincipal
         );
@@ -416,9 +415,9 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
+
         // LÍNEAS DECORATIVAS
-        // =================================================
+
 
         int inicioDecoracion =
                 tamanoIcono + 15;
@@ -475,9 +474,9 @@ public class TextBox_Login extends JPanel {
         );
 
 
-        // =================================================
+ 
         // PUNTOS DECORATIVOS
-        // =================================================
+
 
         int cantidadPuntos = 6;
 
@@ -531,9 +530,9 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // CAMBIAR TEMA
-    // =====================================================
+
     public void setTema(Tema tema) {
 
         this.tema = tema;
@@ -548,10 +547,10 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // GET TEXT
     // ESTE ES EL MÉTODO IMPORTANTE PARA EL LOGIN
-    // =====================================================
+
     public String getText() {
 
         if (mostrandoPlaceholder) {
@@ -562,9 +561,9 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // SET TEXT
-    // =====================================================
+
     public void setText(String textoNuevo) {
 
         if (
@@ -599,9 +598,9 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // MÉTODOS ANTERIORES
-    // =====================================================
+
     public String getTexto() {
 
         return getText();
@@ -614,18 +613,18 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // DAR FOCO AL CAMPO
-    // =====================================================
+
     public void enfocar() {
 
         txtCampo.requestFocusInWindow();
     }
 
 
-    // =====================================================
+
     // PLACEHOLDER
-    // =====================================================
+
     public void setPlaceholder(
             String placeholder) {
 
@@ -651,9 +650,9 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // ICONO
-    // =====================================================
+
     public void setIcono(Icon icono) {
 
         lblIcono.setIcon(
@@ -668,18 +667,18 @@ public class TextBox_Login extends JPanel {
     }
 
 
-    // =====================================================
+
     // ACCESO AL JTextField
-    // =====================================================
+
     public JTextField getTextField() {
 
         return txtCampo;
     }
 
 
-    // =====================================================
+
     // CAMBIAR COLORES MANUALMENTE
-    // =====================================================
+
     public void setAmarilloPrincipal(
             Color color) {
 

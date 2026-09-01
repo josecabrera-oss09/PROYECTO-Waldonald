@@ -218,3 +218,4 @@ public class BotonRedondeado extends JButton {
         return Math.max(0, Math.min(255, valor));
     }
 }
+
