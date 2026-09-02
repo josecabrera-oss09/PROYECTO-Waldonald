@@ -29,6 +29,30 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         labelTitulo3 = new javax.swing.JLabel();
         labelTitulo2 = new javax.swing.JLabel();
         botonDerretido3 = new Componentes.BotonDerretido();
+        panelFlotante1 = new Componentes.PanelFlotante();
+        panelCircular2 = new Componentes.PanelCircular();
+        labelEscalable2 = new Labels.LabelEscalable();
+        labelTitulo4 = new javax.swing.JLabel();
+        labelTitulo5 = new javax.swing.JLabel();
+        labelTitulo6 = new javax.swing.JLabel();
+        panelFlotante2 = new Componentes.PanelFlotante();
+        panelCircular3 = new Componentes.PanelCircular();
+        labelEscalable3 = new Labels.LabelEscalable();
+        labelTitulo7 = new javax.swing.JLabel();
+        labelTitulo8 = new javax.swing.JLabel();
+        labelTitulo9 = new javax.swing.JLabel();
+        panelFlotante4 = new Componentes.PanelFlotante();
+        panelCircular5 = new Componentes.PanelCircular();
+        labelEscalable5 = new Labels.LabelEscalable();
+        labelTitulo13 = new javax.swing.JLabel();
+        labelTitulo14 = new javax.swing.JLabel();
+        labelTitulo15 = new javax.swing.JLabel();
+        panelFlotante3 = new Componentes.PanelFlotante();
+        panelCircular4 = new Componentes.PanelCircular();
+        labelEscalable4 = new Labels.LabelEscalable();
+        labelTitulo10 = new javax.swing.JLabel();
+        labelTitulo11 = new javax.swing.JLabel();
+        labelTitulo12 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -49,13 +73,156 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         botonDerretido3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icono_agregar.png"))); // NOI18N
         botonDerretido3.setText("Agregar producto");
         botonDerretido3.setIconTextGap(15);
-        add(botonDerretido3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1020, 80, 230, 80));
+        add(botonDerretido3, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 60, 230, 80));
+
+        panelFlotante1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/lista_icono.png"))); // NOI18N
+        panelCircular2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 20, 50, 50));
+
+        panelFlotante1.add(panelCircular2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo4.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo4.setText("Ingredientes totales");
+        panelFlotante1.add(labelTitulo4, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo5.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
+        labelTitulo5.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo5.setText("48");
+        panelFlotante1.add(labelTitulo5, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 76));
+
+        labelTitulo6.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo6.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo6.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo6.setText("En el inventario");
+        panelFlotante1.add(labelTitulo6, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        add(panelFlotante1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 140, 360, 160));
+
+        panelFlotante2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular3.setColorFondo(new java.awt.Color(252, 233, 233));
+        panelCircular3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/advertencia_icono.png"))); // NOI18N
+        panelCircular3.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(19, 22, 43, 43));
+
+        panelFlotante2.add(panelCircular3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo7.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo7.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo7.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo7.setText("Stock bajo");
+        panelFlotante2.add(labelTitulo7, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo8.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
+        labelTitulo8.setForeground(new java.awt.Color(195, 61, 66));
+        labelTitulo8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo8.setText("48");
+        panelFlotante2.add(labelTitulo8, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 76));
+
+        labelTitulo9.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo9.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo9.setText("Requieren reposición");
+        panelFlotante2.add(labelTitulo9, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        add(panelFlotante2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 140, 360, 160));
+
+        panelFlotante4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular5.setColorFondo(new java.awt.Color(230, 245, 234));
+        panelCircular5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/cheque.png"))); // NOI18N
+        panelCircular5.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 23, 45, 45));
+
+        panelFlotante4.add(panelCircular5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo13.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo13.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo13.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo13.setText("Activos");
+        panelFlotante4.add(labelTitulo13, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo14.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
+        labelTitulo14.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo14.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo14.setText("48");
+        panelFlotante4.add(labelTitulo14, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 76));
+
+        labelTitulo15.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo15.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo15.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo15.setText("Disponible para uso");
+        panelFlotante4.add(labelTitulo15, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        add(panelFlotante4, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 140, 360, 160));
+
+        panelFlotante3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular4.setColorFondo(new java.awt.Color(237, 239, 243));
+        panelCircular4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/x_icono.png"))); // NOI18N
+        panelCircular4.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(23, 27, 35, 35));
+
+        panelFlotante3.add(panelCircular4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo10.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo10.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo10.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo10.setText("Inactivos");
+        panelFlotante3.add(labelTitulo10, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo11.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
+        labelTitulo11.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo11.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo11.setText("48");
+        panelFlotante3.add(labelTitulo11, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 76));
+
+        labelTitulo12.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo12.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo12.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo12.setText("No disponibles");
+        panelFlotante3.add(labelTitulo12, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        add(panelFlotante3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 140, 360, 160));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Componentes.BotonDerretido botonDerretido3;
+    private Labels.LabelEscalable labelEscalable2;
+    private Labels.LabelEscalable labelEscalable3;
+    private Labels.LabelEscalable labelEscalable4;
+    private Labels.LabelEscalable labelEscalable5;
+    private javax.swing.JLabel labelTitulo10;
+    private javax.swing.JLabel labelTitulo11;
+    private javax.swing.JLabel labelTitulo12;
+    private javax.swing.JLabel labelTitulo13;
+    private javax.swing.JLabel labelTitulo14;
+    private javax.swing.JLabel labelTitulo15;
     private javax.swing.JLabel labelTitulo2;
     private javax.swing.JLabel labelTitulo3;
+    private javax.swing.JLabel labelTitulo4;
+    private javax.swing.JLabel labelTitulo5;
+    private javax.swing.JLabel labelTitulo6;
+    private javax.swing.JLabel labelTitulo7;
+    private javax.swing.JLabel labelTitulo8;
+    private javax.swing.JLabel labelTitulo9;
+    private Componentes.PanelCircular panelCircular2;
+    private Componentes.PanelCircular panelCircular3;
+    private Componentes.PanelCircular panelCircular4;
+    private Componentes.PanelCircular panelCircular5;
+    private Componentes.PanelFlotante panelFlotante1;
+    private Componentes.PanelFlotante panelFlotante2;
+    private Componentes.PanelFlotante panelFlotante3;
+    private Componentes.PanelFlotante panelFlotante4;
     // End of variables declaration//GEN-END:variables
 }

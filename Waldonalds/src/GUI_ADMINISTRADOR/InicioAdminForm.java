@@ -99,8 +99,6 @@ public class InicioAdminForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        boton1 = new Componentes.Boton();
-        boton2 = new Componentes.Boton();
         panelRaiz = new javax.swing.JPanel();
         panelCabecera = new javax.swing.JPanel();
         labelLogo = new Labels.LabelEscalable();
@@ -283,8 +281,6 @@ public class InicioAdminForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private Componentes.Boton boton1;
-    private Componentes.Boton boton2;
     private Componentes.BotonDerretido botonAdmin;
     private Componentes.BotonDerretido botonMenu;
     private Componentes.BotonDesplegable botonUsuario;

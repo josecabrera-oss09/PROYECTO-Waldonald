@@ -27,6 +27,30 @@ public class DashboardPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         labelTitulo = new javax.swing.JLabel();
+        panelFlotante1 = new Componentes.PanelFlotante();
+        panelCircular2 = new Componentes.PanelCircular();
+        labelEscalable2 = new Labels.LabelEscalable();
+        labelTitulo3 = new javax.swing.JLabel();
+        labelTitulo2 = new javax.swing.JLabel();
+        labelTitulo5 = new javax.swing.JLabel();
+        panelFlotante2 = new Componentes.PanelFlotante();
+        panelCircular3 = new Componentes.PanelCircular();
+        labelEscalable3 = new Labels.LabelEscalable();
+        labelTitulo7 = new javax.swing.JLabel();
+        labelTitulo8 = new javax.swing.JLabel();
+        labelTitulo9 = new javax.swing.JLabel();
+        panelFlotante4 = new Componentes.PanelFlotante();
+        panelCircular5 = new Componentes.PanelCircular();
+        labelEscalable5 = new Labels.LabelEscalable();
+        labelTitulo13 = new javax.swing.JLabel();
+        labelTitulo15 = new javax.swing.JLabel();
+        labelTitulo4 = new javax.swing.JLabel();
+        panelFlotante3 = new Componentes.PanelFlotante();
+        panelCircular4 = new Componentes.PanelCircular();
+        labelEscalable4 = new Labels.LabelEscalable();
+        labelTitulo10 = new javax.swing.JLabel();
+        labelTitulo11 = new javax.swing.JLabel();
+        labelTitulo12 = new javax.swing.JLabel();
 
         labelTitulo.setFont(new java.awt.Font("Dialog", 1, 59)); // NOI18N
         labelTitulo.setForeground(new java.awt.Color(13, 17, 23));
@@ -36,10 +60,152 @@ public class DashboardPanel extends javax.swing.JPanel {
         setBackground(new java.awt.Color(255, 255, 255));
         setPreferredSize(new java.awt.Dimension(1580, 980));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelFlotante1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/quetzal_icono.png"))); // NOI18N
+        panelCircular2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 13, 65, 65));
+
+        panelFlotante1.add(panelCircular2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo3.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo3.setText("Ventas del día");
+        panelFlotante1.add(labelTitulo3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo2.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo2.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo2.setText("Ganancias del día");
+        panelFlotante1.add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        labelTitulo5.setFont(new java.awt.Font("Dialog", 1, 35)); // NOI18N
+        labelTitulo5.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo5.setText("Q100.00");
+        panelFlotante1.add(labelTitulo5, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 200, 76));
+
+        add(panelFlotante1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, 360, 160));
+
+        panelFlotante2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular3.setColorFondo(new java.awt.Color(252, 233, 233));
+        panelCircular3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/bolsa_icono.png"))); // NOI18N
+        panelCircular3.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 13, 58, 60));
+
+        panelFlotante2.add(panelCircular3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo7.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo7.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo7.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo7.setText("Pedidos del día");
+        panelFlotante2.add(labelTitulo7, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo8.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
+        labelTitulo8.setForeground(new java.awt.Color(195, 61, 66));
+        labelTitulo8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo8.setText("48");
+        panelFlotante2.add(labelTitulo8, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 76));
+
+        labelTitulo9.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo9.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo9.setText("Pedidos realizados");
+        panelFlotante2.add(labelTitulo9, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        add(panelFlotante2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 30, 360, 160));
+
+        panelFlotante4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ticket_icono.png"))); // NOI18N
+        panelCircular5.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 15, 60, 60));
+
+        panelFlotante4.add(panelCircular5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo13.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo13.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo13.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo13.setText("Ticket Promedio");
+        panelFlotante4.add(labelTitulo13, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo15.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo15.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo15.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo15.setText("Disponible para uso");
+        panelFlotante4.add(labelTitulo15, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        labelTitulo4.setFont(new java.awt.Font("Dialog", 1, 35)); // NOI18N
+        labelTitulo4.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo4.setText("Q100.00");
+        panelFlotante4.add(labelTitulo4, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 200, 76));
+
+        add(panelFlotante4, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 30, 360, 160));
+
+        panelFlotante3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelCircular4.setColorFondo(new java.awt.Color(252, 233, 233));
+        panelCircular4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/caja_icono.png"))); // NOI18N
+        panelCircular4.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 15, 60, 60));
+
+        panelFlotante3.add(panelCircular4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        labelTitulo10.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        labelTitulo10.setForeground(new java.awt.Color(92, 103, 124));
+        labelTitulo10.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo10.setText("Productos con stock bajo");
+        panelFlotante3.add(labelTitulo10, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 0, 650, 76));
+
+        labelTitulo11.setFont(new java.awt.Font("Dialog", 1, 40)); // NOI18N
+        labelTitulo11.setForeground(new java.awt.Color(195, 61, 66));
+        labelTitulo11.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo11.setText("48");
+        panelFlotante3.add(labelTitulo11, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 90, 76));
+
+        labelTitulo12.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
+        labelTitulo12.setForeground(new java.awt.Color(127, 137, 154));
+        labelTitulo12.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelTitulo12.setText("Requieren atención");
+        panelFlotante3.add(labelTitulo12, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 460, 80));
+
+        add(panelFlotante3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 30, 360, 160));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Labels.LabelEscalable labelEscalable2;
+    private Labels.LabelEscalable labelEscalable3;
+    private Labels.LabelEscalable labelEscalable4;
+    private Labels.LabelEscalable labelEscalable5;
     private javax.swing.JLabel labelTitulo;
+    private javax.swing.JLabel labelTitulo10;
+    private javax.swing.JLabel labelTitulo11;
+    private javax.swing.JLabel labelTitulo12;
+    private javax.swing.JLabel labelTitulo13;
+    private javax.swing.JLabel labelTitulo15;
+    private javax.swing.JLabel labelTitulo2;
+    private javax.swing.JLabel labelTitulo3;
+    private javax.swing.JLabel labelTitulo4;
+    private javax.swing.JLabel labelTitulo5;
+    private javax.swing.JLabel labelTitulo7;
+    private javax.swing.JLabel labelTitulo8;
+    private javax.swing.JLabel labelTitulo9;
+    private Componentes.PanelCircular panelCircular2;
+    private Componentes.PanelCircular panelCircular3;
+    private Componentes.PanelCircular panelCircular4;
+    private Componentes.PanelCircular panelCircular5;
+    private Componentes.PanelFlotante panelFlotante1;
+    private Componentes.PanelFlotante panelFlotante2;
+    private Componentes.PanelFlotante panelFlotante3;
+    private Componentes.PanelFlotante panelFlotante4;
     // End of variables declaration//GEN-END:variables
 }
