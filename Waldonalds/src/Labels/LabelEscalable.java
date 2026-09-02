@@ -148,3 +148,4 @@ public class LabelEscalable extends JLabel {
         altoCache = -1;
     }
 }
+
