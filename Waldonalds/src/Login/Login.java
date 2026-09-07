@@ -8,6 +8,8 @@ import Conexion.Conexion;
 
 import GUI_ADMINISTRADOR.InicioAdminForm;
 import GUI_CAJERO.Cajero;
+import Utilidades.SeguridadContrasena;
+import Utilidades.SesionUsuario;
 
 import java.awt.Font;
 import java.io.InputStream;
@@ -16,9 +18,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import java.security.MessageDigest;
-import java.nio.charset.StandardCharsets;
 
 import javax.swing.JOptionPane;
 
@@ -77,35 +76,6 @@ public class Login extends javax.swing.JFrame {
         }
     }
 
-    private String sha256(String contraseña) {
-
-        try {
-
-            MessageDigest digest
-                    = MessageDigest.getInstance("SHA-256");
-
-            byte[] hash = digest.digest(
-                    contraseña.getBytes(StandardCharsets.UTF_8)
-            );
-
-            StringBuilder resultado = new StringBuilder();
-
-            for (byte b : hash) {
-
-                resultado.append(
-                        String.format("%02x", b)
-                );
-            }
-
-            return resultado.toString();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private void iniciarSesion() {
 
         // Obtener datos de los campos personalizados
@@ -154,7 +124,7 @@ public class Login extends javax.swing.JFrame {
         try (Connection con = conexion; PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario);
-            ps.setString(2, sha256(contraseña));
+            ps.setString(2, SeguridadContrasena.sha256(contraseña));
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -164,6 +134,9 @@ public class Login extends javax.swing.JFrame {
                     String nombre = rs.getString("nombre");
                     String apellido = rs.getString("apellido");
                     String rol = rs.getString("rol");
+
+                    // Guarda la identidad mínima que necesitan las pantallas.
+                    SesionUsuario.iniciar(idUsuario, nombre, apellido, rol);
 
                     System.out.println("Sesión iniciada");
                     System.out.println("ID: " + idUsuario);
