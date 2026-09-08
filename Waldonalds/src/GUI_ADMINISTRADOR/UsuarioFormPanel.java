@@ -4,6 +4,7 @@ import CRUD.UsuarioCRUD;
 import Modelos.Usuario;
 import Utilidades.SeguridadContrasena;
 import Utilidades.SesionUsuario;
+import Utilidades.TemaAdmin;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.sql.SQLException;
@@ -25,18 +26,23 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
     public static final String EVENTO_GUARDADO = "usuarioGuardado";
     public static final String EVENTO_CANCELAR = "cancelarFormulario";
 
+    private static final Color AZUL = new Color(0, 20, 43);
+    private static final Color SECUNDARIO = new Color(92, 103, 124);
     private static final Color BORDE = new Color(222, 227, 234);
     private static final Color ROJO = new Color(231, 55, 65);
     private static final Pattern CORREO_VALIDO = Pattern.compile(
             "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$",
             Pattern.CASE_INSENSITIVE);
 
+    private final TemaAdmin tema = new TemaAdmin();
     private UsuarioCRUD crud;
     private Usuario original;
     private String rolSeleccionado;
     private boolean estadoSeleccionado = true;
     private boolean contrasenaVisible;
     private boolean confirmacionVisible;
+    private char ecoContrasena;
+    private char ecoConfirmacion;
 
     /** Constructor vacío requerido por el diseñador de NetBeans. */
     public UsuarioFormPanel() {
@@ -47,8 +53,83 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         this.crud = crud;
         this.original = original;
         initComponents();
+        ecoContrasena = campoContrasena.getEchoChar();
+        ecoConfirmacion = campoConfirmar.getEchoChar();
+        configurarAspecto();
         configurarSelectores();
         cargarModo();
+    }
+
+    private void configurarAspecto() {
+        labelTitulo.setFont(tema.negrita(25f));
+        labelSubtitulo.setFont(tema.regular(15f));
+        labelSubtitulo.setForeground(SECUNDARIO);
+        labelError.setFont(tema.media(13f));
+
+        javax.swing.JLabel[] etiquetas = {
+            labelNombre, labelApellido, labelUsuario, labelCorreo,
+            labelRol, labelEstado, labelContrasena, labelConfirmar
+        };
+        for (javax.swing.JLabel etiqueta : etiquetas) {
+            etiqueta.setFont(tema.media(14f));
+            etiqueta.setForeground(AZUL);
+        }
+
+        JTextField[] campos = {
+            campoNombre, campoApellido, campoUsuario, campoCorreo,
+            campoContrasena, campoConfirmar
+        };
+        for (JTextField campo : campos) {
+            campo.setFont(tema.regular(14f));
+            campo.setForeground(AZUL);
+            campo.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(BORDE, 1, true),
+                    new EmptyBorder(0, 13, 0, 13)));
+        }
+
+        // Los botones del ojo se superponen al extremo derecho de los campos.
+        // Este espacio evita que la contraseña quede debajo del icono.
+        campoContrasena.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDE, 1, true),
+                new EmptyBorder(0, 13, 0, 52)));
+        campoConfirmar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDE, 1, true),
+                new EmptyBorder(0, 13, 0, 52)));
+
+        // En AbsoluteLayout el botón y el campo ocupan parte de la misma zona.
+        // Los colocamos al frente para que Swing no los oculte tras el campo.
+        panelContrasenas.setComponentZOrder(botonVerConfirmacion, 0);
+        panelContrasenas.setComponentZOrder(botonVerContrasena, 0);
+
+        selectorRol.setFont(tema.regular(14f));
+        selectorEstado.setFont(tema.regular(14f));
+        configurarSelector(selectorRol);
+        configurarSelector(selectorEstado);
+        cambiarContrasena.setFont(tema.media(14f));
+        cambiarContrasena.setForeground(AZUL);
+        botonGuardar.setFont(tema.negrita(14f));
+        botonCancelar.setFont(tema.negrita(14f));
+        botonDesactivar.setFont(tema.negrita(14f));
+
+        botonVerContrasena.setCursor(
+                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        botonVerConfirmacion.setCursor(
+                Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+
+    private void configurarSelector(Componentes.BotonDesplegable selector) {
+        selector.setForeground(AZUL);
+        selector.setColorFondo(Color.WHITE);
+        selector.setColorHover(new Color(248, 249, 251));
+        selector.setColorDesplegado(new Color(255, 247, 222));
+        selector.setColorTextoOpcion(AZUL);
+        selector.setColorBordeMenu(BORDE);
+        selector.setAnchoMenu(330);
+        selector.setAltoOpcion(42);
+        selector.setBorderPainted(true);
+        selector.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDE, 1, true),
+                new EmptyBorder(0, 13, 0, 34)));
     }
 
     private void configurarSelectores() {
@@ -254,13 +335,23 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
     }
 
     private void alternarContrasena(JPasswordField campo, boolean confirmacion) {
+        boolean visible;
+        char ecoOculto;
         if (confirmacion) {
             confirmacionVisible = !confirmacionVisible;
-            campo.setEchoChar(confirmacionVisible ? (char) 0 : '•');
+            visible = confirmacionVisible;
+            ecoOculto = ecoConfirmacion;
+            botonVerConfirmacion.setToolTipText(
+                    visible ? "Ocultar contraseña" : "Mostrar contraseña");
         } else {
             contrasenaVisible = !contrasenaVisible;
-            campo.setEchoChar(contrasenaVisible ? (char) 0 : '•');
+            visible = contrasenaVisible;
+            ecoOculto = ecoContrasena;
+            botonVerContrasena.setToolTipText(
+                    visible ? "Ocultar contraseña" : "Mostrar contraseña");
         }
+        campo.setEchoChar(visible ? (char) 0 : ecoOculto);
+        campo.requestFocusInWindow();
     }
 
     private void cambiarContrasenaActionPerformed(
@@ -320,11 +411,11 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         cambiarContrasena = new javax.swing.JCheckBox();
         panelContrasenas = new javax.swing.JPanel();
         labelContrasena = new javax.swing.JLabel();
-        campoContrasena = new javax.swing.JPasswordField();
         botonVerContrasena = new javax.swing.JButton();
+        campoContrasena = new javax.swing.JPasswordField();
         labelConfirmar = new javax.swing.JLabel();
-        campoConfirmar = new javax.swing.JPasswordField();
         botonVerConfirmacion = new javax.swing.JButton();
+        campoConfirmar = new javax.swing.JPasswordField();
         labelError = new javax.swing.JLabel();
         botonDesactivar = new Componentes.BotonRedondeado();
         botonCancelar = new Componentes.BotonRedondeado();
@@ -402,33 +493,35 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
 
         labelContrasena.setText("Contraseña");
         panelContrasenas.add(labelContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 22));
-        panelContrasenas.add(campoContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 26, 330, 46));
 
         botonVerContrasena.setContentAreaFilled(false);
         botonVerContrasena.setFocusPainted(false);
         botonVerContrasena.setBorderPainted(false);
         botonVerContrasena.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/visualizar.png"))); // NOI18N
+        botonVerContrasena.setToolTipText("Mostrar contraseña");
         botonVerContrasena.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonVerContrasenaActionPerformed(evt);
             }
         });
         panelContrasenas.add(botonVerContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(285, 28, 40, 42));
+        panelContrasenas.add(campoContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 26, 330, 46));
 
         labelConfirmar.setText("Confirmar contraseña");
         panelContrasenas.add(labelConfirmar, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 0, 330, 22));
-        panelContrasenas.add(campoConfirmar, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 26, 330, 46));
 
         botonVerConfirmacion.setContentAreaFilled(false);
         botonVerConfirmacion.setFocusPainted(false);
         botonVerConfirmacion.setBorderPainted(false);
         botonVerConfirmacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/visualizar.png"))); // NOI18N
+        botonVerConfirmacion.setToolTipText("Mostrar contraseña");
         botonVerConfirmacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonVerConfirmacionActionPerformed(evt);
             }
         });
         panelContrasenas.add(botonVerConfirmacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(665, 28, 40, 42));
+        panelContrasenas.add(campoConfirmar, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 26, 330, 46));
 
         panelTarjeta.add(panelContrasenas, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 438, 710, 76));
 

@@ -49,8 +49,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -107,13 +105,32 @@ public class UsuariosPanel extends javax.swing.JPanel {
 
     /** Corrige las tarjetas que estaban copiadas del panel de ingredientes. */
     private void configurarElementosExistentes() {
+        setBackground(new Color(248, 249, 251));
+        labelTitulo2.setFont(tema.regular(17f));
+
+        botonDerretido1.setFont(tema.negrita(16f));
         botonDerretido1.addActionListener(evento -> abrirFormulario(null));
+
+        panelCircular2.setColorFondo(new Color(255, 244, 211));
+        panelCircular3.setColorFondo(new Color(252, 233, 233));
+        panelCircular5.setColorFondo(new Color(255, 244, 211));
+        panelCircular4.setColorFondo(new Color(252, 233, 233));
+
+        botonExportar.setFont(tema.negrita(14f));
+        botonExportar.setIcon(IconosUsuarios.crear(
+                IconosUsuarios.Tipo.EXPORTAR, ROJO, 22));
+        botonExportar.setIconTextGap(12);
         botonExportar.addActionListener(evento -> exportarCsv());
     }
 
 
     /** Configura los controles que ya existen visualmente en el .form. */
     private void configurarFiltrosVisuales() {
+        panelFiltros.setColorFondo(Color.WHITE);
+        panelFiltros.setColorBorde(BORDE);
+        campoBusqueda.setFont(tema.regular(14f));
+
+        configurarFiltro(filtroRol, 270);
         filtroRol.addMenuOpcionListener(evento -> {
             String opcion = evento.getActionCommand();
             rolSeleccionado = "Todos los roles".equals(opcion)
@@ -123,6 +140,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
             cargarPagina();
         });
 
+        configurarFiltro(filtroEstado, 270);
         filtroEstado.addMenuOpcionListener(evento -> {
             String opcion = evento.getActionCommand();
             estadoSeleccionado = switch (opcion) {
@@ -135,26 +153,20 @@ public class UsuariosPanel extends javax.swing.JPanel {
             cargarPagina();
         });
 
+        botonLimpiarFiltros.setFont(tema.negrita(14f));
+        botonLimpiarFiltros.setIcon(IconosUsuarios.crear(
+                IconosUsuarios.Tipo.FILTRO, ROJO, 21));
+        botonLimpiarFiltros.setIconTextGap(10);
         botonLimpiarFiltros.addActionListener(
                 evento -> limpiarFiltros());
     }
 
     /** Aplica comportamiento a la JTable dibujada en UsuariosPanel.form. */
     private void configurarTabla() {
+        panelTabla.setColorFondo(Color.WHITE);
+        panelTabla.setColorBorde(BORDE);
         tablaUsuarios.setModel(modeloTabla);
-
-        JTableHeader cabecera = tablaUsuarios.getTableHeader();
-        cabecera.setReorderingAllowed(false);
-        cabecera.setBackground(Color.WHITE);
-        cabecera.setForeground(AZUL);
-        cabecera.setFont(tema.negrita(12f));
-        cabecera.setPreferredSize(new Dimension(0, 42));
-        cabecera.setBorder(BorderFactory.createMatteBorder(
-                0, 0, 1, 0, BORDE));
-        cabecera.setDefaultRenderer(new RenderCabecera());
-
-        tablaUsuarios.setDefaultRenderer(
-                Object.class, new RenderTextoTabla());
+        tablaUsuarios.aplicarEstilo();
         tablaUsuarios.getColumnModel().getColumn(5)
                 .setCellRenderer(new RenderEstado());
         tablaUsuarios.getColumnModel().getColumn(7)
@@ -163,7 +175,13 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 .setCellEditor(new EditorAcciones());
         configurarAnchosColumnas();
 
+        scrollUsuarios.setBorder(BorderFactory.createEmptyBorder());
         scrollUsuarios.getViewport().setBackground(Color.WHITE);
+        etiquetaRango.setFont(tema.regular(12f));
+        etiquetaRango.setForeground(SECUNDARIO);
+
+        configurarBotonPagina(
+                botonAnterior, IconosUsuarios.Tipo.ANTERIOR);
         botonAnterior.addActionListener(evento -> cambiarPagina(
                 paginaActual - 1));
 
@@ -172,6 +190,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
         botonesPagina.add(botonPagina3);
         for (int indice = 0; indice < botonesPagina.size(); indice++) {
             BotonRedondeado boton = botonesPagina.get(indice);
+            configurarBotonPagina(boton, null);
             final int posicion = indice;
             boton.addActionListener(evento -> {
                 Object valor = botonesPagina.get(posicion)
@@ -182,6 +201,8 @@ public class UsuariosPanel extends javax.swing.JPanel {
             });
         }
 
+        configurarBotonPagina(
+                botonSiguiente, IconosUsuarios.Tipo.SIGUIENTE);
         botonSiguiente.addActionListener(evento -> cambiarPagina(
                 paginaActual + 1));
     }
@@ -212,6 +233,24 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 temporizadorBusqueda.restart();
             }
         });
+    }
+
+    private void configurarFiltro(
+            BotonDesplegable boton,
+            int ancho) {
+        boton.setForeground(AZUL);
+        boton.setFont(tema.regular(14f));
+        boton.setColorFondo(Color.WHITE);
+        boton.setColorHover(new Color(248, 249, 251));
+        boton.setColorDesplegado(new Color(255, 247, 222));
+        boton.setColorTextoOpcion(AZUL);
+        boton.setColorBordeMenu(BORDE);
+        boton.setAnchoMenu(ancho);
+        boton.setAltoOpcion(42);
+        boton.setBorderPainted(true);
+        boton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDE, 1, true),
+                new EmptyBorder(0, 14, 0, 34)));
     }
 
     /** Ejecuta la consulta fuera del hilo gráfico para no congelar Swing. */
@@ -533,6 +572,24 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 JOptionPane.ERROR_MESSAGE);
     }
 
+    private void configurarBotonPagina(
+            BotonRedondeado boton,
+            IconosUsuarios.Tipo tipoIcono) {
+        boton.setDegradado(false);
+        boton.setColorInicio(Color.WHITE);
+        boton.setColorFinal(Color.WHITE);
+        boton.setColorBorde(BORDE);
+        boton.setGrosorBorde(1f);
+        boton.setRadio(12);
+        boton.setPreferredSize(new Dimension(40, 38));
+        boton.setFont(tema.media(13f));
+        if (tipoIcono != null) {
+            boton.setText("");
+            boton.setIcon(IconosUsuarios.crear(
+                    tipoIcono, AZUL, 17));
+        }
+    }
+
     @Override
     public void removeNotify() {
         temporizadorBusqueda.stop();
@@ -579,7 +636,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
         botonLimpiarFiltros = new Componentes.BotonRedondeado();
         panelTabla = new Componentes.PanelFlotante();
         scrollUsuarios = new javax.swing.JScrollPane();
-        tablaUsuarios = new javax.swing.JTable();
+        tablaUsuarios = new Componentes.TablaAdministrativa();
         etiquetaRango = new javax.swing.JLabel();
         panelPaginacion = new javax.swing.JPanel();
         botonAnterior = new Componentes.BotonRedondeado();
@@ -786,7 +843,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        tablaUsuarios.setRowHeight(40);
+        tablaUsuarios.setColumnasCentradas("5,7");
         scrollUsuarios.setViewportView(tablaUsuarios);
 
         panelTabla.add(scrollUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 458));
@@ -886,58 +943,6 @@ public class UsuariosPanel extends javax.swing.JPanel {
         @Override
         public boolean isCellEditable(int fila, int columna) {
             return columna == 7;
-        }
-    }
-
-    private final class RenderCabecera extends DefaultTableCellRenderer {
-
-        private RenderCabecera() {
-            setOpaque(true);
-            setBackground(Color.WHITE);
-            setForeground(AZUL);
-            setFont(tema.negrita(12f));
-            setBorder(new EmptyBorder(0, 12, 0, 12));
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable tabla,
-                Object valor,
-                boolean seleccionado,
-                boolean foco,
-                int fila,
-                int columna) {
-            JLabel etiqueta = (JLabel) super.getTableCellRendererComponent(
-                    tabla, valor, seleccionado, foco, fila, columna);
-            etiqueta.setHorizontalAlignment(
-                    columna == 0 || columna >= 5
-                            ? SwingConstants.CENTER : SwingConstants.LEFT);
-            etiqueta.setBackground(Color.WHITE);
-            etiqueta.setForeground(AZUL);
-            etiqueta.setBorder(new EmptyBorder(0, 12, 0, 12));
-            return etiqueta;
-        }
-    }
-
-    private final class RenderTextoTabla extends DefaultTableCellRenderer {
-
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable tabla,
-                Object valor,
-                boolean seleccionado,
-                boolean foco,
-                int fila,
-                int columna) {
-            JLabel etiqueta = (JLabel) super.getTableCellRendererComponent(
-                    tabla, valor, seleccionado, foco, fila, columna);
-            etiqueta.setBorder(new EmptyBorder(0, 12, 0, 12));
-            etiqueta.setForeground(AZUL);
-            etiqueta.setFont(tema.regular(12f));
-            etiqueta.setHorizontalAlignment(
-                    columna == 0 || columna == 3 || columna == 6
-                            ? SwingConstants.CENTER : SwingConstants.LEFT);
-            return etiqueta;
         }
     }
 
@@ -1136,6 +1141,6 @@ public class UsuariosPanel extends javax.swing.JPanel {
     private javax.swing.JPanel panelPaginacion;
     private Componentes.PanelFlotante panelTabla;
     private javax.swing.JScrollPane scrollUsuarios;
-    private javax.swing.JTable tablaUsuarios;
+    private Componentes.TablaAdministrativa tablaUsuarios;
     // End of variables declaration//GEN-END:variables
 }
