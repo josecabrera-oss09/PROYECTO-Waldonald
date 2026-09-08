@@ -2,6 +2,8 @@ package Componentes;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -15,22 +17,19 @@ import javax.swing.SwingConstants;
 
 public class BotonLetras extends JButton {
 
+    // Mouse encima
     private boolean mouseEncima = false;
+
+    // Si el botón está seleccionado
     private boolean seleccionado = false;
 
-    // Fondo normal
+    // Colores
     private final Color colorFondoNormal = Color.WHITE;
-
-    // Borde naranja cuando está normal
-private final Color bordeNormal = new Color(235, 235, 235);
-
-    // Amarillo al pasar el mouse
+    private final Color bordeNormal = new Color(235, 235, 235);
     private final Color colorAmarillo = new Color(255, 188, 13);
-
-    // Texto
     private final Color colorTexto = new Color(30, 30, 30);
 
-    // Esquinas
+    // Redondeado
     private int radio = 22;
 
     public BotonLetras() {
@@ -42,7 +41,7 @@ private final Color bordeNormal = new Color(235, 235, 235);
         setFont(new Font("Arial", Font.BOLD, 12));
         setForeground(colorTexto);
 
-        // Imagen arriba y texto abajo
+        // Centrar texto
         setHorizontalAlignment(SwingConstants.CENTER);
         setVerticalAlignment(SwingConstants.CENTER);
 
@@ -51,32 +50,78 @@ private final Color bordeNormal = new Color(235, 235, 235);
 
         setIconTextGap(4);
 
-        // Quitar diseño predeterminado
+        // Quitar diseño normal del JButton
         setContentAreaFilled(false);
         setBorderPainted(false);
         setFocusPainted(false);
         setOpaque(false);
 
-        // Cursor de mano
+        // Cursor
         setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Detectar cuando entra y sale el mouse
+        // ==========================================
+        // MOUSE
+        // ==========================================
         addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseEntered(MouseEvent e) {
+
                 mouseEncima = true;
+
                 repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
+
                 mouseEncima = false;
+
                 repaint();
             }
         });
+
+        // ==========================================
+        // CLICK
+        // ==========================================
+        addActionListener(e -> {
+
+            seleccionarEsteBoton();
+
+        });
     }
 
+    // ==========================================
+    // SELECCIONAR ESTE BOTÓN
+    // ==========================================
+    private void seleccionarEsteBoton() {
+
+        Container contenedor = getParent();
+
+        if (contenedor == null) {
+            return;
+        }
+
+        // Buscar todos los componentes
+        for (Component componente : contenedor.getComponents()) {
+
+            // Si es un BotonLetras
+            if (componente instanceof BotonLetras) {
+
+                BotonLetras boton = (BotonLetras) componente;
+
+                // Quitar selección
+                boton.setSeleccionado(false);
+            }
+        }
+
+        // Seleccionar únicamente este
+        setSeleccionado(true);
+    }
+
+    // ==========================================
+    // DIBUJAR BOTÓN
+    // ==========================================
     @Override
     protected void paintComponent(Graphics g) {
 
@@ -90,13 +135,14 @@ private final Color bordeNormal = new Color(235, 235, 235);
         int ancho = getWidth();
         int alto = getHeight();
 
+        // ==========================================
+        // AMARILLO
+        // ==========================================
+        // Si:
+        // - está seleccionado
+        // - o el mouse está encima
+        if (seleccionado || mouseEncima) {
 
-        // CUANDO EL MOUSE ESTÁ ENCIMA
- 
-
-        if (mouseEncima || seleccionado) {
-
-            // Fondo amarillo
             g2.setColor(colorAmarillo);
 
             g2.fillRoundRect(
@@ -108,17 +154,18 @@ private final Color bordeNormal = new Color(235, 235, 235);
                     radio
             );
 
-            // Borde amarillo
             g2.setColor(colorAmarillo);
-            g2.setStroke(new BasicStroke(2.5f));
+
+            g2.setStroke(
+                    new BasicStroke(2.5f)
+            );
 
         } else {
 
-    
-            // ESTADO NORMAL
-      
+            // ==========================================
+            // BLANCO
+            // ==========================================
 
-            // Fondo blanco
             g2.setColor(colorFondoNormal);
 
             g2.fillRoundRect(
@@ -130,12 +177,14 @@ private final Color bordeNormal = new Color(235, 235, 235);
                     radio
             );
 
-            // Borde naranja
             g2.setColor(bordeNormal);
-            g2.setStroke(new BasicStroke(2f));
+
+            g2.setStroke(
+                    new BasicStroke(2f)
+            );
         }
 
-        // Dibujar borde
+        // Borde
         g2.drawRoundRect(
                 2,
                 2,
@@ -147,28 +196,37 @@ private final Color bordeNormal = new Color(235, 235, 235);
 
         g2.dispose();
 
-        // Dibuja imagen y texto encima
+        // Texto e imagen
         super.paintComponent(g);
     }
 
-    // Mantener seleccionado
+    // ==========================================
+    // SELECCIONAR / DESELECCIONAR
+    // ==========================================
     public void setSeleccionado(boolean seleccionado) {
+
         this.seleccionado = seleccionado;
+
         repaint();
     }
 
     public boolean isSeleccionado() {
+
         return seleccionado;
     }
 
-    // Cambiar redondeado
+    // ==========================================
+    // RADIO
+    // ==========================================
     public void setRadio(int radio) {
+
         this.radio = radio;
+
         repaint();
     }
 
     public int getRadio() {
+
         return radio;
     }
 }
-
