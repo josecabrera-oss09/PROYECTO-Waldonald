@@ -1,6 +1,6 @@
-package Componentes;
+package Modelos;
 
-public class Productos{
+public class Productos {
 
     private int idProducto;
     private int idCategoria;
