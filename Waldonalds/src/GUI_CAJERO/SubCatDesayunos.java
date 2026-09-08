@@ -28,18 +28,46 @@ public class SubCatDesayunos extends javax.swing.JPanel {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         botonLetras1 = new Componentes.BotonLetras();
+        botonLetras2 = new Componentes.BotonLetras();
+        botonLetras3 = new Componentes.BotonLetras();
+        botonLetras4 = new Componentes.BotonLetras();
+        botonLetras5 = new Componentes.BotonLetras();
+        botonLetras6 = new Componentes.BotonLetras();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 1290, 320));
 
-        botonLetras1.setText("Todos");
-        add(botonLetras1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 160, 30));
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+        jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 1900, 450));
+
+        botonLetras1.setText("Por tiempo limitado");
+        add(botonLetras1, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 10, 160, 30));
+
+        botonLetras2.setText("Todos");
+        add(botonLetras2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 160, 30));
+
+        botonLetras3.setText("Sándwiches");
+        add(botonLetras3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, 160, 30));
+
+        botonLetras4.setText("McMuffin");
+        add(botonLetras4, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 10, 160, 30));
+
+        botonLetras5.setText("Hot Cakes");
+        add(botonLetras5, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 10, 160, 30));
+
+        botonLetras6.setText("Bebidas");
+        add(botonLetras6, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 10, 160, 30));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Componentes.BotonLetras botonLetras1;
+    private Componentes.BotonLetras botonLetras2;
+    private Componentes.BotonLetras botonLetras3;
+    private Componentes.BotonLetras botonLetras4;
+    private Componentes.BotonLetras botonLetras5;
+    private Componentes.BotonLetras botonLetras6;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
