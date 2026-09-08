@@ -1,7 +1,8 @@
 package GUI_CAJERO;
 
 public class CategoriasPanel extends javax.swing.JPanel {
-
+    private MenuCajeroPanel menuCajeroPanel;
+    
     public CategoriasPanel() {
 
         initComponents();
@@ -11,22 +12,48 @@ public class CategoriasPanel extends javax.swing.JPanel {
         );
     }
     
+    public CategoriasPanel(
+            MenuCajeroPanel menuCajeroPanel) {
+
+        initComponents();
+
+        this.menuCajeroPanel =
+                menuCajeroPanel;
+
+        setPreferredSize(
+                new java.awt.Dimension(
+                        2400,
+                        170
+                )
+        );
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        botonCategoria1 = new Componentes.BotonCategoria();
+        btnDesayuno = new Componentes.BotonCategoria();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        botonCategoria1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        botonCategoria1.setHideActionText(true);
-        botonCategoria1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        add(botonCategoria1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 150, 150));
+        btnDesayuno.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        btnDesayuno.setHideActionText(true);
+        btnDesayuno.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        btnDesayuno.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDesayunoActionPerformed(evt);
+            }
+        });
+        add(btnDesayuno, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 150, 150));
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnDesayunoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDesayunoActionPerformed
+    menuCajeroPanel.mostrarPanelCategoria(
+                new SubCatDesayunos()
+        );
+    }//GEN-LAST:event_btnDesayunoActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private Componentes.BotonCategoria botonCategoria1;
+    private Componentes.BotonCategoria btnDesayuno;
     // End of variables declaration//GEN-END:variables
 }

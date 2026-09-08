@@ -23,7 +23,7 @@
     <Property name="useNullLayout" type="boolean" value="false"/>
   </Layout>
   <SubComponents>
-    <Component class="Componentes.BotonCategoria" name="botonCategoria1">
+    <Component class="Componentes.BotonCategoria" name="btnDesayuno">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Arial" size="24" style="1"/>
@@ -31,9 +31,12 @@
         <Property name="hideActionText" type="boolean" value="true"/>
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayunoActionPerformed"/>
+      </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="20" y="10" width="150" height="150"/>
+          <AbsoluteConstraints x="10" y="10" width="150" height="150"/>
         </Constraint>
       </Constraints>
     </Component>
