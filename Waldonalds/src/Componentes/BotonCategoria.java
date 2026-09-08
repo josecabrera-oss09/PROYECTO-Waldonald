@@ -2,6 +2,7 @@ package Componentes;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -10,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
@@ -63,7 +65,10 @@ public class BotonCategoria extends JButton {
         // Cursor de mano
         setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Detectar mouse
+        // =============================
+        // HOVER
+        // =============================
+
         addMouseListener(new MouseAdapter() {
 
             @Override
@@ -78,14 +83,58 @@ public class BotonCategoria extends JButton {
                 repaint();
             }
         });
+
+        // =============================
+        // CLIC / SELECCIÓN EXCLUSIVA
+        // =============================
+
+        addActionListener(e -> seleccionarEsteBoton());
     }
+
+    // =============================
+    // SELECCIONAR ESTE BOTÓN
+    // =============================
+
+    private void seleccionarEsteBoton() {
+
+        /*
+         * Busca todos los componentes que están dentro
+         * del mismo JPanel o contenedor de este botón.
+         */
+        if (getParent() != null) {
+
+            Component[] componentes = getParent().getComponents();
+
+            for (Component componente : componentes) {
+
+                /*
+                 * Si encuentra otro BotonCategoria,
+                 * lo deselecciona.
+                 */
+                if (componente instanceof BotonCategoria) {
+
+                    BotonCategoria botonCategoria =
+                            (BotonCategoria) componente;
+
+                    botonCategoria.setSeleccionado(false);
+                }
+            }
+        }
+
+        // Este botón queda seleccionado
+        setSeleccionado(true);
+    }
+
+    // =============================
+    // DIBUJAR BOTÓN
+    // =============================
 
     @Override
     protected void paintComponent(Graphics g) {
 
         Graphics2D g2 = (Graphics2D) g.create();
 
-        // Mejor calidad
+        // Mejor calidad gráfica
         g2.setRenderingHint(
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON
@@ -94,13 +143,26 @@ public class BotonCategoria extends JButton {
         int ancho = getWidth();
         int alto = getHeight();
 
-      
+        // =============================
         // FONDO
-       
+        // =============================
 
-        if (mouseEncima || seleccionado) {
+        /*
+         * Si el mouse está encima y el botón
+         * NO está seleccionado:
+         *
+         * fondo crema.
+         *
+         * Si ya está seleccionado:
+         *
+         * fondo blanco.
+         */
+        if (mouseEncima && !seleccionado) {
+
             g2.setColor(colorHover);
+
         } else {
+
             g2.setColor(colorNormal);
         }
 
@@ -113,10 +175,17 @@ public class BotonCategoria extends JButton {
                 radio
         );
 
-
+        // =============================
         // BORDE
-     
+        // =============================
 
+        /*
+         * Hover o seleccionado:
+         * borde amarillo de 2 px.
+         *
+         * Normal:
+         * borde gris de 1 px.
+         */
         if (mouseEncima || seleccionado) {
 
             g2.setColor(amarillo);
@@ -143,9 +212,9 @@ public class BotonCategoria extends JButton {
         super.paintComponent(g);
     }
 
-
-    // SELECCIONAR CATEGORÍA
-  
+    // =============================
+    // SELECCIONAR / DESELECCIONAR
+    // =============================
 
     public void setSeleccionado(boolean seleccionado) {
         this.seleccionado = seleccionado;
@@ -156,9 +225,9 @@ public class BotonCategoria extends JButton {
         return seleccionado;
     }
 
-
-    // CAMBIAR RADIO DE ESQUINAS
-  
+    // =============================
+    // CAMBIAR RADIO
+    // =============================
 
     public void setRadio(int radio) {
         this.radio = radio;
@@ -169,4 +238,3 @@ public class BotonCategoria extends JButton {
         return radio;
     }
 }
-
