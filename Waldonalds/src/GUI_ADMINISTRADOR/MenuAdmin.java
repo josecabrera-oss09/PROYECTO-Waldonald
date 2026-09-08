@@ -10,6 +10,15 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import javax.swing.JPanel;
 import GUI_ADMINISTRADOR.InicioAdminForm;
+import java.awt.Cursor;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+import java.awt.Component;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Pantalla contenedora del modulo administrativo.
@@ -22,25 +31,656 @@ public class MenuAdmin extends javax.swing.JFrame {
     private static final String GESTION_MENU = "gestionMenu";
     private static final String INGREDIENTES = "ingredientes";
     private static final String REPORTES = "reportes";
-
+    private final Map<Component, Rectangle> posicionesContenidoOriginales
+        = new HashMap<>();
     private final TemaAdmin tema;
     private CardLayout navegador;
     private BotonMenuLateral botonActivo;
+    // ==========================================
+// MENÚ LATERAL DESPLEGABLE
+// ==========================================
 
-    public MenuAdmin() {
-        tema = new TemaAdmin();
+private boolean menuLateralAbierto = true;
 
-        initComponents();
+// 1.0 = completamente abierto
+// 0.0 = completamente cerrado
+private double aperturaMenu = 1.0;
 
-        aplicarTipografia();
-        configurarSecciones();
-        mostrarSeccion(DASHBOARD, botonDashboard);
+private double aperturaInicial;
+private double aperturaObjetivo;
 
-        setLocationRelativeTo(null);
+private Timer timerMenu;
+private long tiempoInicioAnimacion;
 
-        Utilidades.Escalador.aplicar(this);
+// Duración de la animación
+private static final int DURACION_MENU = 280;
+
+// Medidas después de aplicar el Escalador
+private int anchoLateralAbierto;
+private int anchoLateralCerrado;
+
+// Bounds originales
+private Rectangle boundsLogoAbierto;
+
+private Rectangle boundsBotonDashboard;
+private Rectangle boundsBotonUsuarios;
+private Rectangle boundsBotonGestionMenu;
+private Rectangle boundsBotonIngredientes;
+private Rectangle boundsBotonReportes;
+private Rectangle boundsBotonCerrarSesion;
+
+private Rectangle boundsCabeceraAbierta;
+private Rectangle boundsContenidoAbierto;
+private Rectangle boundsSeparadorAbierto;
+
+private Rectangle boundsIconoUsuario;
+private Rectangle boundsBienvenido;
+private Rectangle boundsUsuario;
+
+   public MenuAdmin() {
+    tema = new TemaAdmin();
+
+    initComponents();
+
+    aplicarTipografia();
+    configurarSecciones();
+    mostrarSeccion(DASHBOARD, botonDashboard);
+
+    setLocationRelativeTo(null);
+
+    // Tu escalador permanece exactamente igual
+    Utilidades.Escalador.aplicar(this);
+
+    // Configuramos el menú DESPUÉS de escalar
+    configurarMenuDesplegable();
+}
+   private void configurarMenuDesplegable() {
+
+    /*
+     * Guardamos las dimensiones actuales.
+     *
+     * En este punto Escalador.aplicar(this) ya se ejecutó,
+     * así que estas dimensiones ya están adaptadas
+     * a la resolución de la computadora.
+     */
+
+    anchoLateralAbierto = panelLateral.getWidth();
+
+    /*
+     * Tu menú original mide 340.
+     * Cerrado queremos que sea aproximadamente 90.
+     *
+     * Usamos una proporción para NO interferir
+     * con tu Escalador.
+     */
+    anchoLateralCerrado =
+            (int) Math.round(anchoLateralAbierto * (90.0 / 340.0));
+
+    // Guardamos posiciones originales
+    boundsLogoAbierto = new Rectangle(labelLogo.getBounds());
+
+    boundsBotonDashboard =
+            new Rectangle(botonDashboard.getBounds());
+
+    boundsBotonUsuarios =
+            new Rectangle(botonUsuarios.getBounds());
+
+    boundsBotonGestionMenu =
+            new Rectangle(botonGestionMenu.getBounds());
+
+    boundsBotonIngredientes =
+            new Rectangle(botonIngredientes.getBounds());
+
+    boundsBotonReportes =
+            new Rectangle(botonReportes.getBounds());
+
+    boundsBotonCerrarSesion =
+            new Rectangle(botonCerrarSesion.getBounds());
+
+    boundsCabeceraAbierta =
+            new Rectangle(panelCabecera.getBounds());
+
+    boundsContenidoAbierto =
+            new Rectangle(panelContenido.getBounds());
+
+    boundsSeparadorAbierto =
+            new Rectangle(separadorCabecera.getBounds());
+
+    // Elementos que están pegados al lado derecho
+    // de la cabecera.
+    boundsIconoUsuario =
+            new Rectangle(labelIconoUsuario.getBounds());
+
+    boundsBienvenido =
+            new Rectangle(labelBienvenido.getBounds());
+
+    boundsUsuario =
+            new Rectangle(labelUsuario.getBounds());
+
+
+    // ==========================================
+    // HACER CLICKEABLE EL ICONO ☰
+    // ==========================================
+
+    labelHamburguesa.setCursor(
+            Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+    );
+
+    labelHamburguesa.setToolTipText(
+            "Abrir / cerrar menú"
+    );
+
+    labelHamburguesa.addMouseListener(new MouseAdapter() {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            alternarMenuLateral();
+        }
+    });
+    guardarPosicionesContenido();
+}
+   private void guardarPosicionesContenido() {
+
+    posicionesContenidoOriginales.clear();
+
+    for (Component tarjeta : panelContenido.getComponents()) {
+
+        if (tarjeta instanceof JPanel panelSeccion) {
+
+            for (Component componente : panelSeccion.getComponents()) {
+
+                posicionesContenidoOriginales.put(
+                        componente,
+                        new Rectangle(componente.getBounds())
+                );
+            }
+        }
+    }
+}
+   private void centrarContenido(double apertura) {
+
+    /*
+     * Cuando está abierto:
+     * apertura = 1
+     * desplazamiento = 0
+     *
+     * Cuando está cerrado:
+     * apertura = 0
+     * desplazamiento = la mitad del espacio liberado
+     */
+
+    int espacioLiberado =
+            anchoLateralAbierto - anchoLateralCerrado;
+
+    int desplazamientoMaximo =
+            espacioLiberado / 2;
+
+    int desplazamientoActual =
+            (int) Math.round(
+                    desplazamientoMaximo * (1.0 - apertura)
+            );
+
+
+    for (Component seccion : panelContenido.getComponents()) {
+
+        if (!(seccion instanceof JPanel panelSeccion)) {
+            continue;
+        }
+
+        for (Component componente : panelSeccion.getComponents()) {
+
+            Rectangle original =
+                    posicionesContenidoOriginales.get(componente);
+
+            if (original == null) {
+                continue;
+            }
+
+            componente.setBounds(
+                    original.x + desplazamientoActual,
+                    original.y,
+                    original.width,
+                    original.height
+            );
+        }
+
+        panelSeccion.revalidate();
+        panelSeccion.repaint();
+    }
+}
+   private void alternarMenuLateral() {
+
+    // Cambiamos el estado deseado
+    menuLateralAbierto = !menuLateralAbierto;
+
+    // Partimos desde donde se encuentre actualmente.
+    // Esto permite incluso pulsar el botón mientras
+    // todavía se está animando.
+    aperturaInicial = aperturaMenu;
+
+    aperturaObjetivo =
+            menuLateralAbierto ? 1.0 : 0.0;
+
+    tiempoInicioAnimacion =
+            System.currentTimeMillis();
+
+
+    // Si ya existe una animación, la detenemos.
+    if (timerMenu != null && timerMenu.isRunning()) {
+        timerMenu.stop();
     }
 
+
+    /*
+     * Al cerrar quitamos inmediatamente los textos
+     * grandes para evitar que se vean recortados.
+     */
+    if (!menuLateralAbierto) {
+        ocultarTextosMenu();
+    }
+
+
+    // Aproximadamente 60 FPS
+    timerMenu = new Timer(15, e -> {
+
+        long tiempoActual =
+                System.currentTimeMillis();
+
+        double progreso =
+                (double) (tiempoActual - tiempoInicioAnimacion)
+                / DURACION_MENU;
+
+
+        if (progreso >= 1.0) {
+            progreso = 1.0;
+        }
+
+
+        /*
+         * Easing cubic.
+         *
+         * Hace que la animación salga rápida
+         * y termine suavemente, parecido al video.
+         */
+        double suavizado =
+                1.0 - Math.pow(1.0 - progreso, 3);
+
+
+        aperturaMenu =
+                aperturaInicial
+                + (aperturaObjetivo - aperturaInicial)
+                * suavizado;
+
+
+        aplicarAperturaMenu(aperturaMenu);
+
+
+        if (progreso >= 1.0) {
+
+            timerMenu.stop();
+
+            aperturaMenu = aperturaObjetivo;
+
+            aplicarAperturaMenu(aperturaMenu);
+
+
+            if (menuLateralAbierto) {
+                mostrarTextosMenu();
+            }
+        }
+    });
+
+
+    timerMenu.start();
+}
+   private void aplicarAperturaMenu(double apertura) {
+
+    /*
+     * apertura:
+     *
+     * 0.0 = cerrado
+     * 1.0 = abierto
+     */
+
+    int anchoActual = interpolar(
+            anchoLateralCerrado,
+            anchoLateralAbierto,
+            apertura
+    );
+
+
+    // ==========================================
+    // PANEL LATERAL
+    // ==========================================
+
+    panelLateral.setBounds(
+            0,
+            0,
+            anchoActual,
+            panelLateral.getHeight()
+    );
+
+
+    // ==========================================
+    // PANEL CABECERA
+    // ==========================================
+
+    int anchoCabecera =
+            panelRaiz.getWidth() - anchoActual;
+
+    panelCabecera.setBounds(
+            anchoActual,
+            boundsCabeceraAbierta.y,
+            anchoCabecera,
+            boundsCabeceraAbierta.height
+    );
+
+
+    // ==========================================
+    // PANEL CONTENIDO
+    // ==========================================
+
+    int anchoContenido =
+            panelRaiz.getWidth() - anchoActual;
+
+    panelContenido.setBounds(
+            anchoActual,
+            boundsContenidoAbierto.y,
+            anchoContenido,
+            boundsContenidoAbierto.height
+    );
+
+
+    // ==========================================
+    // SEPARADOR SUPERIOR
+    // ==========================================
+
+    separadorCabecera.setBounds(
+            0,
+            boundsSeparadorAbierto.y,
+            anchoCabecera,
+            boundsSeparadorAbierto.height
+    );
+
+
+    /*
+     * Como la cabecera aumenta de ancho hacia
+     * la izquierda, movemos el usuario hacia
+     * la derecha para que permanezca en el mismo
+     * lugar visual.
+     */
+
+    int diferenciaCabecera =
+            anchoCabecera - boundsCabeceraAbierta.width;
+
+
+    labelIconoUsuario.setLocation(
+            boundsIconoUsuario.x + diferenciaCabecera,
+            boundsIconoUsuario.y
+    );
+
+    labelBienvenido.setLocation(
+            boundsBienvenido.x + diferenciaCabecera,
+            boundsBienvenido.y
+    );
+
+    labelUsuario.setLocation(
+            boundsUsuario.x + diferenciaCabecera,
+            boundsUsuario.y
+    );
+
+
+    // ==========================================
+    // LOGO
+    // ==========================================
+
+    int xLogoCerrado =
+            (anchoLateralCerrado
+            - boundsLogoAbierto.width) / 2;
+
+    int xLogoActual = interpolar(
+            xLogoCerrado,
+            boundsLogoAbierto.x,
+            apertura
+    );
+
+    labelLogo.setLocation(
+            xLogoActual,
+            boundsLogoAbierto.y
+    );
+
+
+    // ==========================================
+    // BOTONES
+    // ==========================================
+
+    actualizarBotonCompacto(
+            botonDashboard,
+            boundsBotonDashboard,
+            apertura
+    );
+
+    actualizarBotonCompacto(
+            botonUsuarios,
+            boundsBotonUsuarios,
+            apertura
+    );
+
+    actualizarBotonCompacto(
+            botonGestionMenu,
+            boundsBotonGestionMenu,
+            apertura
+    );
+
+    actualizarBotonCompacto(
+            botonIngredientes,
+            boundsBotonIngredientes,
+            apertura
+    );
+
+    actualizarBotonCompacto(
+            botonReportes,
+            boundsBotonReportes,
+            apertura
+    );
+
+    actualizarBotonCompacto(
+            botonCerrarSesion,
+            boundsBotonCerrarSesion,
+            apertura
+    );
+
+    centrarContenido(apertura);
+    panelLateral.revalidate();
+    panelLateral.repaint();
+
+    panelCabecera.revalidate();
+    panelCabecera.repaint();
+
+    panelContenido.revalidate();
+    panelContenido.repaint();
+
+    panelRaiz.revalidate();
+    panelRaiz.repaint();
+}
+   private void actualizarBotonCompacto(
+        BotonMenuLateral boton,
+        Rectangle abierto,
+        double apertura) {
+
+    /*
+     * Margen proporcional al tamaño que dejó
+     * el Escalador.
+     */
+    int margenCerrado =
+            Math.max(
+                    5,
+                    (int) Math.round(
+                            anchoLateralAbierto
+                            * (12.0 / 340.0)
+                    )
+            );
+
+
+    int anchoBotonCerrado =
+            anchoLateralCerrado
+            - (margenCerrado * 2);
+
+
+    int xActual = interpolar(
+            margenCerrado,
+            abierto.x,
+            apertura
+    );
+
+    int anchoActual = interpolar(
+            anchoBotonCerrado,
+            abierto.width,
+            apertura
+    );
+
+
+    boton.setBounds(
+            xActual,
+            abierto.y,
+            anchoActual,
+            abierto.height
+    );
+}
+   private int interpolar(
+        int cerrado,
+        int abierto,
+        double apertura) {
+
+    return (int) Math.round(
+            cerrado
+            + (abierto - cerrado) * apertura
+    );
+}
+   private void ocultarTextosMenu() {
+
+    // Ocultamos nombre y rol
+    labelMarca.setVisible(false);
+    labelRol.setVisible(false);
+
+
+    // Dejamos solamente los iconos
+    botonDashboard.setText("");
+    botonUsuarios.setText("");
+    botonGestionMenu.setText("");
+    botonIngredientes.setText("");
+    botonReportes.setText("");
+    botonCerrarSesion.setText("");
+
+
+    // Tooltip para saber qué es cada botón
+    botonDashboard.setToolTipText("Dashboard");
+
+    botonUsuarios.setToolTipText(
+            "Gestión de Usuarios"
+    );
+
+    botonGestionMenu.setToolTipText(
+            "Gestión del Menú"
+    );
+
+    botonIngredientes.setToolTipText(
+            "Ingredientes"
+    );
+
+    botonReportes.setToolTipText(
+            "Reportes"
+    );
+
+    botonCerrarSesion.setToolTipText(
+            "Volver Al Menú"
+    );
+
+
+    /*
+     * Si BotonMenuLateral utiliza los iconos
+     * normales de JButton, esto los centrará.
+     */
+    botonDashboard.setHorizontalAlignment(
+            SwingConstants.CENTER
+    );
+
+    botonUsuarios.setHorizontalAlignment(
+            SwingConstants.CENTER
+    );
+
+    botonGestionMenu.setHorizontalAlignment(
+            SwingConstants.CENTER
+    );
+
+    botonIngredientes.setHorizontalAlignment(
+            SwingConstants.CENTER
+    );
+
+    botonReportes.setHorizontalAlignment(
+            SwingConstants.CENTER
+    );
+
+    botonCerrarSesion.setHorizontalAlignment(
+            SwingConstants.CENTER
+    );
+}
+   private void mostrarTextosMenu() {
+
+    labelMarca.setVisible(true);
+    labelRol.setVisible(true);
+
+
+    botonDashboard.setText(
+            "Dashboard"
+    );
+
+    botonUsuarios.setText(
+            "Gestión de Usuarios"
+    );
+
+    botonGestionMenu.setText(
+            "Gestión del Menú"
+    );
+
+    botonIngredientes.setText(
+            "Ingredientes"
+    );
+
+    botonReportes.setText(
+            "Reportes"
+    );
+
+    botonCerrarSesion.setText(
+            "Volver Al Menú"
+    );
+
+
+    botonDashboard.setHorizontalAlignment(
+            SwingConstants.LEFT
+    );
+
+    botonUsuarios.setHorizontalAlignment(
+            SwingConstants.LEFT
+    );
+
+    botonGestionMenu.setHorizontalAlignment(
+            SwingConstants.LEFT
+    );
+
+    botonIngredientes.setHorizontalAlignment(
+            SwingConstants.LEFT
+    );
+
+    botonReportes.setHorizontalAlignment(
+            SwingConstants.LEFT
+    );
+
+    botonCerrarSesion.setHorizontalAlignment(
+            SwingConstants.LEFT
+    );
+}
+   
     private void aplicarTipografia() {
         labelMarca.setFont(tema.negrita(28f));
         labelRol.setFont(tema.media(18f));

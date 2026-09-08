@@ -55,8 +55,8 @@ public class InicioAdminForm extends javax.swing.JFrame {
 
     private void procesarOpcionUsuario(ActionEvent evento) {
         switch (botonUsuario.getIndiceOpcionSeleccionada()) {
-            case 0 -> mostrarPerfil();
-            case 1 -> cerrarSesion();
+          
+            case 0 -> cerrarSesion();
             default -> {
             }
         }
@@ -76,14 +76,7 @@ public class InicioAdminForm extends javax.swing.JFrame {
         dispose();
     }
 
-    private void mostrarPerfil() {
-        JOptionPane.showMessageDialog(
-                this,
-                "Sesión activa como Administrador.",
-                "Mi perfil",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-    }
+   
 
     private void cerrarSesion() {
         Login login = new Login();
@@ -154,6 +147,11 @@ public class InicioAdminForm extends javax.swing.JFrame {
 
         botonUsuario.setTextoDesplegable("Cerrar sesión");
         botonUsuario.setFont(new java.awt.Font("Dialog", 1, 19)); // NOI18N
+        botonUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonUsuarioActionPerformed(evt);
+            }
+        });
         panelCabecera.add(botonUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(1680, 30, 215, 62));
 
         panelRaiz.add(panelCabecera, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 135));
@@ -275,6 +273,10 @@ public class InicioAdminForm extends javax.swing.JFrame {
     private void botonMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonMenuActionPerformed
         abrirMenu();
     }//GEN-LAST:event_botonMenuActionPerformed
+
+    private void botonUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonUsuarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_botonUsuarioActionPerformed
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> new InicioAdminForm().setVisible(true));

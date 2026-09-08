@@ -817,6 +817,8 @@ public class UsuariosPanel extends javax.swing.JPanel {
         panelTabla.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         scrollUsuarios.setBorder(null);
+        scrollUsuarios.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollUsuarios.setAutoscrolls(true);
 
         tablaUsuarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -843,6 +845,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
+        tablaUsuarios.setAutoscrolls(false);
         tablaUsuarios.setColumnasCentradas("5,7");
         scrollUsuarios.setViewportView(tablaUsuarios);
 
