@@ -23,7 +23,7 @@
     <Property name="useNullLayout" type="boolean" value="false"/>
   </Layout>
   <SubComponents>
-    <Component class="Componentes.BotonCategoria" name="btnDesayuno">
+    <Component class="Componentes.BotonCategoria" name="btnCajita">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cajita Feliz"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -33,7 +33,7 @@
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayunoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCajitaActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -59,7 +59,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="Componentes.BotonCategoria" name="btnDesayuno2">
+    <Component class="Componentes.BotonCategoria" name="btnAlmuerzos">
       <Properties>
         <Property name="text" type="java.lang.String" value="Almuerzos"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -69,7 +69,7 @@
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayuno2ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAlmuerzosActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -77,7 +77,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="Componentes.BotonCategoria" name="btnDesayuno3">
+    <Component class="Componentes.BotonCategoria" name="btnPostres">
       <Properties>
         <Property name="text" type="java.lang.String" value="Postres"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -87,7 +87,7 @@
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayuno3ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPostresActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -95,7 +95,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="Componentes.BotonCategoria" name="btnDesayuno4">
+    <Component class="Componentes.BotonCategoria" name="btnCafe">
       <Properties>
         <Property name="text" type="java.lang.String" value="McCaf&#xe9;"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -105,7 +105,7 @@
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayuno4ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCafeActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -113,7 +113,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="Componentes.BotonCategoria" name="btnDesayuno5">
+    <Component class="Componentes.BotonCategoria" name="btnBebidos">
       <Properties>
         <Property name="text" type="java.lang.String" value="Bebidas"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -123,7 +123,7 @@
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayuno5ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBebidosActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -131,7 +131,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="Componentes.BotonCategoria" name="btnDesayuno6">
+    <Component class="Componentes.BotonCategoria" name="btnAntojos">
       <Properties>
         <Property name="text" type="java.lang.String" value="Antojos"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -141,7 +141,7 @@
         <Property name="verticalAlignment" type="int" value="3"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDesayuno6ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAntojosActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
