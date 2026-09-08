@@ -6,14 +6,14 @@ package GUI_CAJERO;
 
 /**
  *
- * @author HP
+ * @author cabre
  */
-public class novedadesPanel extends javax.swing.JPanel {
+public class SubCatDesayunos extends javax.swing.JPanel {
 
     /**
-     * Creates new form novedadesPanel
+     * Creates new form SubCatDesayunos
      */
-    public novedadesPanel() {
+    public SubCatDesayunos() {
         initComponents();
     }
 
@@ -26,19 +26,20 @@ public class novedadesPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        jScrollPane1 = new javax.swing.JScrollPane();
+        botonLetras1 = new Componentes.BotonLetras();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 770, 320));
+
+        botonLetras1.setText("Todos");
+        add(botonLetras1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 190, 60));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Componentes.BotonLetras botonLetras1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

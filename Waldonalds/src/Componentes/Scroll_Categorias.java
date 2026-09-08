@@ -11,7 +11,6 @@ import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -22,72 +21,40 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 
 public class Scroll_Categorias extends JScrollPane {
 
-    private final JPanel panelCategorias;
+    // Este panel ahora vendrá desde GUI_CAJERO
+    private JPanel panelCategorias;
+
 
     public Scroll_Categorias() {
 
-     
+
+        // =====================================================
         // ORIENTACIÓN IZQUIERDA A DERECHA
-  
+        // =====================================================
+
         setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT
         );
 
-
-
-        // PANEL DE CATEGORÍAS
-
-        panelCategorias = new JPanel();
-
-        panelCategorias.setLayout(
-                new BoxLayout(
-                        panelCategorias,
-                        BoxLayout.X_AXIS
-                )
-        );
-
-        panelCategorias.setBackground(Color.WHITE);
-        panelCategorias.setOpaque(true);
-
-        panelCategorias.setComponentOrientation(
-                ComponentOrientation.LEFT_TO_RIGHT
-        );
-
-
-        // TAMAÑO DEL CONTENIDO
-
-        // Debe ser más ancho que el JScrollPane
-        // para que exista desplazamiento horizontal.
-        panelCategorias.setPreferredSize(
-                new Dimension(2000, 170)
-        );
-
-
-        // Espacio inicial
-        panelCategorias.add(
-                Box.createHorizontalStrut(10)
-        );
-
-
-
-        // METER PANEL DENTRO DEL SCROLL
-
-        setViewportView(panelCategorias);
-
-        getViewport().setBackground(Color.WHITE);
 
         getViewport().setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT
         );
 
 
-   
-        // CONFIGURACIÓN DEL SCROLLPANE
+        getViewport().setBackground(
+                Color.WHITE
+        );
 
+
+        // =====================================================
+        // CONFIGURACIÓN DEL SCROLLPANE
+        // =====================================================
 
         setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
         );
+
 
         setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER
@@ -99,44 +66,64 @@ public class Scroll_Categorias extends JScrollPane {
                 BorderFactory.createEmptyBorder()
         );
 
+
         // Quitar borde interno
         setViewportBorder(
                 BorderFactory.createEmptyBorder()
         );
 
-        setBackground(Color.WHITE);
+
+        setBackground(
+                Color.WHITE
+        );
 
 
-
+        // =====================================================
         // BARRA HORIZONTAL
-     
-        JScrollBar barra = getHorizontalScrollBar();
+        // =====================================================
+
+        JScrollBar barra =
+                getHorizontalScrollBar();
+
 
         barra.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT
         );
+
 
         // Quitar borde
         barra.setBorder(
                 BorderFactory.createEmptyBorder()
         );
 
+
         // Fondo transparente
         barra.setOpaque(false);
 
-        barra.setBackground(Color.WHITE);
+
+        barra.setBackground(
+                Color.WHITE
+        );
 
 
         // Altura del espacio donde está la barra
         barra.setPreferredSize(
-                new Dimension(0, 12)
+                new Dimension(
+                        0,
+                        12
+                )
         );
 
 
         // Velocidad del scroll
-        barra.setUnitIncrement(25);
+        barra.setUnitIncrement(
+                25
+        );
 
-        barra.setBlockIncrement(120);
+
+        barra.setBlockIncrement(
+                120
+        );
 
 
         // Aplicar diseño
@@ -145,32 +132,76 @@ public class Scroll_Categorias extends JScrollPane {
         );
 
 
-
+        // =====================================================
         // RUEDA DEL MOUSE
+        // =====================================================
 
         addMouseWheelListener(e -> {
 
             JScrollBar scroll =
                     getHorizontalScrollBar();
 
+
             int movimiento =
-                    e.getWheelRotation() * 45;
+                    e.getWheelRotation()
+                    * 45;
+
 
             scroll.setValue(
                     scroll.getValue()
                     + movimiento
             );
         });
+    }
 
 
-    
-        // INICIAR EN LA IZQUIERDA
+    // =====================================================
+    // METER CATEGORIASPANEL DENTRO DEL SCROLL
+    // =====================================================
 
+    public void setPanelCategorias(
+            JPanel panel) {
+
+
+        this.panelCategorias =
+                panel;
+
+
+        panelCategorias.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT
+        );
+
+
+        // Meter el panel visual dentro del scroll
+        setViewportView(
+                panelCategorias
+        );
+
+
+        panelCategorias.revalidate();
+
+        panelCategorias.repaint();
+
+
+        revalidate();
+
+        repaint();
+
+
+        // Iniciar desde la izquierda
         SwingUtilities.invokeLater(() -> {
 
             getViewport().setViewPosition(
-                    new Point(0, 0)
+                    new Point(
+                            0,
+                            0
+                    )
             );
+
+
+            JScrollBar barra =
+                    getHorizontalScrollBar();
+
 
             barra.setValue(
                     barra.getMinimum()
@@ -179,26 +210,40 @@ public class Scroll_Categorias extends JScrollPane {
     }
 
 
-
+    // =====================================================
     // AGREGAR CATEGORÍAS
+    // =====================================================
 
     public void agregarCategoria(
             JComponent componente) {
 
-        panelCategorias.add(componente);
 
-        // Separación
+        if (panelCategorias == null) {
+            return;
+        }
+
+
         panelCategorias.add(
-                Box.createHorizontalStrut(15)
+                componente
         );
 
+
+        panelCategorias.add(
+                Box.createHorizontalStrut(
+                        15
+                )
+        );
+
+
         panelCategorias.revalidate();
+
         panelCategorias.repaint();
     }
 
 
-  
+    // =====================================================
     // OBTENER PANEL
+    // =====================================================
 
     public JPanel getPanelCategorias() {
 
@@ -206,37 +251,51 @@ public class Scroll_Categorias extends JScrollPane {
     }
 
 
-
+    // =====================================================
     // REGRESAR AL INICIO
+    // =====================================================
 
     public void irAlInicio() {
 
+
         JScrollBar barra =
                 getHorizontalScrollBar();
+
 
         barra.setValue(
                 barra.getMinimum()
         );
 
+
         getViewport().setViewPosition(
-                new Point(0, 0)
+                new Point(
+                        0,
+                        0
+                )
         );
     }
 
 
-
+    // =====================================================
     // DISEÑO DE LA BARRA
+    // =====================================================
 
     private static class BarraNaranja
             extends BasicScrollBarUI {
 
+
         // Color naranja
         private final Color naranja =
-                new Color(255, 174, 0);
+                new Color(
+                        255,
+                        174,
+                        0
+                );
 
 
-
+        // =================================================
         // TAMAÑO REAL DE LA BARRA
+        // =================================================
 
         @Override
         protected Dimension getMinimumThumbSize() {
@@ -258,8 +317,9 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-   
+        // =================================================
         // QUITAR FLECHA IZQUIERDA
+        // =================================================
 
         @Override
         protected JButton createDecreaseButton(
@@ -269,8 +329,9 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-    
+        // =================================================
         // QUITAR FLECHA DERECHA
+        // =================================================
 
         @Override
         protected JButton createIncreaseButton(
@@ -280,41 +341,68 @@ public class Scroll_Categorias extends JScrollPane {
         }
 
 
-
+        // =================================================
         // BOTÓN INVISIBLE
+        // =================================================
 
         private JButton crearBotonInvisible() {
 
-            JButton boton = new JButton();
+
+            JButton boton =
+                    new JButton();
+
 
             boton.setPreferredSize(
-                    new Dimension(0, 0)
+                    new Dimension(
+                            0,
+                            0
+                    )
             );
+
 
             boton.setMinimumSize(
-                    new Dimension(0, 0)
+                    new Dimension(
+                            0,
+                            0
+                    )
             );
 
+
             boton.setMaximumSize(
-                    new Dimension(0, 0)
+                    new Dimension(
+                            0,
+                            0
+                    )
             );
+
 
             boton.setBorder(
                     BorderFactory.createEmptyBorder()
             );
 
-            boton.setContentAreaFilled(false);
 
-            boton.setFocusPainted(false);
+            boton.setContentAreaFilled(
+                    false
+            );
 
-            boton.setOpaque(false);
+
+            boton.setFocusPainted(
+                    false
+            );
+
+
+            boton.setOpaque(
+                    false
+            );
+
 
             return boton;
         }
 
 
-
+        // =================================================
         // DIBUJAR BARRA NARANJA
+        // =================================================
 
         @Override
         protected void paintThumb(
@@ -322,32 +410,40 @@ public class Scroll_Categorias extends JScrollPane {
                 JComponent c,
                 Rectangle thumbBounds) {
 
+
             if (thumbBounds.isEmpty()) {
+
                 return;
             }
 
+
             Graphics2D g2 =
                     (Graphics2D) g.create();
+
 
             g2.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            g2.setColor(naranja);
+
+            g2.setColor(
+                    naranja
+            );
 
 
-            // Centrar verticalmente
-            int alto = 6;
+            int alto =
+                    6;
+
 
             int y =
                     thumbBounds.y
-                    + (thumbBounds.height - alto) / 2;
+                    + (
+                            thumbBounds.height
+                            - alto
+                    ) / 2;
 
 
-            // IMPORTANTE:
-            // usamos directamente thumbBounds.x
-            // porque esta es la barra REAL de Swing
             g2.fillRoundRect(
                     thumbBounds.x,
                     y,
@@ -357,20 +453,22 @@ public class Scroll_Categorias extends JScrollPane {
                     10
             );
 
+
             g2.dispose();
         }
 
 
+        // =================================================
         // NO DIBUJAR FONDO DEL TRACK
+        // =================================================
+
         @Override
         protected void paintTrack(
                 Graphics g,
                 JComponent c,
                 Rectangle trackBounds) {
 
-            // Vacío intencionalmente.
-            // Así no aparece línea negra.
+            // Vacío intencionalmente
         }
     }
 }
-

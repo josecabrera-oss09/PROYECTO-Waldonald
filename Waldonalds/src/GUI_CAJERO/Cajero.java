@@ -35,9 +35,6 @@ private MenuCajeroPanel menuCajeroPanel;
 
 private promocionesPanel promocionesPanel;
 
-private informacionPanel informacionPanel;
-
-private novedadesPanel novedadesPanel;
 
 
 // =====================================================
@@ -54,8 +51,6 @@ private javax.swing.JPanel panelPedido;
 
 private javax.swing.JButton btnMenu;
 private javax.swing.JButton btnPromociones;
-private javax.swing.JButton btnNovedades;
-private javax.swing.JButton btnInformacion;
 private javax.swing.JButton btnOrdenar;
 
 private javax.swing.JButton botonActivo;
@@ -185,11 +180,6 @@ private void configurarInterfaz() {
     promocionesPanel =
             new promocionesPanel();
 
-    novedadesPanel =
-            new novedadesPanel();
-
-    informacionPanel =
-            new informacionPanel();
 
 
     // =================================================
@@ -205,17 +195,6 @@ private void configurarInterfaz() {
             promocionesPanel,
             "PROMOCIONES"
     );
-
-    panelContenido.add(
-            novedadesPanel,
-            "NOVEDADES"
-    );
-
-    panelContenido.add(
-            informacionPanel,
-            "INFORMACION"
-    );
-
 
     // =================================================
     // CREAR PEDIDO
@@ -386,31 +365,12 @@ private void configurarBarra() {
                     "Promociones"
             );
 
-    btnNovedades =
-            crearBotonBarra(
-                    "Novedades"
-            );
-
-    btnInformacion =
-            crearBotonBarra(
-                    "Información"
-            );
-
-
     panelIzquierdo.add(
             btnMenu
     );
 
     panelIzquierdo.add(
             btnPromociones
-    );
-
-    panelIzquierdo.add(
-            btnNovedades
-    );
-
-    panelIzquierdo.add(
-            btnInformacion
     );
 
 
@@ -575,39 +535,6 @@ private void configurarBarra() {
                 btnPromociones
         );
     });
-
-
-    // =================================================
-    // NOVEDADES
-    // =================================================
-
-    btnNovedades.addActionListener(e -> {
-
-        mostrarPanel(
-                "NOVEDADES"
-        );
-
-        seleccionarBoton(
-                btnNovedades
-        );
-    });
-
-
-    // =================================================
-    // INFORMACIÓN
-    // =================================================
-
-    btnInformacion.addActionListener(e -> {
-
-        mostrarPanel(
-                "INFORMACION"
-        );
-
-        seleccionarBoton(
-                btnInformacion
-        );
-    });
-
 
     // =================================================
     // ORDENAR
@@ -842,26 +769,6 @@ private void seleccionarBoton(
         );
 
         btnPromociones.repaint();
-    }
-
-
-    if (btnNovedades != null) {
-
-        btnNovedades.setForeground(
-                java.awt.Color.WHITE
-        );
-
-        btnNovedades.repaint();
-    }
-
-
-    if (btnInformacion != null) {
-
-        btnInformacion.setForeground(
-                java.awt.Color.WHITE
-        );
-
-        btnInformacion.repaint();
     }
 }
 
