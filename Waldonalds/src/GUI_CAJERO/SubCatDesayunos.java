@@ -31,10 +31,10 @@ public class SubCatDesayunos extends javax.swing.JPanel {
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 770, 320));
+        add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 1290, 320));
 
         botonLetras1.setText("Todos");
-        add(botonLetras1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 190, 60));
+        add(botonLetras1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 160, 30));
     }// </editor-fold>//GEN-END:initComponents
 
 
