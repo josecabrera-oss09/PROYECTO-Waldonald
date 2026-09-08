@@ -7,7 +7,7 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
     public MenuCajeroPanel() {
 
      initComponents();
-
+     
      CategoriasPanel categoriasPanel =
         new CategoriasPanel(this);
 
@@ -32,25 +32,37 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
             1080
     );
 }
+ 
+    public void mostrarPanelCategoria(javax.swing.JPanel panel) {
+        panelContenido.removeAll();
+
+        panelContenido.setLayout(
+                new java.awt.BorderLayout()
+        );
+
+        panelContenido.add(
+                panel,
+                java.awt.BorderLayout.CENTER
+        );
+
+        panel.setVisible(true);
+
+        panelContenido.revalidate();
+        panelContenido.repaint();
+    }
     
-    public void mostrarPanelCategoria(
-        javax.swing.JPanel panel) {
+    private void cargarProductos(int idCategoria) {
 
     panelContenido.removeAll();
 
     panelContenido.setLayout(
-            new java.awt.BorderLayout()
+            new java.awt.GridLayout(
+                    0,
+                    4,
+                    20,
+                    20
+            )
     );
-
-    panelContenido.add(
-            panel,
-            java.awt.BorderLayout.CENTER
-    );
-
-    panel.setVisible(true);
-
-    panelContenido.revalidate();
-    panelContenido.repaint();
 }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -62,7 +74,7 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
 
         setBackground(new java.awt.Color(255, 255, 255));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        add(panelCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 170, 1810, 300));
+        add(panelCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 170, 1810, 250));
 
         jLabel1.setFont(new java.awt.Font("DM Sans 18pt", 1, 110)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 13, 27));
@@ -70,10 +82,10 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, 440, 100));
 
         panelContenido.setBackground(new java.awt.Color(255, 255, 255));
-        add(panelContenido, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 480, 1810, 600));
+        add(panelContenido, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 430, 1810, 600));
     }// </editor-fold>//GEN-END:initComponents
 
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private Componentes.Scroll_Categorias panelCategoria;
