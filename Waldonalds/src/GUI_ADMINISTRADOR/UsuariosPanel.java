@@ -776,8 +776,8 @@ public class UsuariosPanel extends javax.swing.JPanel {
         panelFiltros.setSombra(false);
         panelFiltros.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        campoBusqueda.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         campoBusqueda.setPlaceholder("Buscar usuario, nombre o correo...");
+        campoBusqueda.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         panelFiltros.add(campoBusqueda, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 22, 455, 56));
 
         filtroRol.setColorFondo(new java.awt.Color(255, 255, 255));
