@@ -123,34 +123,56 @@ public class CategoriasPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCajitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCajitaActionPerformed
-
+        mostrarCategoriaDinamica("Cajita Feliz", java.util.List.of(
+                "Hamburguesas", "McNuggets", "Acompañamientos",
+                "Bebidas", "Postres", "Juguetes"));
     }//GEN-LAST:event_btnCajitaActionPerformed
 
     private void btnDesayuno1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDesayuno1ActionPerformed
-        menuCajeroPanel.mostrarPanelCategoria(
-                new SubCatDesayunos()
-        );
+        mostrarCategoriaDinamica("Desayunos", java.util.List.of(
+                "Sándwiches", "McMuffin", "Hot Cakes", "Bebidas",
+                "Por tiempo limitado"));
     }//GEN-LAST:event_btnDesayuno1ActionPerformed
 
     private void btnAlmuerzosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAlmuerzosActionPerformed
-        // TODO add your handling code here:
+        mostrarCategoriaDinamica("Almuerzos", java.util.List.of(
+                "Hamburguesas", "McNuggets", "Combos", "Papas",
+                "Ensaladas", "Bebidas"));
     }//GEN-LAST:event_btnAlmuerzosActionPerformed
 
     private void btnPostresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPostresActionPerformed
-        // TODO add your handling code here:
+        mostrarCategoriaDinamica("Postres", java.util.List.of(
+                "McFlurry", "Sundae", "Conos", "Pasteles", "Galletas",
+                "Por tiempo limitado"));
     }//GEN-LAST:event_btnPostresActionPerformed
 
     private void btnCafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCafeActionPerformed
-        // TODO add your handling code here:
+        mostrarCategoriaDinamica("McCafé", java.util.List.of(
+                "Café", "Frappés", "Chocolate", "Té", "Bebidas frías",
+                "Repostería"));
     }//GEN-LAST:event_btnCafeActionPerformed
 
     private void btnBebidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBebidosActionPerformed
-        // TODO add your handling code here:
+        mostrarCategoriaDinamica("Bebidas", java.util.List.of(
+                "Gaseosas", "Jugos", "Agua", "Café", "Bebidas frías",
+                "Batidos"));
     }//GEN-LAST:event_btnBebidosActionPerformed
 
     private void btnAntojosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAntojosActionPerformed
-        // TODO add your handling code here:
+        mostrarCategoriaDinamica("Antojos", java.util.List.of(
+                "Papas", "McNuggets", "Snacks", "Acompañamientos",
+                "Compartir"));
     }//GEN-LAST:event_btnAntojosActionPerformed
+
+    private void mostrarCategoriaDinamica(
+            String nombreCategoria,
+            java.util.List<String> subcategorias) {
+        if (menuCajeroPanel != null) {
+            menuCajeroPanel.mostrarPanelCategoria(
+                    new SubCategoriasPanel(nombreCategoria, subcategorias)
+            );
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Componentes.BotonCategoria btnAlmuerzos;

@@ -19,6 +19,9 @@ private final java.awt.Color AZUL_BARRA =
 private final java.awt.Color AMARILLO =
         new java.awt.Color(255, 188, 13);
 
+private final java.awt.Color AMARILLO_HOVER_SUAVE =
+        new java.awt.Color(255, 196, 28);
+
 private final java.awt.Color GRIS_TEXTO =
         new java.awt.Color(110, 110, 110);
 
@@ -378,48 +381,14 @@ private void configurarBarra() {
     // ORDENAR
     // =================================================
 
-    btnOrdenar =
-            new javax.swing.JButton(
-                    "Ordenar"
-            ) {
-
-        @Override
-        protected void paintComponent(
-                java.awt.Graphics g) {
-
-            java.awt.Graphics2D g2 =
-                    (java.awt.Graphics2D)
-                            g.create();
-
-            g2.setRenderingHint(
-                    java.awt.RenderingHints.KEY_ANTIALIASING,
-                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            g2.setColor(
-                    AMARILLO
-            );
-
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    escalar(14),
-                    escalar(14)
-            );
-
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
-    };
+    btnOrdenar = new Componentes.BotonDerretido();
+    btnOrdenar.setText("Ordenar");
 
 
     btnOrdenar.setPreferredSize(
             new java.awt.Dimension(
-                    escalar(145),
-                    escalar(48)
+                    escalar(180),
+                    escalar(60)
             )
     );
 
@@ -445,21 +414,21 @@ private void configurarBarra() {
 
     btnOrdenar.setFocusPainted(false);
 
-
-    // Espacio a la izquierda para icono
+    // Conserva la posición del texto del botón Ordenar original.
     btnOrdenar.setHorizontalAlignment(
             javax.swing.SwingConstants.RIGHT
     );
-
+    btnOrdenar.setVerticalAlignment(
+            javax.swing.SwingConstants.CENTER
+    );
 
     btnOrdenar.setBorder(
-            javax.swing.BorderFactory
-                    .createEmptyBorder(
-                            0,
-                            escalar(45),
-                            0,
-                            escalar(20)
-                    )
+            javax.swing.BorderFactory.createEmptyBorder(
+                    0,
+                    escalar(45),
+                    escalar(14),
+                    escalar(20)
+            )
     );
 
 
@@ -1181,9 +1150,9 @@ private void crearPanelPedido() {
             );
 
 
-            g2.setColor(
-                    AMARILLO
-            );
+            g2.setColor(getModel().isRollover()
+                    ? AMARILLO_HOVER_SUAVE
+                    : AMARILLO);
 
 
             g2.fillRoundRect(
@@ -1232,6 +1201,9 @@ private void crearPanelPedido() {
     btnContinuar.setFocusPainted(
             false
     );
+    btnContinuar.setRolloverEnabled(true);
+    btnContinuar.setCursor(new java.awt.Cursor(
+            java.awt.Cursor.HAND_CURSOR));
 
 
     btnContinuar.setPreferredSize(
@@ -1333,6 +1305,10 @@ private void crearPanelPedido() {
             java.awt.Component.CENTER_ALIGNMENT
     );
 
+    btnCancelar.setCursor(new java.awt.Cursor(
+            java.awt.Cursor.HAND_CURSOR));
+    configurarHoverSutilCancelar(btnCancelar);
+
 
     // CERRAR PEDIDO
     btnCancelar.addActionListener(e -> {
@@ -1388,6 +1364,28 @@ private void crearPanelPedido() {
             false
     );
 }
+
+private void configurarHoverSutilCancelar(javax.swing.JButton boton) {
+    java.awt.Color bordeNormal = new java.awt.Color(190, 190, 190);
+    java.awt.Color bordeHover = new java.awt.Color(170, 170, 170);
+
+    boton.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent evento) {
+            boton.setForeground(new java.awt.Color(65, 65, 65));
+            boton.setBorder(javax.swing.BorderFactory.createLineBorder(
+                    bordeHover, Math.max(1, escalar(1))));
+        }
+
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent evento) {
+            boton.setForeground(new java.awt.Color(80, 80, 80));
+            boton.setBorder(javax.swing.BorderFactory.createLineBorder(
+                    bordeNormal, Math.max(1, escalar(1))));
+        }
+    });
+}
+
     
     /**
      * This method is called from within the constructor to initialize the form.

@@ -18,6 +18,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
 
@@ -54,6 +56,22 @@ public class Login extends javax.swing.JFrame {
         javax.swing.SwingUtilities.invokeLater(() -> {
             jPanel1.requestFocusInWindow();
         });
+
+        // -------------------------------------------------------------
+        // A PARTIR DE AQUÍ (LÍNEA 49 APROXIMADAMENTE):
+        // -------------------------------------------------------------
+        java.awt.event.KeyAdapter enterKeyAdapter = new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    iniciarSesion();
+                }
+            }
+        };
+
+        // Agregar el listener a los componentes y a sus campos de texto internos
+        agregarKeyListenerRecursivo(textBox_Login2, enterKeyAdapter);
+        agregarKeyListenerRecursivo(textbox_Contrasena1, enterKeyAdapter);
     }
 
     private Font cargarFuente(String archivo, float tamaño) {
@@ -187,6 +205,15 @@ public class Login extends javax.swing.JFrame {
             );
 
             e.printStackTrace();
+        }
+    }
+    
+    private void agregarKeyListenerRecursivo(java.awt.Component componente, java.awt.event.KeyListener listener) {
+        componente.addKeyListener(listener);
+        if (componente instanceof java.awt.Container container) {
+            for (java.awt.Component c : container.getComponents()) {
+                agregarKeyListenerRecursivo(c, listener);
+            }
         }
     }
 
