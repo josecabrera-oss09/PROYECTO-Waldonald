@@ -8,6 +8,7 @@ public class Productos {
     private String descripcion;
     private double precio;
     private String imagen;
+    private final boolean disponibleHorario;
 
     public Productos(
             int idProducto,
@@ -17,6 +18,18 @@ public class Productos {
             double precio,
             String imagen
     ) {
+        this(idProducto, idCategoria, nombre, descripcion, precio, imagen, true);
+    }
+
+    public Productos(
+            int idProducto,
+            int idCategoria,
+            String nombre,
+            String descripcion,
+            double precio,
+            String imagen,
+            boolean disponibleHorario
+    ) {
 
         this.idProducto = idProducto;
         this.idCategoria = idCategoria;
@@ -24,6 +37,7 @@ public class Productos {
         this.descripcion = descripcion;
         this.precio = precio;
         this.imagen = imagen;
+        this.disponibleHorario = disponibleHorario;
     }
 
     public int getIdProducto() {
@@ -48,5 +62,9 @@ public class Productos {
 
     public String getImagen() {
         return imagen;
+    }
+
+    public boolean isDisponibleHorario() {
+        return disponibleHorario;
     }
 }

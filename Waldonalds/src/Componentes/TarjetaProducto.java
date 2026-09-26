@@ -17,8 +17,10 @@ public class TarjetaProducto extends JPanel {
     private JLabel lblDescripcion;
     private JLabel lblPrecio;
     private JButton btnAgregar;
+    private JLabel lblEstado;
 
     private boolean hover = false;
+    private boolean disponible;
 
     public TarjetaProducto(
             int idProducto,
@@ -27,7 +29,19 @@ public class TarjetaProducto extends JPanel {
             double precio,
             String imagen
     ) {
+        this(idProducto, nombre, descripcion, precio, imagen, true);
+    }
+
+    public TarjetaProducto(
+            int idProducto,
+            String nombre,
+            String descripcion,
+            double precio,
+            String imagen,
+            boolean disponible
+    ) {
         this.idProducto = idProducto;
+        this.disponible = disponible;
         init(nombre, descripcion, precio, imagen);
     }
 
@@ -45,7 +59,7 @@ public class TarjetaProducto extends JPanel {
         setMaximumSize(tamano);
         setLayout(new BorderLayout(0, 8));
         setBorder(new EmptyBorder(12, 12, 12, 12));
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setCursor(new Cursor(disponible ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
 
         // =========================
         // IMAGEN
@@ -72,8 +86,22 @@ public class TarjetaProducto extends JPanel {
         lblNombre.setForeground(new Color(20, 27, 35));
         lblNombre.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        lblEstado = new JLabel("No disponible ahora");
+        lblEstado.setFont(new Font("SansSerif", Font.BOLD, 11));
+        lblEstado.setForeground(new Color(102, 108, 115));
+        lblEstado.setOpaque(true);
+        lblEstado.setBackground(new Color(232, 235, 238));
+        lblEstado.setBorder(new EmptyBorder(4, 7, 4, 7));
+        lblEstado.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lblEstado.setVisible(!disponible);
+
         panelCentro.add(lblNombre);
         panelCentro.add(Box.createVerticalStrut(6));
+        panelCentro.add(lblEstado);
+        if (!disponible) {
+            panelCentro.add(Box.createVerticalStrut(5));
+            lblNombre.setForeground(new Color(112, 118, 124));
+        }
 
         if (descripcion == null) {
             descripcion = "";
@@ -85,7 +113,8 @@ public class TarjetaProducto extends JPanel {
                 + "</div></html>"
         );
         lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblDescripcion.setForeground(new Color(95, 95, 95));
+        lblDescripcion.setForeground(disponible
+                ? new Color(95, 95, 95) : new Color(142, 147, 152));
         lblDescripcion.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         panelCentro.add(lblDescripcion);
@@ -100,7 +129,8 @@ public class TarjetaProducto extends JPanel {
 
         lblPrecio = new JLabel(String.format("$%.2f", precio));
         lblPrecio.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblPrecio.setForeground(new Color(20, 27, 35));
+        lblPrecio.setForeground(disponible
+                ? new Color(20, 27, 35) : new Color(135, 140, 145));
 
         btnAgregar = new JButton("Agregar");
         btnAgregar.setFocusPainted(false);
@@ -111,6 +141,10 @@ public class TarjetaProducto extends JPanel {
         btnAgregar.setFont(new Font("SansSerif", Font.BOLD, 13));
         btnAgregar.setForeground(new Color(20, 27, 35));
         btnAgregar.setPreferredSize(new Dimension(95, 34));
+        btnAgregar.setEnabled(disponible);
+        if (!disponible) {
+            btnAgregar.setToolTipText("Este producto no está disponible en este horario.");
+        }
 
         panelInferior.add(lblPrecio, BorderLayout.WEST);
         panelInferior.add(btnAgregar, BorderLayout.EAST);
@@ -118,6 +152,9 @@ public class TarjetaProducto extends JPanel {
         add(panelInferior, BorderLayout.SOUTH);
 
         btnAgregar.addActionListener(e -> {
+            if (!disponible) {
+                return;
+            }
             System.out.println("Producto agregado: " + idProducto);
         });
 
@@ -125,7 +162,7 @@ public class TarjetaProducto extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                hover = true;
+                hover = disponible;
                 repaint();
             }
 
@@ -204,10 +241,12 @@ public class TarjetaProducto extends JPanel {
         g2.fillRoundRect(4, 4, getWidth() - 8, getHeight() - 8, 24, 24);
 
         // fondo
-        if (hover) {
+        if (!disponible) {
+            g2.setColor(new Color(242, 243, 244));
+        } else if (hover) {
             g2.setColor(new Color(255, 252, 245));
         } else {
-            g2.setColor(Color.WHITE);
+            g2.setColor(disponible ? Color.WHITE : new Color(235, 237, 239));
         }
         g2.fillRoundRect(0, 0, getWidth() - 6, getHeight() - 6, 24, 24);
 
@@ -247,7 +286,8 @@ public class TarjetaProducto extends JPanel {
                     22
             );
 
-            g2.setColor(new Color(255, 188, 13));
+            g2.setColor(disponible
+                    ? new Color(255, 188, 13) : new Color(205, 208, 211));
             g2.drawRoundRect(
                     p.x,
                     p.y,
@@ -263,7 +303,8 @@ public class TarjetaProducto extends JPanel {
             int ty = p.y + ((btnAgregar.getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
             g2.setFont(btnAgregar.getFont());
-            g2.setColor(new Color(20, 27, 35));
+            g2.setColor(disponible
+                    ? new Color(20, 27, 35) : new Color(145, 149, 153));
             g2.drawString(texto, tx, ty);
 
             g2.dispose();

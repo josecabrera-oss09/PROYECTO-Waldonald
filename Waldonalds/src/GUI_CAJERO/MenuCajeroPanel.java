@@ -83,7 +83,8 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
                             producto.getNombre(),
                             producto.getDescripcion(),
                             producto.getPrecio(),
-                            producto.getImagen()
+                            producto.getImagen(),
+                            producto.isDisponibleHorario()
                     );
 
             jPanel1.add(tarjeta);

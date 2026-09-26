@@ -8,12 +8,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import Utilidades.HorarioMenu;
 
 public class ProductoDAO {
 
     public List<Productos> obtenerPorCategoria(int idCategoria) {
+        return obtenerPorCategoria(idCategoria, LocalTime.now());
+    }
+
+    /**
+     * Busca todos los productos activos de la categoría y marca cuáles están
+     * disponibles para la hora indicada. Los productos de todo el día siempre
+     * aparecen como disponibles.
+     * La hora explícita permite comprobar el filtro sin insertar productos.
+     */
+    public List<Productos> obtenerPorCategoria(int idCategoria, LocalTime hora) {
 
         List<Productos> productos = new ArrayList<>();
 
@@ -24,7 +37,8 @@ public class ProductoDAO {
                     nombre,
                     descripcion,
                     precio_base,
-                    imagen
+                    imagen,
+                    disponibilidad_menu
                 FROM producto
                 WHERE id_categoria = ?
                 AND estado = TRUE
@@ -45,7 +59,9 @@ public class ProductoDAO {
                             rs.getString("nombre"),
                             rs.getString("descripcion"),
                             rs.getDouble("precio_base"),
-                            rs.getString("imagen")
+                            rs.getString("imagen"),
+                            HorarioMenu.estaDisponible(
+                                    rs.getString("disponibilidad_menu"), hora)
                     );
 
                     productos.add(producto);
