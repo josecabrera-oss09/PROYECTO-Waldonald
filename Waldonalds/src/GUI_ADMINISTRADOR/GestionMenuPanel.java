@@ -883,8 +883,8 @@ private void mostrarProductos(
 
         String precio =
                 producto.getPrecioBase() == null
-                        ? "$0.00"
-                        : "$" + producto
+                        ? "Q0.00"
+                        : "Q" + producto
                                 .getPrecioBase()
                                 .toPlainString();
 

@@ -127,7 +127,7 @@ public class TarjetaProducto extends JPanel {
         JPanel panelInferior = new JPanel(new BorderLayout());
         panelInferior.setOpaque(false);
 
-        lblPrecio = new JLabel(String.format("$%.2f", precio));
+        lblPrecio = new JLabel(String.format("Q%.2f", precio));
         lblPrecio.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblPrecio.setForeground(disponible
                 ? new Color(20, 27, 35) : new Color(135, 140, 145));
@@ -155,7 +155,8 @@ public class TarjetaProducto extends JPanel {
             if (!disponible) {
                 return;
             }
-            System.out.println("Producto agregado: " + idProducto);
+            java.awt.Window ventana = SwingUtilities.getWindowAncestor(this);
+            if (ventana instanceof GUI_CAJERO.Cajero cajero) cajero.agregarProducto(idProducto);
         });
 
         // Hover de tarjeta
