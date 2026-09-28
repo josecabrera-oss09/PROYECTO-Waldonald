@@ -3,6 +3,7 @@ package GUI_CAJERO;
 public class CategoriasPanel extends javax.swing.JPanel {
 
     private MenuCajeroPanel menuCajeroPanel;
+    private java.util.function.Consumer<javax.swing.JPanel> panelDestino;
 
     public CategoriasPanel() {
 
@@ -27,6 +28,14 @@ public class CategoriasPanel extends javax.swing.JPanel {
                         170
                 )
         );
+    }
+
+    /** Constructor reutilizable para vistas que quieran el mismo selector. */
+    public CategoriasPanel(
+            java.util.function.Consumer<javax.swing.JPanel> panelDestino) {
+        initComponents();
+        this.panelDestino = panelDestino;
+        setPreferredSize(new java.awt.Dimension(1900, 170));
     }
 
     @SuppressWarnings("unchecked")
@@ -167,7 +176,9 @@ public class CategoriasPanel extends javax.swing.JPanel {
     private void mostrarCategoriaDinamica(
             String nombreCategoria,
             java.util.List<String> subcategorias) {
-        if (menuCajeroPanel != null) {
+        if (panelDestino != null) {
+            panelDestino.accept(new SubCategoriasPanel(nombreCategoria, subcategorias));
+        } else if (menuCajeroPanel != null) {
             menuCajeroPanel.mostrarPanelCategoria(
                     new SubCategoriasPanel(nombreCategoria, subcategorias)
             );

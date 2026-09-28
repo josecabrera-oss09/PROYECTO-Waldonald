@@ -124,12 +124,18 @@ public class SubCategoriasPanel extends JPanel {
 
     private Color colorDeSubcategoria(String subcategoria) {
         return switch (subcategoria) {
-            case "Sándwiches" -> new Color(255, 244, 230);
-            case "McMuffin" -> new Color(235, 246, 255);
-            case "Hot Cakes" -> new Color(255, 240, 246);
-            case "Bebidas" -> new Color(235, 250, 243);
-            case "Por tiempo limitado" -> new Color(248, 241, 255);
-            default -> new Color(250, 250, 250);
+            case "Sándwiches" ->
+                new Color(255, 244, 230);
+            case "McMuffin" ->
+                new Color(235, 246, 255);
+            case "Hot Cakes" ->
+                new Color(255, 240, 246);
+            case "Bebidas" ->
+                new Color(235, 250, 243);
+            case "Por tiempo limitado" ->
+                new Color(248, 241, 255);
+            default ->
+                new Color(250, 250, 250);
         };
     }
 }
