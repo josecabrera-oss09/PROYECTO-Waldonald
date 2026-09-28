@@ -83,8 +83,9 @@ public class UsuarioCRUD {
             throws SQLException {
         String sql = """
                 INSERT INTO usuario
-                    (nombre, apellido, usuario, correo, password_hash, rol, estado)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (nombre, apellido, usuario, correo, password_hash, rol,
+                     estado, turno, hora_inicio, hora_fin)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection conexion = abrirConexion();
@@ -94,6 +95,7 @@ public class UsuarioCRUD {
             sentencia.setString(5, passwordHash);
             sentencia.setString(6, usuario.getRol());
             sentencia.setBoolean(7, usuario.isActivo());
+            colocarHorario(sentencia, 8, usuario);
             sentencia.executeUpdate();
 
             try (ResultSet claves = sentencia.getGeneratedKeys()) {
@@ -113,13 +115,15 @@ public class UsuarioCRUD {
                 ? """
                   UPDATE usuario
                   SET nombre = ?, apellido = ?, usuario = ?, correo = ?,
-                      rol = ?, estado = ?, password_hash = ?
+                      rol = ?, estado = ?, turno = ?, hora_inicio = ?,
+                      hora_fin = ?, password_hash = ?
                   WHERE id_usuario = ?
                   """
                 : """
                   UPDATE usuario
                   SET nombre = ?, apellido = ?, usuario = ?, correo = ?,
-                      rol = ?, estado = ?
+                      rol = ?, estado = ?, turno = ?, hora_inicio = ?,
+                      hora_fin = ?
                   WHERE id_usuario = ?
                   """;
 
@@ -128,12 +132,13 @@ public class UsuarioCRUD {
             colocarDatosComunes(sentencia, usuario);
             sentencia.setString(5, usuario.getRol());
             sentencia.setBoolean(6, usuario.isActivo());
+            colocarHorario(sentencia, 7, usuario);
             int indiceId;
             if (cambiaContrasena) {
-                sentencia.setString(7, passwordHash);
-                indiceId = 8;
+                sentencia.setString(10, passwordHash);
+                indiceId = 11;
             } else {
-                indiceId = 7;
+                indiceId = 10;
             }
             sentencia.setInt(indiceId, usuario.getIdUsuario());
             sentencia.executeUpdate();
@@ -201,7 +206,7 @@ public class UsuarioCRUD {
             boolean paginar) throws SQLException {
         String sql = """
                 SELECT id_usuario, nombre, apellido, usuario, correo, rol,
-                       estado, fecha_creacion
+                       estado, fecha_creacion, turno, hora_inicio, hora_fin
                 FROM usuario
                 """ + filtro.where() + " ORDER BY id_usuario ASC"
                 + (paginar ? " LIMIT ? OFFSET ?" : "");
@@ -287,8 +292,27 @@ public class UsuarioCRUD {
         sentencia.setString(4, usuario.getCorreo());
     }
 
+    private void colocarHorario(
+            PreparedStatement sentencia,
+            int indice,
+            Usuario usuario) throws SQLException {
+        sentencia.setString(indice++, usuario.getTurno());
+        if (usuario.getHoraInicio() == null) {
+            sentencia.setNull(indice++, java.sql.Types.TIME);
+        } else {
+            sentencia.setString(indice++, usuario.getHoraInicio().toString());
+        }
+        if (usuario.getHoraFin() == null) {
+            sentencia.setNull(indice, java.sql.Types.TIME);
+        } else {
+            sentencia.setString(indice, usuario.getHoraFin().toString());
+        }
+    }
+
     private Usuario mapear(ResultSet resultado) throws SQLException {
         Timestamp fecha = resultado.getTimestamp("fecha_creacion");
+        String inicio = resultado.getString("hora_inicio");
+        String fin = resultado.getString("hora_fin");
         return new Usuario(
                 resultado.getInt("id_usuario"),
                 resultado.getString("nombre"),
@@ -297,7 +321,10 @@ public class UsuarioCRUD {
                 resultado.getString("correo"),
                 resultado.getString("rol"),
                 resultado.getBoolean("estado"),
-                fecha != null ? fecha.toLocalDateTime() : null);
+                fecha != null ? fecha.toLocalDateTime() : null,
+                resultado.getString("turno"),
+                inicio != null ? java.time.LocalTime.parse(inicio) : null,
+                fin != null ? java.time.LocalTime.parse(fin) : null);
     }
 
     private Connection abrirConexion() throws SQLException {

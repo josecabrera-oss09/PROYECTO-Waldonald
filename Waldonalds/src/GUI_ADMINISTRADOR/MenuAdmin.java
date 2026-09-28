@@ -50,10 +50,12 @@ private double aperturaInicial;
 private double aperturaObjetivo;
 
 private Timer timerMenu;
-private long tiempoInicioAnimacion;
+private long tiempoInicioAnimacionNanos;
+private long duracionAnimacionNanos;
+private boolean ajusteMenuPendiente;
 
-// Duración de la animación
-private static final int DURACION_MENU = 280;
+// Duración de la animación (300 ms).
+private static final long DURACION_MENU_NANOS = 300_000_000L;
 
 // Medidas después de aplicar el Escalador
 private int anchoLateralAbierto;
@@ -104,6 +106,55 @@ private Rectangle boundsUsuario;
      * a la resolución de la computadora.
      */
 
+    guardarGeometriaMenu();
+
+    // ==========================================
+    // HACER CLICKEABLE EL ICONO ☰
+    // ==========================================
+
+    labelHamburguesa.setCursor(
+            Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+    );
+
+    labelHamburguesa.setToolTipText(
+            "Abrir / cerrar menú"
+    );
+
+    labelHamburguesa.addMouseListener(new MouseAdapter() {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            alternarMenuLateral();
+        }
+    });
+    guardarPosicionesContenido();
+    addComponentListener(new java.awt.event.ComponentAdapter() {
+        @Override public void componentResized(java.awt.event.ComponentEvent e) {
+            // Escalador restaura primero las coordenadas base para esta resolución.
+            if (ajusteMenuPendiente) return;
+            ajusteMenuPendiente = true;
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                ajusteMenuPendiente = false;
+                guardarGeometriaMenu();
+                guardarPosicionesContenido();
+                aplicarAperturaMenu(aperturaMenu);
+            });
+        }
+    });
+    labelHamburguesa.setFocusable(true);
+    labelHamburguesa.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(
+            javax.swing.KeyStroke.getKeyStroke("SPACE"), "alternarMenu");
+    labelHamburguesa.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(
+            javax.swing.KeyStroke.getKeyStroke("ENTER"), "alternarMenu");
+    labelHamburguesa.getActionMap().put("alternarMenu", new javax.swing.AbstractAction() {
+        @Override public void actionPerformed(java.awt.event.ActionEvent e) { alternarMenuLateral(); }
+    });
+    for (BotonMenuLateral boton : new BotonMenuLateral[]{botonDashboard, botonUsuarios,
+            botonGestionMenu, botonIngredientes, botonReportes, botonCerrarSesion}) {
+        boton.setToolTipText(boton.getText());
+    }
+}
+    private void guardarGeometriaMenu() {
     anchoLateralAbierto = panelLateral.getWidth();
 
     /*
@@ -158,27 +209,7 @@ private Rectangle boundsUsuario;
             new Rectangle(labelUsuario.getBounds());
 
 
-    // ==========================================
-    // HACER CLICKEABLE EL ICONO ☰
-    // ==========================================
-
-    labelHamburguesa.setCursor(
-            Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-    );
-
-    labelHamburguesa.setToolTipText(
-            "Abrir / cerrar menú"
-    );
-
-    labelHamburguesa.addMouseListener(new MouseAdapter() {
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            alternarMenuLateral();
-        }
-    });
-    guardarPosicionesContenido();
-}
+    }
    private void guardarPosicionesContenido() {
 
     posicionesContenidoOriginales.clear();
@@ -244,8 +275,7 @@ private Rectangle boundsUsuario;
             );
         }
 
-        panelSeccion.revalidate();
-        panelSeccion.repaint();
+
     }
 }
    private void alternarMenuLateral() {
@@ -261,8 +291,8 @@ private Rectangle boundsUsuario;
     aperturaObjetivo =
             menuLateralAbierto ? 1.0 : 0.0;
 
-    tiempoInicioAnimacion =
-            System.currentTimeMillis();
+    tiempoInicioAnimacionNanos =
+            System.nanoTime();
 
 
     // Si ya existe una animación, la detenemos.
@@ -271,66 +301,35 @@ private Rectangle boundsUsuario;
     }
 
 
-    /*
-     * Al cerrar quitamos inmediatamente los textos
-     * grandes para evitar que se vean recortados.
-     */
-    if (!menuLateralAbierto) {
-        ocultarTextosMenu();
-    }
+    duracionAnimacionNanos = Math.max(80_000_000L,
+            (long) (DURACION_MENU_NANOS * Math.abs(aperturaObjetivo - aperturaInicial)));
+    labelHamburguesa.setToolTipText(menuLateralAbierto ? "Contraer menú" : "Expandir menú");
 
+    // Cerca de 60 FPS. Swing agrupa los repintados si el EDT se ocupa.
+    timerMenu = new Timer(16, e -> {
+        long transcurrido = System.nanoTime() - tiempoInicioAnimacionNanos;
+        double progreso = Math.min(
+                1.0,
+                (double) transcurrido / duracionAnimacionNanos);
 
-    // Aproximadamente 60 FPS
-    timerMenu = new Timer(15, e -> {
+        // Aceleración y frenado graduales para evitar el tirón inicial.
+        double suavizado = progreso * progreso * progreso
+                * (progreso * (6.0 * progreso - 15.0) + 10.0);
 
-        long tiempoActual =
-                System.currentTimeMillis();
-
-        double progreso =
-                (double) (tiempoActual - tiempoInicioAnimacion)
-                / DURACION_MENU;
-
-
-        if (progreso >= 1.0) {
-            progreso = 1.0;
-        }
-
-
-        /*
-         * Easing cubic.
-         *
-         * Hace que la animación salga rápida
-         * y termine suavemente, parecido al video.
-         */
-        double suavizado =
-                1.0 - Math.pow(1.0 - progreso, 3);
-
-
-        aperturaMenu =
-                aperturaInicial
-                + (aperturaObjetivo - aperturaInicial)
-                * suavizado;
-
+        aperturaMenu = aperturaInicial
+                + (aperturaObjetivo - aperturaInicial) * suavizado;
 
         aplicarAperturaMenu(aperturaMenu);
 
-
         if (progreso >= 1.0) {
-
             timerMenu.stop();
-
             aperturaMenu = aperturaObjetivo;
-
             aplicarAperturaMenu(aperturaMenu);
 
 
-            if (menuLateralAbierto) {
-                mostrarTextosMenu();
-            }
         }
     });
-
-
+    timerMenu.setCoalesce(true);
     timerMenu.start();
 }
    private void aplicarAperturaMenu(double apertura) {
@@ -490,17 +489,12 @@ private Rectangle boundsUsuario;
             apertura
     );
 
+    int alpha = (int) Math.round(255 * Math.max(0.0, Math.min(1.0, (apertura - 0.35) / 0.65)));
+    labelMarca.setForeground(new Color(255, 255, 255, alpha));
+    labelRol.setForeground(new Color(255, 190, 0, alpha));
     centrarContenido(apertura);
-    panelLateral.revalidate();
-    panelLateral.repaint();
-
-    panelCabecera.revalidate();
-    panelCabecera.repaint();
-
-    panelContenido.revalidate();
-    panelContenido.repaint();
-
-    panelRaiz.revalidate();
+    // Evita recalcular todos los AbsoluteLayout en cada fotograma.
+    panelContenido.doLayout();
     panelRaiz.repaint();
 }
    private void actualizarBotonCompacto(
@@ -540,6 +534,7 @@ private Rectangle boundsUsuario;
     );
 
 
+    boton.setAperturaMenu(apertura);
     boton.setBounds(
             xActual,
             abierto.y,
@@ -557,130 +552,11 @@ private Rectangle boundsUsuario;
             + (abierto - cerrado) * apertura
     );
 }
-   private void ocultarTextosMenu() {
+    @Override public void dispose() {
+        if (timerMenu != null) timerMenu.stop();
+        super.dispose();
+    }
 
-    // Ocultamos nombre y rol
-    labelMarca.setVisible(false);
-    labelRol.setVisible(false);
-
-
-    // Dejamos solamente los iconos
-    botonDashboard.setText("");
-    botonUsuarios.setText("");
-    botonGestionMenu.setText("");
-    botonIngredientes.setText("");
-    botonReportes.setText("");
-    botonCerrarSesion.setText("");
-
-
-    // Tooltip para saber qué es cada botón
-    botonDashboard.setToolTipText("Dashboard");
-
-    botonUsuarios.setToolTipText(
-            "Gestión de Usuarios"
-    );
-
-    botonGestionMenu.setToolTipText(
-            "Gestión del Menú"
-    );
-
-    botonIngredientes.setToolTipText(
-            "Ingredientes"
-    );
-
-    botonReportes.setToolTipText(
-            "Reportes"
-    );
-
-    botonCerrarSesion.setToolTipText(
-            "Volver Al Menú"
-    );
-
-
-    /*
-     * Si BotonMenuLateral utiliza los iconos
-     * normales de JButton, esto los centrará.
-     */
-    botonDashboard.setHorizontalAlignment(
-            SwingConstants.CENTER
-    );
-
-    botonUsuarios.setHorizontalAlignment(
-            SwingConstants.CENTER
-    );
-
-    botonGestionMenu.setHorizontalAlignment(
-            SwingConstants.CENTER
-    );
-
-    botonIngredientes.setHorizontalAlignment(
-            SwingConstants.CENTER
-    );
-
-    botonReportes.setHorizontalAlignment(
-            SwingConstants.CENTER
-    );
-
-    botonCerrarSesion.setHorizontalAlignment(
-            SwingConstants.CENTER
-    );
-}
-   private void mostrarTextosMenu() {
-
-    labelMarca.setVisible(true);
-    labelRol.setVisible(true);
-
-
-    botonDashboard.setText(
-            "Dashboard"
-    );
-
-    botonUsuarios.setText(
-            "Gestión de Usuarios"
-    );
-
-    botonGestionMenu.setText(
-            "Gestión del Menú"
-    );
-
-    botonIngredientes.setText(
-            "Ingredientes"
-    );
-
-    botonReportes.setText(
-            "Reportes"
-    );
-
-    botonCerrarSesion.setText(
-            "Volver Al Menú"
-    );
-
-
-    botonDashboard.setHorizontalAlignment(
-            SwingConstants.LEFT
-    );
-
-    botonUsuarios.setHorizontalAlignment(
-            SwingConstants.LEFT
-    );
-
-    botonGestionMenu.setHorizontalAlignment(
-            SwingConstants.LEFT
-    );
-
-    botonIngredientes.setHorizontalAlignment(
-            SwingConstants.LEFT
-    );
-
-    botonReportes.setHorizontalAlignment(
-            SwingConstants.LEFT
-    );
-
-    botonCerrarSesion.setHorizontalAlignment(
-            SwingConstants.LEFT
-    );
-}
-   
     private void aplicarTipografia() {
         labelMarca.setFont(tema.negrita(28f));
         labelRol.setFont(tema.media(18f));
