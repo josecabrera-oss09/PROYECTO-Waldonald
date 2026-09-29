@@ -32,6 +32,17 @@ public class BotonMenuLateral extends JButton {
     private boolean seleccionado;
     private boolean mostrarBorde;
     private String tipoIcono = "DASHBOARD";
+    private double aperturaMenu = 1.0;
+
+    /** Interpola el contenido sin borrar el texto ni su nombre accesible. */
+    public void setAperturaMenu(double apertura) {
+        aperturaMenu = Math.max(0.0, Math.min(1.0, apertura));
+        repaint();
+    }
+
+    public double getAperturaMenu() {
+        return aperturaMenu;
+    }
 
     public BotonMenuLateral() {
         setOpaque(false);
@@ -74,13 +85,18 @@ public class BotonMenuLateral extends JButton {
         }
 
         int centroY = getHeight() / 2;
-        pintarIcono(g2, 31, centroY, colorContenido);
+        double escala = Math.min(1.0, getHeight() / 64.0);
+        int centroIcono = (int) Math.round((getWidth() / 2.0) * (1.0 - aperturaMenu)
+                + 31 * escala * aperturaMenu);
+        pintarIcono(g2, centroIcono, centroY, colorContenido);
+        float opacidadTexto = (float) Math.max(0.0, Math.min(1.0, (aperturaMenu - 0.35) / 0.65));
+        g2.setComposite(java.awt.AlphaComposite.SrcOver.derive(opacidadTexto));
 
         g2.setColor(colorContenido);
         g2.setFont(getFont());
         FontMetrics metricas = g2.getFontMetrics();
         int textoY = centroY + (metricas.getAscent() - metricas.getDescent()) / 2;
-        g2.drawString(getText() == null ? "" : getText(), 66, textoY);
+        g2.drawString(getText() == null ? "" : getText(), (int) Math.round(66 * escala), textoY);
         g2.dispose();
     }
 

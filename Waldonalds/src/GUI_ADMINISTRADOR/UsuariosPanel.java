@@ -167,11 +167,11 @@ public class UsuariosPanel extends javax.swing.JPanel {
         panelTabla.setColorBorde(BORDE);
         tablaUsuarios.setModel(modeloTabla);
         tablaUsuarios.aplicarEstilo();
-        tablaUsuarios.getColumnModel().getColumn(5)
+        tablaUsuarios.getColumnModel().getColumn(6)
                 .setCellRenderer(new RenderEstado());
-        tablaUsuarios.getColumnModel().getColumn(7)
+        tablaUsuarios.getColumnModel().getColumn(8)
                 .setCellRenderer(new RenderAcciones());
-        tablaUsuarios.getColumnModel().getColumn(7)
+        tablaUsuarios.getColumnModel().getColumn(8)
                 .setCellEditor(new EditorAcciones());
         configurarAnchosColumnas();
 
@@ -208,7 +208,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
     }
 
     private void configurarAnchosColumnas() {
-        int[] anchos = {78, 180, 135, 145, 285, 105, 175, 118};
+        int[] anchos = {65, 155, 115, 125, 185, 230, 95, 165, 110};
         for (int indice = 0; indice < anchos.length; indice++) {
             tablaUsuarios.getColumnModel().getColumn(indice)
                     .setPreferredWidth(anchos[indice]);
@@ -534,7 +534,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 archivo, StandardCharsets.UTF_8)) {
             escritor.write('\ufeff'); // BOM: conserva tildes al abrir en Excel.
             escritor.write(
-                    "ID,Nombre,Apellido,Usuario,Correo,Rol,Estado,Fecha creación");
+                    "ID,Nombre,Apellido,Usuario,Correo,Rol,Turno,Estado,Fecha creación");
             escritor.newLine();
             for (Usuario usuario : usuarios) {
                 escritor.write(String.join(",",
@@ -544,6 +544,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
                         csv(usuario.getNombreUsuario()),
                         csv(usuario.getCorreo()),
                         csv(usuario.getRol()),
+                        csv(usuario.getTurnoEtiqueta()),
                         csv(usuario.isActivo() ? "Activo" : "Inactivo"),
                         csv(usuario.getFechaCreacion() == null ? ""
                                 : usuario.getFechaCreacion()
@@ -896,7 +897,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
     private final class ModeloTablaUsuarios extends AbstractTableModel {
 
         private final String[] columnas = {
-            "ID", "Nombre", "Usuario", "Rol", "Correo",
+            "ID", "Nombre", "Usuario", "Rol", "Turno", "Correo",
             "Estado", "Fecha creación", "Acciones"
         };
         private List<Usuario> usuarios = List.of();
@@ -929,9 +930,10 @@ public class UsuariosPanel extends javax.swing.JPanel {
                 case 1 -> usuario.getNombreCompleto();
                 case 2 -> usuario.getNombreUsuario();
                 case 3 -> usuario.getRol();
-                case 4 -> usuario.getCorreo();
-                case 5, 7 -> usuario;
-                case 6 -> usuario.getFechaCreacion() == null
+                case 4 -> usuario.getTurnoEtiqueta();
+                case 5 -> usuario.getCorreo();
+                case 6, 8 -> usuario;
+                case 7 -> usuario.getFechaCreacion() == null
                         ? "" : usuario.getFechaCreacion().format(FORMATO_FECHA);
                 default -> "";
             };
@@ -939,7 +941,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
 
         @Override
         public Class<?> getColumnClass(int columna) {
-            return columna == 5 || columna == 7
+            return columna == 6 || columna == 8
                     ? Usuario.class : String.class;
         }
 

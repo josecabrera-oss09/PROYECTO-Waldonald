@@ -5,6 +5,8 @@ import Modelos.Usuario;
 import Utilidades.SeguridadContrasena;
 import Utilidades.SesionUsuario;
 import Utilidades.TemaAdmin;
+import Utilidades.HorarioTurno;
+import java.time.LocalTime;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.sql.SQLException;
@@ -38,6 +40,7 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
     private UsuarioCRUD crud;
     private Usuario original;
     private String rolSeleccionado;
+    private String turnoSeleccionado;
     private boolean estadoSeleccionado = true;
     private boolean contrasenaVisible;
     private boolean confirmacionVisible;
@@ -68,7 +71,8 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
 
         javax.swing.JLabel[] etiquetas = {
             labelNombre, labelApellido, labelUsuario, labelCorreo,
-            labelRol, labelEstado, labelContrasena, labelConfirmar
+            labelRol, labelEstado, labelTurno,
+            labelContrasena, labelConfirmar
         };
         for (javax.swing.JLabel etiqueta : etiquetas) {
             etiqueta.setFont(tema.media(14f));
@@ -103,8 +107,10 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
 
         selectorRol.setFont(tema.regular(14f));
         selectorEstado.setFont(tema.regular(14f));
+        selectorTurno.setFont(tema.regular(14f));
         configurarSelector(selectorRol);
         configurarSelector(selectorEstado);
+        configurarSelector(selectorTurno);
         cambiarContrasena.setFont(tema.media(14f));
         cambiarContrasena.setForeground(AZUL);
         botonGuardar.setFont(tema.negrita(14f));
@@ -136,6 +142,11 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         selectorRol.addMenuOpcionListener(evento -> {
             rolSeleccionado = evento.getActionCommand();
             selectorRol.setText(rolSeleccionado);
+            actualizarTurnoSegunRol();
+        });
+        selectorTurno.addMenuOpcionListener(evento -> {
+            turnoSeleccionado = evento.getActionCommand();
+            selectorTurno.setText(turnoSeleccionado);
         });
         selectorEstado.addMenuOpcionListener(evento -> {
             estadoSeleccionado = "Activo".equals(evento.getActionCommand());
@@ -160,6 +171,9 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         botonDesactivar.setVisible(editando && original.isActivo());
 
         if (!editando) {
+            selectorTurno.setText("Sin turno");
+            turnoSeleccionado = "Sin turno";
+            actualizarTurnoSegunRol();
             return;
         }
         campoNombre.setText(original.getNombre());
@@ -170,6 +184,22 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         estadoSeleccionado = original.isActivo();
         selectorRol.setText(rolSeleccionado);
         selectorEstado.setText(estadoSeleccionado ? "Activo" : "Inactivo");
+        turnoSeleccionado = HorarioTurno.etiqueta(original.getTurno());
+        selectorTurno.setText(turnoSeleccionado);
+        actualizarTurnoSegunRol();
+    }
+
+    private void actualizarTurnoSegunRol() {
+        boolean esCajero = "CAJERO".equals(rolSeleccionado);
+        selectorTurno.setEnabled(esCajero);
+        if (!esCajero) {
+            turnoSeleccionado = "Sin turno";
+            selectorTurno.setText(turnoSeleccionado);
+        } else if (turnoSeleccionado == null
+                || turnoSeleccionado.equals("Sin turno")) {
+            turnoSeleccionado = "Seleccionar turno";
+            selectorTurno.setText(turnoSeleccionado);
+        }
     }
 
     private void guardar() {
@@ -188,6 +218,28 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                 || correo.isBlank() || rolSeleccionado == null) {
             mostrarError("Completa todos los campos obligatorios.");
             return;
+        }
+        String turno = null;
+        LocalTime horaInicio = null;
+        LocalTime horaFin = null;
+        if ("CAJERO".equals(rolSeleccionado)) {
+            if (turnoSeleccionado == null
+                    || turnoSeleccionado.startsWith("Seleccionar")) {
+                mostrarError("Asigna un turno al cajero.");
+                return;
+            }
+            if (turnoSeleccionado.startsWith("Mañana")) {
+                turno = HorarioTurno.MANANA;
+                horaInicio = HorarioTurno.INICIO_MANANA;
+                horaFin = HorarioTurno.FIN_MANANA;
+            } else if (turnoSeleccionado.startsWith("Tarde")) {
+                turno = HorarioTurno.TARDE;
+                horaInicio = HorarioTurno.INICIO_TARDE;
+                horaFin = HorarioTurno.FIN_TARDE;
+            } else {
+                mostrarError("Asigna un turno al cajero.");
+                return;
+            }
         }
         if (nombre.length() > 50 || apellido.length() > 50
                 || usuario.length() > 50 || correo.length() > 120) {
@@ -252,7 +304,8 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                     id, nombre, apellido, usuario, correo,
                     rolSeleccionado, estadoSeleccionado,
                     original == null ? LocalDateTime.now()
-                            : original.getFechaCreacion());
+                            : original.getFechaCreacion(),
+                    turno, horaInicio, horaFin);
             String hash = requiereContrasena
                     ? SeguridadContrasena.sha256(contrasena) : null;
 
@@ -408,6 +461,8 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         selectorRol = new Componentes.BotonDesplegable();
         labelEstado = new javax.swing.JLabel();
         selectorEstado = new Componentes.BotonDesplegable();
+        labelTurno = new javax.swing.JLabel();
+        selectorTurno = new Componentes.BotonDesplegable();
         cambiarContrasena = new javax.swing.JCheckBox();
         panelContrasenas = new javax.swing.JPanel();
         labelContrasena = new javax.swing.JLabel();
@@ -422,7 +477,7 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         botonGuardar = new Componentes.BotonRedondeado();
 
         setOpaque(false);
-        setPreferredSize(new java.awt.Dimension(790, 660));
+        setPreferredSize(new java.awt.Dimension(790, 710));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelTarjeta.setColorBorde(new java.awt.Color(222, 227, 234));
@@ -480,13 +535,21 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         selectorEstado.setTextoDesplegable("Activo;Inactivo");
         panelTarjeta.add(selectorEstado, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 338, 330, 46));
 
+        labelTurno.setText("Turno del cajero");
+        panelTarjeta.add(labelTurno, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 400, 330, 24));
+
+        selectorTurno.setForeground(new java.awt.Color(0, 20, 43));
+        selectorTurno.setText("Sin turno");
+        selectorTurno.setTextoDesplegable("Mañana (06:00–14:00);Tarde (14:00–22:00);Sin turno");
+        panelTarjeta.add(selectorTurno, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 428, 330, 46));
+
         cambiarContrasena.setText("Cambiar contraseña");
         cambiarContrasena.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cambiarContrasenaActionPerformed(evt);
             }
         });
-        panelTarjeta.add(cambiarContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 250, 30));
+        panelTarjeta.add(cambiarContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 490, 250, 30));
 
         panelContrasenas.setOpaque(false);
         panelContrasenas.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -523,11 +586,11 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         panelContrasenas.add(botonVerConfirmacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(665, 28, 40, 42));
         panelContrasenas.add(campoConfirmar, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 26, 330, 46));
 
-        panelTarjeta.add(panelContrasenas, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 438, 710, 76));
+        panelTarjeta.add(panelContrasenas, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 528, 710, 76));
 
         labelError.setForeground(new java.awt.Color(231, 55, 65));
         labelError.setText(" ");
-        panelTarjeta.add(labelError, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 528, 710, 26));
+        panelTarjeta.add(labelError, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 612, 710, 26));
 
         botonDesactivar.setForeground(new java.awt.Color(231, 55, 65));
         botonDesactivar.setText("Desactivar usuario");
@@ -541,7 +604,7 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                 botonDesactivarActionPerformed(evt);
             }
         });
-        panelTarjeta.add(botonDesactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 575, 180, 48));
+        panelTarjeta.add(botonDesactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 650, 180, 48));
 
         botonCancelar.setForeground(new java.awt.Color(231, 55, 65));
         botonCancelar.setText("Cancelar");
@@ -555,7 +618,7 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                 botonCancelarActionPerformed(evt);
             }
         });
-        panelTarjeta.add(botonCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 575, 130, 48));
+        panelTarjeta.add(botonCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 650, 130, 48));
 
         botonGuardar.setText("Guardar usuario");
         botonGuardar.setDegradado(false);
@@ -564,9 +627,9 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                 botonGuardarActionPerformed(evt);
             }
         });
-        panelTarjeta.add(botonGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(585, 575, 165, 48));
+        panelTarjeta.add(botonGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(585, 650, 165, 48));
 
-        add(panelTarjeta, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 790, 660));
+        add(panelTarjeta, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 790, 710));
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -594,11 +657,13 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
     private javax.swing.JLabel labelRol;
     private javax.swing.JLabel labelSubtitulo;
     private javax.swing.JLabel labelTitulo;
+    private javax.swing.JLabel labelTurno;
     private javax.swing.JLabel labelUsuario;
     private javax.swing.JPanel panelContrasenas;
     private Componentes.PanelCircular panelIcono;
     private Componentes.PanelFlotante panelTarjeta;
     private Componentes.BotonDesplegable selectorEstado;
     private Componentes.BotonDesplegable selectorRol;
+    private Componentes.BotonDesplegable selectorTurno;
     // End of variables declaration//GEN-END:variables
 }
