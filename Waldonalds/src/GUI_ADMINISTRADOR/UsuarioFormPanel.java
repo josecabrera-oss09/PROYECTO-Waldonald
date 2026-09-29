@@ -620,8 +620,8 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         });
         panelTarjeta.add(botonCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 650, 130, 48));
 
-        botonGuardar.setText("Guardar usuario");
         botonGuardar.setDegradado(false);
+        botonGuardar.setText("Guardar usuario");
         botonGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonGuardarActionPerformed(evt);
@@ -629,7 +629,7 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
         });
         panelTarjeta.add(botonGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(585, 650, 165, 48));
 
-        add(panelTarjeta, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 790, 710));
+        add(panelTarjeta, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 790, 730));
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

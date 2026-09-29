@@ -110,7 +110,7 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("DM Sans 18pt", 1, 110)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 13, 27));
         jLabel1.setText("Menú");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(67, 30, 310, 100));
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, 310, 100));
 
         panelContenido.setBackground(new java.awt.Color(255, 255, 255));
         add(panelContenido, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 410, 1810, 660));
