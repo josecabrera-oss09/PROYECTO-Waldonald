@@ -97,7 +97,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         });
         add(btnPostres, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, 180, 170));
 
-        btnCafe.setText("McCafé");
+        btnCafe.setText("WlCafé");
         btnCafe.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnCafe.setHideActionText(true);
         btnCafe.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -156,7 +156,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnPostresActionPerformed
 
     private void btnCafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCafeActionPerformed
-        mostrarCategoriaDinamica("McCafé", java.util.List.of(
+        mostrarCategoriaDinamica("WlCafé", java.util.List.of(
                 "Café", "Frappés", "Chocolate", "Té", "Bebidas frías",
                 "Repostería"));
     }//GEN-LAST:event_btnCafeActionPerformed

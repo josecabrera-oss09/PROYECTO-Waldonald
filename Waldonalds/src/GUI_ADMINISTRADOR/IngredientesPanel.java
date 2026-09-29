@@ -1013,10 +1013,14 @@ public class IngredientesPanel extends javax.swing.JPanel {
             circulo.setColorFondo(new Color(255, 244, 211));
             circulo.setLayout(new BorderLayout());
             circulo.setBounds(30, 19, 80, 80);
-            JLabel icono = new JLabel("▤", SwingConstants.CENTER);
-            icono.setFont(tema.negrita(36f));
-            icono.setForeground(new Color(214, 151, 0));
-            circulo.add(icono, BorderLayout.CENTER);
+            java.net.URL urlIcono = getClass().getResource("/Imagenes/lista_icono.png");
+            if (urlIcono != null) {
+                JLabel imagen = new JLabel(new javax.swing.ImageIcon(
+                        new javax.swing.ImageIcon(urlIcono).getImage()
+                                .getScaledInstance(39, 39, java.awt.Image.SCALE_SMOOTH)));
+                imagen.setHorizontalAlignment(SwingConstants.CENTER);
+                circulo.add(imagen, BorderLayout.CENTER);
+            }
             cabecera.add(circulo);
             JLabel titulo = new JLabel(original == null
                     ? "Agregar ingrediente" : "Editar ingrediente");
@@ -1105,15 +1109,19 @@ public class IngredientesPanel extends javax.swing.JPanel {
             botones.setOpaque(false);
             if (original != null && original.isActivo()) {
                 BotonRedondeado desactivar = boton("Desactivar ingrediente", false);
-                desactivar.setPreferredSize(new Dimension(190, 48));
+                desactivar.setPreferredSize(new Dimension(230, 48));
                 desactivar.addActionListener(evento -> desactivar());
-                botones.add(desactivar, BorderLayout.WEST);
+
+                JPanel izquierda = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                izquierda.setOpaque(false);
+                izquierda.add(desactivar);
+                botones.add(izquierda, BorderLayout.WEST);
             }
             JPanel derecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
             derecha.setOpaque(false);
             BotonRedondeado cancelar = boton("Cancelar", false);
             cancelar.setPreferredSize(new Dimension(130, 48));
-            botonGuardar.setPreferredSize(new Dimension(176, 48));
+            botonGuardar.setPreferredSize(new Dimension(220, 48));
             cancelar.addActionListener(evento -> firePropertyChange(EVENTO_CANCELAR, false, true));
             botonGuardar.addActionListener(evento -> guardar());
             derecha.add(cancelar);
@@ -1205,9 +1213,7 @@ public class IngredientesPanel extends javax.swing.JPanel {
     }
 
     // Formulario para registrar movimientos de inventario.
-            // fuera de initComponents() y fuera del bloque generado.
-
-
+    // fuera de initComponents() y fuera del bloque generado.
     private boolean mostrarDialogoMovimiento(Ingrediente ingrediente) {
         Window propietario = SwingUtilities.getWindowAncestor(this);
         DialogoMovimientoIngrediente dialogo

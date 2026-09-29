@@ -69,7 +69,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-/** Gestión de productos con la misma presentación que UsuariosPanel. */
+/**
+ * Gestión de productos con la misma presentación que UsuariosPanel.
+ */
 @SuppressWarnings("serial")
 public class GestionMenuPanel extends javax.swing.JPanel {
 
@@ -115,6 +117,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
 );
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -444,57 +447,15 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_campoBusquedaActionPerformed
 
-
-  /** Sólo cambia propiedades fuera del bloque generado por NetBeans. */
+    /**
+     * Sólo cambia propiedades fuera del bloque generado por NetBeans.
+     */
     private void configurarApariencia() {
-        setBackground(new Color(248, 249, 251));
-        labelTitulo3.setFont(tema.negrita(55f));
-        labelTitulo3.setForeground(AZUL);
-        labelTitulo3.setBounds(70, 30, 620, 76);
-        labelTitulo2.setFont(tema.regular(17f));
-        labelTitulo2.setForeground(SECUNDARIO);
-        botonAgregarProducto.setFont(tema.negrita(16f));
-        botonAgregarProducto.setBounds(1050, 60, 230, 80);
-        botonAgregarProducto.addActionListener(evento -> mostrarFormularioProducto(null));
+        botonAgregarProducto.addActionListener(
+                evento -> mostrarFormularioProducto(null));
 
-        Componentes.PanelFlotante[] tarjetas = {
-            panelFlotante1, panelFlotante2, panelFlotante4, panelFlotante3
-        };
-        for (int i = 0; i < tarjetas.length; i++) {
-            tarjetas[i].setColorFondo(Color.WHITE);
-            tarjetas[i].setColorBorde(BORDE);
-            tarjetas[i].setBounds(60 + i * 370, 150, 360, 150);
-        }
-        panelCircular2.setColorFondo(new Color(255, 244, 211));
-        panelCircular3.setColorFondo(new Color(252, 233, 233));
-        panelCircular5.setColorFondo(new Color(255, 244, 211));
-        panelCircular4.setColorFondo(new Color(252, 233, 233));
-        JLabel[] titulos = {
-            labelTitulo4, labelTitulo7, labelTitulo13, labelTitulo10
-        };
-        JLabel[] cifras = {
-            labelTotalProductos, labelStockBajo, labelActivos, labelInactivos
-        };
-        for (JLabel titulo : titulos) {
-            titulo.setFont(tema.media(14f));
-            titulo.setForeground(SECUNDARIO);
-        }
-        for (JLabel cifra : cifras) {
-            cifra.setFont(tema.negrita(40f));
-            cifra.setForeground(AZUL);
-        }
-        labelStockBajo.setForeground(ROJO);
-        // En UsuariosPanel las tarjetas sólo contienen nombre y cantidad.
-        labelTitulo6.setVisible(false);
-        labelTitulo9.setVisible(false);
-        labelTitulo15.setVisible(false);
-        labelTitulo12.setVisible(false);
-
-        botonExportar.setFont(tema.negrita(14f));
-        botonExportar.setIcon(IconosUsuarios.crear(
-                IconosUsuarios.Tipo.EXPORTAR, ROJO, 22));
-        botonExportar.setIconTextGap(12);
-        botonExportar.addActionListener(evento -> exportarCsv());
+        botonExportar.addActionListener(
+                evento -> exportarCsv());
     }
 
     private void configurarFiltros() {
@@ -522,9 +483,12 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             String opcion = evento.getActionCommand();
             filtroEstado.setText(opcion);
             estadoActual = switch (opcion) {
-                case "Activo" -> Boolean.TRUE;
-                case "Inactivo" -> Boolean.FALSE;
-                default -> null;
+                case "Activo" ->
+                    Boolean.TRUE;
+                case "Inactivo" ->
+                    Boolean.FALSE;
+                default ->
+                    null;
             };
             paginaActual = 1;
             cargarDatos();
@@ -623,19 +587,33 @@ public class GestionMenuPanel extends javax.swing.JPanel {
 
     private void configurarEventos() {
         campoBusqueda.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { temporizadorBusqueda.restart(); }
-            @Override public void removeUpdate(DocumentEvent e) { temporizadorBusqueda.restart(); }
-            @Override public void changedUpdate(DocumentEvent e) { temporizadorBusqueda.restart(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                temporizadorBusqueda.restart();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                temporizadorBusqueda.restart();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                temporizadorBusqueda.restart();
+            }
         });
     }
 
     private void cargarCategorias() {
         new SwingWorker<Map<Integer, String>, Void>() {
-            @Override protected Map<Integer, String> doInBackground()
+            @Override
+            protected Map<Integer, String> doInBackground()
                     throws SQLException {
                 return productoCRUD.listarCategoriasActivas();
             }
-            @Override protected void done() {
+
+            @Override
+            protected void done() {
                 try {
                     categorias.clear();
                     categorias.putAll(get());
@@ -654,11 +632,14 @@ public class GestionMenuPanel extends javax.swing.JPanel {
 
     private void cargarResumen() {
         new SwingWorker<ResumenProductos, Void>() {
-            @Override protected ResumenProductos doInBackground()
+            @Override
+            protected ResumenProductos doInBackground()
                     throws SQLException {
                 return productoCRUD.obtenerResumen();
             }
-            @Override protected void done() {
+
+            @Override
+            protected void done() {
                 try {
                     ResumenProductos resumen = get();
                     labelTotalProductos.setText(String.valueOf(resumen.total()));
@@ -684,13 +665,18 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         tablaProductos.setEnabled(false);
         etiquetaRango.setText("Cargando productos...");
         new SwingWorker<PaginaProductos, Void>() {
-            @Override protected PaginaProductos doInBackground()
+            @Override
+            protected PaginaProductos doInBackground()
                     throws SQLException {
                 return productoCRUD.listarPagina(busqueda, categoria, null,
                         estado, paginaSolicitada, PRODUCTOS_POR_PAGINA);
             }
-            @Override protected void done() {
-                if (solicitud != secuenciaCarga) return;
+
+            @Override
+            protected void done() {
+                if (solicitud != secuenciaCarga) {
+                    return;
+                }
                 try {
                     PaginaProductos resultado = get();
                     totalPaginas = Math.max(1, (int) Math.ceil(
@@ -732,7 +718,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             BotonRedondeado boton = botonesPagina.get(i);
             int pagina = inicio + i;
             boton.setVisible(pagina <= totalPaginas);
-            if (pagina > totalPaginas) continue;
+            if (pagina > totalPaginas) {
+                continue;
+            }
             boton.putClientProperty("pagina", pagina);
             boton.setText(String.valueOf(pagina));
             boolean actual = pagina == paginaActual;
@@ -744,21 +732,26 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }
 
     private void cambiarPagina(int pagina) {
-        if (pagina < 1 || pagina > totalPaginas || pagina == paginaActual) return;
+        if (pagina < 1 || pagina > totalPaginas || pagina == paginaActual) {
+            return;
+        }
         paginaActual = pagina;
         cargarDatos();
     }
 
     private void mostrarErrorDatos(String operacion, Throwable causa) {
-        if (mostrandoErrorConexion) return;
+        if (mostrandoErrorConexion) {
+            return;
+        }
         mostrandoErrorConexion = true;
         JOptionPane.showMessageDialog(this,
                 "No fue posible " + operacion + ".\n"
-                        + (causa == null ? "Error desconocido" : causa.getMessage()),
+                + (causa == null ? "Error desconocido" : causa.getMessage()),
                 "Error de base de datos", JOptionPane.ERROR_MESSAGE);
     }
 
     private final class ModeloTablaProductos extends AbstractTableModel {
+
         private final String[] columnas = {
             "ID", "Producto", "Categoría", "Precio", "Disponibilidad",
             "Stock", "Estado", "Acciones"
@@ -770,42 +763,75 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             fireTableDataChanged();
         }
 
-        @Override public int getRowCount() { return productos.size(); }
-        @Override public int getColumnCount() { return columnas.length; }
-        @Override public String getColumnName(int c) { return columnas[c]; }
-        @Override public Class<?> getColumnClass(int c) {
+        @Override
+        public int getRowCount() {
+            return productos.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columnas.length;
+        }
+
+        @Override
+        public String getColumnName(int c) {
+            return columnas[c];
+        }
+
+        @Override
+        public Class<?> getColumnClass(int c) {
             return c == 1 || c == 6 || c == 7 ? Producto.class : String.class;
         }
-        @Override public boolean isCellEditable(int r, int c) { return c == 7; }
 
-        @Override public Object getValueAt(int fila, int columna) {
+        @Override
+        public boolean isCellEditable(int r, int c) {
+            return c == 7;
+        }
+
+        @Override
+        public Object getValueAt(int fila, int columna) {
             Producto producto = productos.get(fila);
             return switch (columna) {
-                case 0 -> String.format("#%04d", producto.getIdProducto());
-                case 1, 6, 7 -> producto;
-                case 2 -> producto.getCategoria();
-                case 3 -> producto.getPrecioBase() == null ? "Q0.00"
-                        : "Q" + producto.getPrecioBase().setScale(2,
-                                java.math.RoundingMode.HALF_UP).toPlainString();
-                case 4 -> nombreDisponibilidad(producto.getDisponibilidadMenu());
-                case 5 -> String.valueOf(producto.getStockActual());
-                default -> "";
+                case 0 ->
+                    String.format("#%04d", producto.getIdProducto());
+                case 1, 6, 7 ->
+                    producto;
+                case 2 ->
+                    producto.getCategoria();
+                case 3 ->
+                    producto.getPrecioBase() == null ? "Q0.00"
+                    : "Q" + producto.getPrecioBase().setScale(2,
+                    java.math.RoundingMode.HALF_UP).toPlainString();
+                case 4 ->
+                    nombreDisponibilidad(producto.getDisponibilidadMenu());
+                case 5 ->
+                    String.valueOf(producto.getStockActual());
+                default ->
+                    "";
             };
         }
     }
 
     private String nombreDisponibilidad(String valor) {
-        if (valor == null) return "";
+        if (valor == null) {
+            return "";
+        }
         return switch (valor) {
-            case "DESAYUNO" -> "Desayuno";
-            case "ALMUERZO" -> "Almuerzo";
-            case "TODO_DIA" -> "Todo el día";
-            default -> valor;
+            case "DESAYUNO" ->
+                "Desayuno";
+            case "ALMUERZO" ->
+                "Almuerzo";
+            case "TODO_DIA" ->
+                "Todo el día";
+            default ->
+                valor;
         };
     }
 
     private final class RenderProducto implements TableCellRenderer {
-        @Override public Component getTableCellRendererComponent(
+
+        @Override
+        public Component getTableCellRendererComponent(
                 javax.swing.JTable tabla, Object valor, boolean seleccionado,
                 boolean foco, int fila, int columna) {
             Producto producto = (Producto) valor;
@@ -817,7 +843,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             imagen.setHorizontalAlignment(SwingConstants.CENTER);
             imagen.setPreferredSize(new Dimension(40, 40));
             imagen.setIcon(cargarImagen(producto.getImagen(), 40));
-            if (imagen.getIcon() == null) imagen.setText("—");
+            if (imagen.getIcon() == null) {
+                imagen.setText("—");
+            }
             JPanel textos = new JPanel(new java.awt.GridLayout(2, 1, 0, 0));
             textos.setOpaque(false);
             JLabel nombre = new JLabel(producto.getNombre());
@@ -840,7 +868,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }
 
     private final class RenderEstado implements TableCellRenderer {
-        @Override public Component getTableCellRendererComponent(
+
+        @Override
+        public Component getTableCellRendererComponent(
                 javax.swing.JTable tabla, Object valor, boolean seleccionado,
                 boolean foco, int fila, int columna) {
             Producto producto = (Producto) valor;
@@ -861,7 +891,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }
 
     private final class RenderAcciones implements TableCellRenderer {
-        @Override public Component getTableCellRendererComponent(
+
+        @Override
+        public Component getTableCellRendererComponent(
                 javax.swing.JTable tabla, Object valor, boolean seleccionado,
                 boolean foco, int fila, int columna) {
             Producto producto = (Producto) valor;
@@ -880,6 +912,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
 
     private final class EditorAcciones extends AbstractCellEditor
             implements TableCellEditor {
+
         private final JPanel panel = crearPanelAcciones(Color.WHITE);
         private final BotonRedondeado editar = crearBotonAccion(
                 IconosUsuarios.Tipo.EDITAR, new Color(214, 151, 0));
@@ -902,7 +935,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             panel.add(desactivar);
         }
 
-        @Override public Component getTableCellEditorComponent(
+        @Override
+        public Component getTableCellEditorComponent(
                 javax.swing.JTable tabla, Object valor, boolean seleccionado,
                 int fila, int columna) {
             producto = (Producto) valor;
@@ -910,7 +944,11 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             panel.setBackground(tabla.getSelectionBackground());
             return panel;
         }
-        @Override public Object getCellEditorValue() { return producto; }
+
+        @Override
+        public Object getCellEditorValue() {
+            return producto;
+        }
     }
 
     private JPanel crearPanelAcciones(Color fondo) {
@@ -951,12 +989,16 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }
 
     private boolean desactivarProducto(Producto seleccionado, Component padre) {
-        if (!seleccionado.isActivo()) return false;
+        if (!seleccionado.isActivo()) {
+            return false;
+        }
         int respuesta = JOptionPane.showConfirmDialog(padre,
                 "¿Desactivar «" + seleccionado.getNombre() + "»?",
                 "Confirmar desactivación", JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-        if (respuesta != JOptionPane.YES_OPTION) return false;
+        if (respuesta != JOptionPane.YES_OPTION) {
+            return false;
+        }
         try {
             productoCRUD.desactivar(seleccionado.getIdProducto());
             cargarResumen();
@@ -975,7 +1017,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         selector.setDialogTitle("Exportar productos");
         selector.setSelectedFile(new File("productos.csv"));
         selector.setFileFilter(new FileNameExtensionFilter("Archivo CSV (*.csv)", "csv"));
-        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
         Path destino = selector.getSelectedFile().toPath();
         if (!destino.getFileName().toString().toLowerCase(Locale.ROOT)
                 .endsWith(".csv")) {
@@ -984,7 +1028,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         if (Files.exists(destino) && JOptionPane.showConfirmDialog(this,
                 "El archivo ya existe. ¿Deseas reemplazarlo?",
                 "Confirmar exportación", JOptionPane.YES_NO_OPTION)
-                != JOptionPane.YES_OPTION) return;
+                != JOptionPane.YES_OPTION) {
+            return;
+        }
         final Path archivo = destino;
         final String busqueda = campoBusqueda.getText().trim();
         final Integer categoria = categoriaActual;
@@ -992,7 +1038,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         botonExportar.setEnabled(false);
         new SwingWorker<Integer, Void>() {
-            @Override protected Integer doInBackground() throws Exception {
+            @Override
+            protected Integer doInBackground() throws Exception {
                 List<Producto> productos = new ArrayList<>();
                 PaginaProductos primera = productoCRUD.listarPagina(
                         busqueda, categoria, null, estado, 1, 100);
@@ -1005,7 +1052,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                 escribirCsv(archivo, productos);
                 return productos.size();
             }
-            @Override protected void done() {
+
+            @Override
+            protected void done() {
                 botonExportar.setEnabled(true);
                 setCursor(Cursor.getDefaultCursor());
                 try {
@@ -1054,18 +1103,27 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }
 
     private ImageIcon cargarImagen(String ruta, int tamano) {
-        if (ruta == null || ruta.isBlank()) return null;
+        if (ruta == null || ruta.isBlank()) {
+            return null;
+        }
         String clave = ruta + "#" + tamano;
-        if (cacheImagenes.containsKey(clave)) return cacheImagenes.get(clave);
+        if (cacheImagenes.containsKey(clave)) {
+            return cacheImagenes.get(clave);
+        }
         try {
             File archivo = new File(ruta);
-            if (!archivo.isFile()) archivo = new File("src/" + ruta.replaceFirst("^/", ""));
+            if (!archivo.isFile()) {
+                archivo = new File("src/" + ruta.replaceFirst("^/", ""));
+            }
             ImageIcon original = null;
-            if (archivo.isFile()) original = new ImageIcon(archivo.getAbsolutePath());
-            else {
+            if (archivo.isFile()) {
+                original = new ImageIcon(archivo.getAbsolutePath());
+            } else {
                 java.net.URL recurso = getClass().getResource(
                         ruta.startsWith("/") ? ruta : "/" + ruta);
-                if (recurso != null) original = new ImageIcon(recurso);
+                if (recurso != null) {
+                    original = new ImageIcon(recurso);
+                }
             }
             if (original != null && original.getIconWidth() > 0) {
                 Image escalada = original.getImage().getScaledInstance(
@@ -1099,17 +1157,22 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                 "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    @Override public void removeNotify() {
+    @Override
+    public void removeNotify() {
         temporizadorBusqueda.stop();
         super.removeNotify();
     }
 
     private static final class FondoOscuro extends JPanel {
+
         private FondoOscuro() {
             setOpaque(false);
-            addMouseListener(new java.awt.event.MouseAdapter() { });
+            addMouseListener(new java.awt.event.MouseAdapter() {
+            });
         }
-        @Override protected void paintComponent(Graphics graphics) {
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
             Graphics2D g2 = (Graphics2D) graphics.create();
             g2.setColor(new Color(0, 12, 28, 90));
@@ -1117,7 +1180,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             g2.dispose();
         }
     }
-    
+
     private void mostrarFormularioProducto(Producto original) {
         Window propietario = SwingUtilities.getWindowAncestor(this);
         JRootPane raiz = SwingUtilities.getRootPane(this);
@@ -1202,7 +1265,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         cabecera.add(titulo);
         JLabel subtitulo = new JLabel(editando
                 ? "Actualiza la información de "
-                        + String.format("#%04d", original.getIdProducto())
+                + String.format("#%04d", original.getIdProducto())
                 : "Completa los datos del nuevo producto");
         subtitulo.setFont(tema.regular(15f));
         subtitulo.setForeground(SECUNDARIO);
@@ -1213,7 +1276,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         JTextField nombre = new JTextField(editando ? original.getNombre() : "");
         JTextField subCategoria = new JTextField(editando
                 && original.getSubCategoria() != null
-                        ? original.getSubCategoria() : "");
+                ? original.getSubCategoria() : "");
         JTextField precio = new JTextField(editando && original.getPrecioBase() != null
                 ? original.getPrecioBase().toPlainString() : "");
         JTextArea descripcion = new JTextArea(editando
@@ -1284,8 +1347,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         nombreImagen.setForeground(SECUNDARIO);
         BotonRedondeado elegir = botonFormulario("Seleccionar imagen", false);
         BotonRedondeado quitar = botonFormulario("Quitar imagen", false);
-        elegir.setPreferredSize(new Dimension(165, 38));
-        quitar.setPreferredSize(new Dimension(145, 38));
+        elegir.setPreferredSize(new Dimension(210, 38));
+        quitar.setPreferredSize(new Dimension(175, 38));
         JPanel controlesImagen = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         controlesImagen.setOpaque(false);
         controlesImagen.add(elegir);
@@ -1327,8 +1390,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         // La rueda se dirige aquí desde todo el formulario.
         desplazamiento.setWheelScrollingEnabled(false);
-        javax.swing.JScrollBar barraVertical =
-                desplazamiento.getVerticalScrollBar();
+        javax.swing.JScrollBar barraVertical
+                = desplazamiento.getVerticalScrollBar();
         barraVertical.setPreferredSize(new Dimension(0, 0));
         barraVertical.setUnitIncrement(36);
         barraVertical.setBlockIncrement(180);
@@ -1344,16 +1407,28 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         pie.add(error, BorderLayout.NORTH);
         JPanel filaBotones = new JPanel(new BorderLayout());
         filaBotones.setOpaque(false);
-        BotonRedondeado desactivar = botonFormulario("Desactivar producto", false);
-        desactivar.setPreferredSize(new Dimension(180, 48));
-        desactivar.setVisible(editando && original.isActivo());
-        filaBotones.add(desactivar, BorderLayout.WEST);
-        JPanel botonesDerecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
+        BotonRedondeado desactivar
+                = botonFormulario("Desactivar producto", false);
+        desactivar.setPreferredSize(new Dimension(220, 48));
+
+        JPanel botonesIzquierda
+                = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        botonesIzquierda.setOpaque(false);
+        botonesIzquierda.add(desactivar);
+        botonesIzquierda.setVisible(editando && original.isActivo());
+        filaBotones.add(botonesIzquierda, BorderLayout.WEST);
+
+        JPanel botonesDerecha
+                = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
         botonesDerecha.setOpaque(false);
+
         BotonRedondeado cancelar = botonFormulario("Cancelar", false);
         cancelar.setPreferredSize(new Dimension(130, 48));
-        BotonRedondeado guardar = botonFormulario("Guardar producto", true);
-        guardar.setPreferredSize(new Dimension(165, 48));
+
+        BotonRedondeado guardar
+                = botonFormulario("Guardar producto", true);
+        guardar.setPreferredSize(new Dimension(210, 48));
+
         botonesDerecha.add(cancelar);
         botonesDerecha.add(guardar);
         filaBotones.add(botonesDerecha, BorderLayout.EAST);
@@ -1486,12 +1561,18 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }
 
     private String nombreTamano(String codigo) {
-        if (codigo == null) return "Sin tamaño";
+        if (codigo == null) {
+            return "Sin tamaño";
+        }
         return switch (codigo) {
-            case "PEQUENA" -> "Pequeña";
-            case "MEDIANA" -> "Mediana";
-            case "GRANDE" -> "Grande";
-            default -> "Sin tamaño";
+            case "PEQUENA" ->
+                "Pequeña";
+            case "MEDIANA" ->
+                "Mediana";
+            case "GRANDE" ->
+                "Grande";
+            default ->
+                "Sin tamaño";
         };
     }
 
@@ -1545,15 +1626,22 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             return;
         }
         String codigoDisponibilidad = switch (disponibilidad.getText()) {
-            case "Desayuno" -> "DESAYUNO";
-            case "Almuerzo" -> "ALMUERZO";
-            default -> "TODO_DIA";
+            case "Desayuno" ->
+                "DESAYUNO";
+            case "Almuerzo" ->
+                "ALMUERZO";
+            default ->
+                "TODO_DIA";
         };
         String codigoTamano = switch (tamano.getText()) {
-            case "Pequeña" -> "PEQUENA";
-            case "Mediana" -> "MEDIANA";
-            case "Grande" -> "GRANDE";
-            default -> null;
+            case "Pequeña" ->
+                "PEQUENA";
+            case "Mediana" ->
+                "MEDIANA";
+            case "Grande" ->
+                "GRANDE";
+            default ->
+                null;
         };
         String imagenCopiada = null;
         guardar.setEnabled(false);
@@ -1578,15 +1666,19 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             producto.setStockMinimo(((Number) stockMinimo.getValue()).intValue());
             producto.setActivo("Activo".equals(estado.getText()));
             producto.setImagen(rutaImagen);
-            if (original == null) productoCRUD.insertar(producto);
-            else productoCRUD.actualizar(producto);
+            if (original == null) {
+                productoCRUD.insertar(producto);
+            } else {
+                productoCRUD.actualizar(producto);
+            }
             guardado[0] = true;
             dialogo.dispose();
         } catch (SQLException | IOException ex) {
             if (imagenCopiada != null) {
                 try {
                     Files.deleteIfExists(Paths.get("src", imagenCopiada.substring(1)));
-                } catch (IOException ignorada) { /* Se conserva el error original. */ }
+                } catch (IOException ignorada) {
+                    /* Se conserva el error original. */ }
             }
             error.setText("No fue posible guardar: " + ex.getMessage());
         } finally {
