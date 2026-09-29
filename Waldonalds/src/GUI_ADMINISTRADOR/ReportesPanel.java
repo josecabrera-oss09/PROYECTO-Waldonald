@@ -106,7 +106,15 @@ public class ReportesPanel extends javax.swing.JPanel {
         botonActualizar.setFont(tema.negrita(15f));
         botonActualizar.setForeground(AZUL);
         botonActualizar.addActionListener(e -> actualizarReporte());
-
+         configurarTarjeta(panelVentas, 
+                labelTituloVentas, labelVentas, false);
+        configurarTarjeta(panelPedidos, 
+                labelTituloPedidos, labelPedidos, true);
+        configurarTarjeta(panelTicket, 
+                labelTituloTicket, labelTicket, false);
+        configurarTarjeta(panelCancelados, 
+                labelTituloCancelados, labelCancelados, true);
+        labelCancelados.setForeground(ROJO);
         configurarBotonAccion(botonExportar, ROJO);
         botonExportar.setIcon(IconosUsuarios.crear(
                 IconosUsuarios.Tipo.EXPORTAR, ROJO, 20));
@@ -115,15 +123,6 @@ public class ReportesPanel extends javax.swing.JPanel {
 
         configurarBotonAccion(botonImprimir, AZUL);
         botonImprimir.addActionListener(e -> imprimirReporte());
-
-        configurarTarjeta(panelVentas, panelIconoVentas,
-                labelTituloVentas, labelVentas, false);
-        configurarTarjeta(panelPedidos, panelIconoPedidos,
-                labelTituloPedidos, labelPedidos, true);
-        configurarTarjeta(panelTicket, panelIconoTicket,
-                labelTituloTicket, labelTicket, false);
-        configurarTarjeta(panelCancelados, panelIconoCancelados,
-                labelTituloCancelados, labelCancelados, true);
         labelCancelados.setForeground(ROJO);
 
         panelResumen.setColorFondo(Color.WHITE);
@@ -152,15 +151,12 @@ public class ReportesPanel extends javax.swing.JPanel {
     }
 
     private void configurarTarjeta(PanelFlotante panel,
-            PanelCircular icono, JLabel titulo, JLabel valor, boolean roja) {
+             JLabel titulo, JLabel valor, boolean roja) {
         panel.setColorFondo(Color.WHITE);
         panel.setColorBorde(BORDE);
         panel.setRadio(18);
         panel.setSombra(true);
         panel.setTamanoSombra(9);
-        icono.setColorFondo(roja
-                ? new Color(252, 233, 233)
-                : new Color(255, 244, 211));
         titulo.setFont(tema.media(14f));
         titulo.setForeground(SECUNDARIO);
         valor.setFont(tema.negrita(28f));
@@ -644,133 +640,326 @@ public class ReportesPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        setBackground(new Color(248, 249, 251));
-        setPreferredSize(new Dimension(1580, 980));
+
+        labelTitulo = new javax.swing.JLabel();
+        labelSubtitulo = new javax.swing.JLabel();
+        botonActualizar = new Componentes.BotonDerretido();
+        botonExportar = new Componentes.BotonRedondeado();
+        botonImprimir = new Componentes.BotonRedondeado();
+        panelVentas = new Componentes.PanelFlotante();
+        labelTituloVentas = new javax.swing.JLabel();
+        labelVentas = new javax.swing.JLabel();
+        panelCircular2 = new Componentes.PanelCircular();
+        labelEscalable2 = new Labels.LabelEscalable();
+        panelPedidos = new Componentes.PanelFlotante();
+        labelTituloPedidos = new javax.swing.JLabel();
+        labelPedidos = new javax.swing.JLabel();
+        panelCircular3 = new Componentes.PanelCircular();
+        labelEscalable3 = new Labels.LabelEscalable();
+        panelTicket = new Componentes.PanelFlotante();
+        labelTituloTicket = new javax.swing.JLabel();
+        labelTicket = new javax.swing.JLabel();
+        panelCircular5 = new Componentes.PanelCircular();
+        labelEscalable5 = new Labels.LabelEscalable();
+        panelCancelados = new Componentes.PanelFlotante();
+        labelTituloCancelados = new javax.swing.JLabel();
+        labelCancelados = new javax.swing.JLabel();
+        panelCircular4 = new Componentes.PanelCircular();
+        labelEscalable4 = new Labels.LabelEscalable();
+        panelFiltros = new Componentes.PanelFlotante();
+        fechaReporte = new javax.swing.JSpinner();
+        campoBusqueda = new Componentes.CampoBusquedaAdmin();
+        filtroCajero = new Componentes.BotonDesplegable();
+        filtroMetodo = new Componentes.BotonDesplegable();
+        filtroServicio = new Componentes.BotonDesplegable();
+        botonLimpiarFiltros = new Componentes.BotonRedondeado();
+        panelTabla = new Componentes.PanelFlotante();
+        scrollPedidos = new javax.swing.JScrollPane();
+        tablaPedidos = new Componentes.TablaAdministrativa();
+        etiquetaRango = new javax.swing.JLabel();
+        panelPaginacion = new javax.swing.JPanel();
+        botonAnterior = new Componentes.BotonRedondeado();
+        botonPagina1 = new Componentes.BotonRedondeado();
+        botonPagina2 = new Componentes.BotonRedondeado();
+        botonPagina3 = new Componentes.BotonRedondeado();
+        botonSiguiente = new Componentes.BotonRedondeado();
+        panelResumen = new Componentes.PanelFlotante();
+        labelResumen = new javax.swing.JLabel();
+        labelResumenSubtitulo = new javax.swing.JLabel();
+        separadorResumen1 = new javax.swing.JSeparator();
+        efectivoTitulo = new javax.swing.JLabel();
+        labelEfectivo = new javax.swing.JLabel();
+        labelPorcentajeEfectivo = new javax.swing.JLabel();
+        separadorResumen2 = new javax.swing.JSeparator();
+        tarjetaTitulo = new javax.swing.JLabel();
+        labelTarjeta = new javax.swing.JLabel();
+        labelPorcentajeTarjeta = new javax.swing.JLabel();
+        separadorResumen3 = new javax.swing.JSeparator();
+        otrosTitulo = new javax.swing.JLabel();
+        labelOtros = new javax.swing.JLabel();
+        labelPorcentajeOtros = new javax.swing.JLabel();
+        separadorResumen4 = new javax.swing.JSeparator();
+        cancelacionTitulo = new javax.swing.JLabel();
+        labelCancelacionesCaja = new javax.swing.JLabel();
+        cancelacionDetalle = new javax.swing.JLabel();
+        estadoCarga = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(248, 249, 251));
+        setPreferredSize(new java.awt.Dimension(1580, 980));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        labelTitulo = etiqueta("Reportes - Ventas del día", 42, true);
-        add(labelTitulo, posicion(70, 25, 690, 65));
-        labelSubtitulo = etiqueta(
-                "Resumen detallado de todas las ventas realizadas en la fecha seleccionada",
-                16, false);
-        add(labelSubtitulo, posicion(70, 88, 760, 28));
+        labelTitulo.setFont(new java.awt.Font("Dialog", 1, 42)); // NOI18N
+        labelTitulo.setForeground(new java.awt.Color(13, 17, 23));
+        labelTitulo.setText("Reportes - Ventas del día");
+        add(labelTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 25, 690, 65));
 
-        botonActualizar = new Componentes.BotonDerretido();
+        labelSubtitulo.setForeground(new java.awt.Color(92, 103, 124));
+        labelSubtitulo.setText("Resumen detallado de todas las ventas realizadas en la fecha seleccionada");
+        add(labelSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 88, 760, 28));
+
+        botonActualizar.setForeground(new java.awt.Color(0, 20, 43));
         botonActualizar.setText("Actualizar reporte");
-        add(botonActualizar, posicion(980, 50, 220, 80));
-        botonExportar = boton("Exportar");
-        add(botonExportar, posicion(1215, 60, 145, 58));
-        botonImprimir = boton("Imprimir");
-        add(botonImprimir, posicion(1375, 60, 145, 58));
+        add(botonActualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 60, 220, 80));
 
-        panelVentas = tarjeta();
-        panelIconoVentas = icono(panelVentas, "/Imagenes/quetzal_icono.png");
-        labelTituloVentas = tituloTarjeta(panelVentas, "Ventas del día");
-        labelVentas = valorTarjeta(panelVentas);
-        add(panelVentas, posicion(60, 150, 360, 150));
+        botonExportar.setColorInicio(new java.awt.Color(255, 255, 255));
+        botonExportar.setDegradado(false);
+        botonExportar.setForeground(new java.awt.Color(231, 55, 65));
+        botonExportar.setRadio(20);
+        botonExportar.setText("Exportar");
+        botonExportar.setColorBorde(new java.awt.Color(231, 55, 65));
+        botonExportar.setColorFinal(new java.awt.Color(255, 255, 255));
+        botonExportar.setFont(new java.awt.Font("Arial", 1, 16)); // NOI18N
+        botonExportar.setGrosorBorde(1.6F);
+        botonExportar.setMargin(new java.awt.Insets(5, 14, 3, 14));
+        botonExportar.setMaximumSize(new java.awt.Dimension(96, 29));
+        botonExportar.setMinimumSize(new java.awt.Dimension(96, 29));
+        add(botonExportar, new org.netbeans.lib.awtextra.AbsoluteConstraints(1185, 60, 180, 58));
 
-        panelPedidos = tarjeta();
-        panelIconoPedidos = icono(panelPedidos, "/Imagenes/bolsa_icono.png");
-        labelTituloPedidos = tituloTarjeta(panelPedidos, "Pedidos cobrados");
-        labelPedidos = valorTarjeta(panelPedidos);
-        add(panelPedidos, posicion(430, 150, 360, 150));
+        botonImprimir.setForeground(new java.awt.Color(0, 20, 43));
+        botonImprimir.setText("Imprimir");
+        botonImprimir.setDegradado(false);
+        add(botonImprimir, new org.netbeans.lib.awtextra.AbsoluteConstraints(1375, 60, 145, 58));
 
-        panelTicket = tarjeta();
-        panelIconoTicket = icono(panelTicket, "/Imagenes/ticket_icono.png");
-        labelTituloTicket = tituloTarjeta(panelTicket, "Ticket promedio");
-        labelTicket = valorTarjeta(panelTicket);
-        add(panelTicket, posicion(800, 150, 360, 150));
+        panelVentas.setRadio(18);
+        panelVentas.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panelCancelados = tarjeta();
-        panelIconoCancelados = icono(panelCancelados, "/Imagenes/x_icono.png");
-        labelTituloCancelados = tituloTarjeta(panelCancelados, "Cancelados");
-        labelCancelados = valorTarjeta(panelCancelados);
-        add(panelCancelados, posicion(1170, 150, 360, 150));
+        labelTituloVentas.setText("Ventas del día");
+        panelVentas.add(labelTituloVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 195, 30));
 
-        panelFiltros = panel();
+        labelVentas.setText("—");
+        panelVentas.add(labelVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 52, 195, 48));
+
+        panelCircular2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/quetzal_icono.png"))); // NOI18N
+        panelCircular2.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 13, 65, 65));
+
+        panelVentas.add(panelCircular2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        add(panelVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 150, 360, 150));
+
+        panelPedidos.setRadio(18);
+        panelPedidos.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTituloPedidos.setText("Pedidos cobrados");
+        panelPedidos.add(labelTituloPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 195, 30));
+
+        labelPedidos.setText("—");
+        panelPedidos.add(labelPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 52, 195, 48));
+
+        panelCircular3.setColorFondo(new java.awt.Color(252, 233, 233));
+        panelCircular3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/bolsa_icono.png"))); // NOI18N
+        panelCircular3.add(labelEscalable3, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 13, 58, 60));
+
+        panelPedidos.add(panelCircular3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        add(panelPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 150, 360, 150));
+
+        panelTicket.setRadio(18);
+        panelTicket.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTituloTicket.setText("Ticket promedio");
+        panelTicket.add(labelTituloTicket, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 195, 30));
+
+        labelTicket.setText("—");
+        panelTicket.add(labelTicket, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 52, 195, 48));
+
+        panelCircular5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ticket_icono.png"))); // NOI18N
+        panelCircular5.add(labelEscalable5, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 15, 60, 60));
+
+        panelTicket.add(panelCircular5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        add(panelTicket, new org.netbeans.lib.awtextra.AbsoluteConstraints(800, 150, 360, 150));
+
+        panelCancelados.setRadio(18);
+        panelCancelados.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTituloCancelados.setText("Cancelados");
+        panelCancelados.add(labelTituloCancelados, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 20, 195, 30));
+
+        labelCancelados.setText("—");
+        panelCancelados.add(labelCancelados, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 52, 195, 48));
+
+        panelCircular4.setColorFondo(new java.awt.Color(237, 239, 243));
+        panelCircular4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/x_icono.png"))); // NOI18N
+        panelCircular4.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(23, 27, 35, 35));
+
+        panelCancelados.add(panelCircular4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 80, 90));
+
+        add(panelCancelados, new org.netbeans.lib.awtextra.AbsoluteConstraints(1170, 150, 360, 150));
+
+        panelFiltros.setRadio(18);
+        panelFiltros.setSombra(false);
         panelFiltros.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        fechaReporte = new JSpinner();
-        panelFiltros.add(fechaReporte, posicion(20, 24, 180, 52));
-        campoBusqueda = new Componentes.CampoBusquedaAdmin();
-        campoBusqueda.setPlaceholder("Buscar por número de orden...");
-        panelFiltros.add(campoBusqueda, posicion(215, 22, 330, 56));
-        filtroCajero = filtro("Todos los cajeros", "Todos los cajeros");
-        panelFiltros.add(filtroCajero, posicion(560, 24, 235, 52));
-        filtroMetodo = filtro("Todos los métodos",
-                "Todos los métodos;Efectivo;Tarjeta;Otros");
-        panelFiltros.add(filtroMetodo, posicion(810, 24, 200, 52));
-        filtroServicio = filtro("Todos los servicios",
-                "Todos los servicios;En el local;Para llevar;A domicilio");
-        panelFiltros.add(filtroServicio, posicion(1025, 24, 205, 52));
-        botonLimpiarFiltros = boton("Limpiar filtros");
-        panelFiltros.add(botonLimpiarFiltros, posicion(1245, 24, 200, 52));
-        add(panelFiltros, posicion(60, 320, 1470, 100));
+        panelFiltros.add(fechaReporte, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 24, 180, 52));
 
-        panelTabla = panel();
+        campoBusqueda.setPlaceholder("Buscar por número de orden...");
+        panelFiltros.add(campoBusqueda, new org.netbeans.lib.awtextra.AbsoluteConstraints(215, 22, 330, 56));
+
+        filtroCajero.setForeground(new java.awt.Color(0, 20, 43));
+        filtroCajero.setText("Todos los cajeros");
+        filtroCajero.setTextoDesplegable("Todos los cajeros");
+        panelFiltros.add(filtroCajero, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 24, 235, 52));
+
+        filtroMetodo.setForeground(new java.awt.Color(0, 20, 43));
+        filtroMetodo.setText("Todos los métodos");
+        filtroMetodo.setTextoDesplegable("Todos los métodos;Efectivo;Tarjeta;Otros");
+        panelFiltros.add(filtroMetodo, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 24, 200, 52));
+
+        filtroServicio.setForeground(new java.awt.Color(0, 20, 43));
+        filtroServicio.setText("Todos los servicios");
+        filtroServicio.setTextoDesplegable("Todos los servicios;En el local;Para llevar;A domicilio");
+        panelFiltros.add(filtroServicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(1025, 24, 205, 52));
+
+        botonLimpiarFiltros.setForeground(new java.awt.Color(231, 55, 65));
+        botonLimpiarFiltros.setText("Limpiar filtros");
+        botonLimpiarFiltros.setDegradado(false);
+        panelFiltros.add(botonLimpiarFiltros, new org.netbeans.lib.awtextra.AbsoluteConstraints(1245, 24, 200, 52));
+
+        add(panelFiltros, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 320, 1470, 100));
+
+        panelTabla.setRadio(18);
+        panelTabla.setSombra(false);
         panelTabla.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        scrollPedidos = new javax.swing.JScrollPane();
+
         scrollPedidos.setBorder(null);
-        scrollPedidos.setVerticalScrollBarPolicy(
-                javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        tablaPedidos = new Componentes.TablaAdministrativa();
+        scrollPedidos.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
         tablaPedidos.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][]{},
-                new String[]{"N° orden", "Fecha/Hora", "Cajero",
-                    "Tipo servicio", "Estado", "Método de pago",
-                    "Monto recibido", "Total", "Cantidad de ítems"}) {
-            @Override public boolean isCellEditable(int r, int c) {
-                return false;
+            new Object [][] {
+
+            },
+            new String [] {
+                "N° orden", "Fecha/Hora", "Cajero", "Tipo servicio", "Estado", "Método de pago", "Monto recibido", "Total", "Cantidad de ítems"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         scrollPedidos.setViewportView(tablaPedidos);
-        panelTabla.add(scrollPedidos, posicion(14, 14, 1442, 300));
-        etiquetaRango = etiqueta("No se encontraron ventas", 12, false);
-        panelTabla.add(etiquetaRango, posicion(28, 328, 420, 42));
 
-        panelPaginacion = new JPanel(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelTabla.add(scrollPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 300));
+
+        etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
+        etiquetaRango.setText("No se encontraron ventas");
+        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 328, 420, 42));
+
         panelPaginacion.setOpaque(false);
-        botonAnterior = boton("‹");
-        panelPaginacion.add(botonAnterior, posicion(0, 2, 40, 38));
-        botonPagina1 = boton("1");
-        panelPaginacion.add(botonPagina1, posicion(50, 2, 40, 38));
-        botonPagina2 = boton("2");
-        panelPaginacion.add(botonPagina2, posicion(100, 2, 40, 38));
-        botonPagina3 = boton("3");
-        panelPaginacion.add(botonPagina3, posicion(150, 2, 40, 38));
-        botonSiguiente = boton("›");
-        panelPaginacion.add(botonSiguiente, posicion(200, 2, 40, 38));
-        panelTabla.add(panelPaginacion, posicion(1165, 328, 270, 42));
-        add(panelTabla, posicion(60, 435, 1470, 390));
+        panelPaginacion.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panelResumen = panel();
+        botonAnterior.setText("‹");
+        panelPaginacion.add(botonAnterior, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 2, 40, 38));
+
+        botonPagina1.setText("1");
+        panelPaginacion.add(botonPagina1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 2, 40, 38));
+
+        botonPagina2.setText("2");
+        panelPaginacion.add(botonPagina2, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 2, 40, 38));
+
+        botonPagina3.setText("3");
+        panelPaginacion.add(botonPagina3, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 2, 40, 38));
+
+        botonSiguiente.setText("›");
+        panelPaginacion.add(botonSiguiente, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 2, 40, 38));
+
+        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 328, 270, 42));
+
+        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 435, 1470, 390));
+
+        panelResumen.setRadio(18);
+        panelResumen.setSombra(false);
         panelResumen.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        labelResumen = etiqueta("Resumen de caja", 17, true);
-        panelResumen.add(labelResumen, posicion(28, 18, 180, 28));
-        labelResumenSubtitulo = etiqueta("Totales del día", 13, false);
-        panelResumen.add(labelResumenSubtitulo, posicion(28, 50, 180, 24));
-        separadorResumen1 = separador(panelResumen, 225);
-        efectivoTitulo = tituloResumen(panelResumen, "Efectivo", 250);
-        labelEfectivo = valorResumen(panelResumen, 250);
-        labelPorcentajeEfectivo = detalleResumen(panelResumen, "0% del total", 250);
-        separadorResumen2 = separador(panelResumen, 530);
-        tarjetaTitulo = tituloResumen(panelResumen, "Tarjeta", 555);
-        labelTarjeta = valorResumen(panelResumen, 555);
-        labelPorcentajeTarjeta = detalleResumen(panelResumen, "0% del total", 555);
-        separadorResumen3 = separador(panelResumen, 835);
-        otrosTitulo = tituloResumen(panelResumen, "Otros métodos", 860);
-        labelOtros = valorResumen(panelResumen, 860);
-        labelPorcentajeOtros = detalleResumen(panelResumen, "0% del total", 860);
-        separadorResumen4 = separador(panelResumen, 1140);
-        cancelacionTitulo = tituloResumen(panelResumen, "Cancelaciones", 1165);
-        labelCancelacionesCaja = valorResumen(panelResumen, 1165);
-        labelCancelacionesCaja.setText("0 pedidos");
-        cancelacionDetalle = detalleResumen(
-                panelResumen, "Pedidos cancelados", 1165);
-        add(panelResumen, posicion(60, 840, 1470, 110));
 
-        estadoCarga = etiqueta(
-                "Selecciona una fecha y actualiza el reporte.", 12, false);
-        add(estadoCarga, posicion(60, 952, 1450, 24));
+        labelResumen.setText("Resumen de caja");
+        panelResumen.add(labelResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 18, 180, 28));
+
+        labelResumenSubtitulo.setText("Totales del día");
+        panelResumen.add(labelResumenSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 50, 180, 24));
+
+        separadorResumen1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        panelResumen.add(separadorResumen1, new org.netbeans.lib.awtextra.AbsoluteConstraints(225, 16, 1, 78));
+
+        efectivoTitulo.setText("Efectivo");
+        panelResumen.add(efectivoTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 14, 250, 22));
+
+        labelEfectivo.setText("—");
+        panelResumen.add(labelEfectivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 38, 250, 30));
+
+        labelPorcentajeEfectivo.setText("0% del total");
+        panelResumen.add(labelPorcentajeEfectivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 73, 250, 22));
+
+        separadorResumen2.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        panelResumen.add(separadorResumen2, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 16, 1, 78));
+
+        tarjetaTitulo.setText("Tarjeta");
+        panelResumen.add(tarjetaTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(555, 14, 250, 22));
+
+        labelTarjeta.setText("—");
+        panelResumen.add(labelTarjeta, new org.netbeans.lib.awtextra.AbsoluteConstraints(555, 38, 250, 30));
+
+        labelPorcentajeTarjeta.setText("0% del total");
+        panelResumen.add(labelPorcentajeTarjeta, new org.netbeans.lib.awtextra.AbsoluteConstraints(555, 73, 250, 22));
+
+        separadorResumen3.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        panelResumen.add(separadorResumen3, new org.netbeans.lib.awtextra.AbsoluteConstraints(835, 16, 1, 78));
+
+        otrosTitulo.setText("Otros métodos");
+        panelResumen.add(otrosTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 14, 250, 22));
+
+        labelOtros.setText("—");
+        panelResumen.add(labelOtros, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 38, 250, 30));
+
+        labelPorcentajeOtros.setText("0% del total");
+        panelResumen.add(labelPorcentajeOtros, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 73, 250, 22));
+
+        separadorResumen4.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        panelResumen.add(separadorResumen4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 16, 1, 78));
+
+        cancelacionTitulo.setText("Cancelaciones");
+        panelResumen.add(cancelacionTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 14, 250, 22));
+
+        labelCancelacionesCaja.setText("0 pedidos");
+        panelResumen.add(labelCancelacionesCaja, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 38, 250, 30));
+
+        cancelacionDetalle.setText("Pedidos cancelados");
+        panelResumen.add(cancelacionDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 73, 250, 22));
+
+        add(panelResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 840, 1470, 110));
+
+        estadoCarga.setForeground(new java.awt.Color(92, 103, 124));
+        estadoCarga.setText("Selecciona una fecha y actualiza el reporte.");
+        add(estadoCarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 952, 1450, 24));
     }// </editor-fold>//GEN-END:initComponents
 
     private org.netbeans.lib.awtextra.AbsoluteConstraints posicion(
@@ -1005,6 +1194,10 @@ public class ReportesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel labelCancelacionesCaja;
     private javax.swing.JLabel labelCancelados;
     private javax.swing.JLabel labelEfectivo;
+    private Labels.LabelEscalable labelEscalable2;
+    private Labels.LabelEscalable labelEscalable3;
+    private Labels.LabelEscalable labelEscalable4;
+    private Labels.LabelEscalable labelEscalable5;
     private javax.swing.JLabel labelOtros;
     private javax.swing.JLabel labelPedidos;
     private javax.swing.JLabel labelPorcentajeEfectivo;
@@ -1023,13 +1216,13 @@ public class ReportesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel labelVentas;
     private javax.swing.JLabel otrosTitulo;
     private Componentes.PanelFlotante panelCancelados;
+    private Componentes.PanelCircular panelCircular2;
+    private Componentes.PanelCircular panelCircular3;
+    private Componentes.PanelCircular panelCircular4;
+    private Componentes.PanelCircular panelCircular5;
     private Componentes.PanelFlotante panelFiltros;
-    private Componentes.PanelCircular panelIconoCancelados;
-    private Componentes.PanelCircular panelIconoPedidos;
-    private Componentes.PanelCircular panelIconoTicket;
-    private Componentes.PanelCircular panelIconoVentas;
-    private Componentes.PanelFlotante panelPedidos;
     private javax.swing.JPanel panelPaginacion;
+    private Componentes.PanelFlotante panelPedidos;
     private Componentes.PanelFlotante panelResumen;
     private Componentes.PanelFlotante panelTabla;
     private Componentes.PanelFlotante panelTicket;

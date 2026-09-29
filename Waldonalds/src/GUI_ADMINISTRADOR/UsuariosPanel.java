@@ -947,7 +947,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
 
         @Override
         public boolean isCellEditable(int fila, int columna) {
-            return columna == 7;
+            return columna == 8;
         }
     }
 

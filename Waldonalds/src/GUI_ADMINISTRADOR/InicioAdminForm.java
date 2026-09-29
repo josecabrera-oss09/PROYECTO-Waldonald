@@ -19,9 +19,13 @@ public class InicioAdminForm extends javax.swing.JFrame {
 
 
     public InicioAdminForm() {
+         
+        
+    setLocationRelativeTo(null);
         tema = new TemaAdmin();
         accionMenuAdmin = this::abrirMenuAdmin;
         initComponents();
+        
         aplicarTipografia();
         botonUsuario.addMenuOpcionListener(this::procesarOpcionUsuario);
         botonMenu.putClientProperty("noEscalarIcono", true);

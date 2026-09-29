@@ -111,6 +111,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         cargarCategorias();
         cargarResumen();
         cargarDatos();
+        scrollUsuarios.setVerticalScrollBarPolicy(
+    javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
+);
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
