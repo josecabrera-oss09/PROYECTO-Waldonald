@@ -126,12 +126,14 @@ public class ProductoCRUD {
                         p.nombre LIKE ?
                         OR p.descripcion LIKE ?
                         OR c.nombre LIKE ?
+                        OR p.subCategoria LIKE ?
                     )
                     """);
 
             String texto =
                     "%" + busqueda.trim() + "%";
 
+            parametros.add(texto);
             parametros.add(texto);
             parametros.add(texto);
             parametros.add(texto);
@@ -181,6 +183,7 @@ public class ProductoCRUD {
                     p.id_producto,
                     p.id_categoria,
                     c.nombre AS categoria,
+                    p.subCategoria,
                     p.nombre,
                     p.descripcion,
                     p.precio_base,
@@ -301,9 +304,10 @@ public class ProductoCRUD {
                     es_combo,
                     stock_actual,
                     stock_minimo,
-                    estado
+                    estado,
+                    subCategoria
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (
@@ -360,7 +364,8 @@ public class ProductoCRUD {
                     es_combo = ?,
                     stock_actual = ?,
                     stock_minimo = ?,
-                    estado = ?
+                    estado = ?,
+                    subCategoria = ?
                 WHERE id_producto = ?
                 """;
 
@@ -375,7 +380,7 @@ public class ProductoCRUD {
             );
 
             ps.setInt(
-                    12,
+                    13,
                     producto.getIdProducto()
             );
 
@@ -458,6 +463,7 @@ public class ProductoCRUD {
                     p.id_producto,
                     p.id_categoria,
                     c.nombre AS categoria,
+                    p.subCategoria,
                     p.nombre,
                     p.descripcion,
                     p.precio_base,
@@ -620,7 +626,7 @@ public class ProductoCRUD {
             ResultSet rs)
             throws SQLException {
 
-        return new Producto(
+        Producto producto = new Producto(
                 rs.getInt(
                         "id_producto"
                 ),
@@ -661,6 +667,8 @@ public class ProductoCRUD {
                         "estado"
                 )
         );
+        producto.setSubCategoria(rs.getString("subCategoria"));
+        return producto;
     }
 
     private int colocarParametros(
@@ -763,5 +771,12 @@ public class ProductoCRUD {
                 11,
                 producto.isActivo()
         );
+
+        String subCategoria = producto.getSubCategoria();
+        if (subCategoria == null || subCategoria.isBlank()) {
+            ps.setNull(12, Types.VARCHAR);
+        } else {
+            ps.setString(12, subCategoria.trim());
+        }
     }
 }

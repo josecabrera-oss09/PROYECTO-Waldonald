@@ -1,97 +1,115 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package GUI_ADMINISTRADOR;
 
 import CRUD.ProductoCRUD;
+import Componentes.BotonDesplegable;
+import Componentes.BotonRedondeado;
 import Modelos.PaginaProductos;
 import Modelos.Producto;
 import Modelos.ResumenProductos;
-
+import Utilidades.IconosUsuarios;
+import Utilidades.TemaAdmin;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-
-import java.io.File;
-import java.io.IOException;
-
-import java.math.BigDecimal;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-
-import java.sql.SQLException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+/** Gestión de productos con la misma presentación que UsuariosPanel. */
+@SuppressWarnings("serial")
 public class GestionMenuPanel extends javax.swing.JPanel {
 
-    private final ProductoCRUD productoCRUD = new ProductoCRUD();
-
     private static final int PRODUCTOS_POR_PAGINA = 10;
+    private static final Color AZUL = new Color(0, 20, 43);
+    private static final Color SECUNDARIO = new Color(92, 103, 124);
+    private static final Color BORDE = new Color(225, 229, 235);
+    private static final Color AMARILLO = new Color(255, 188, 0);
+    private static final Color ROJO = new Color(231, 55, 65);
+    private static final String CARPETA_IMAGENES = "src/Imagenes/productos/";
+    private static final String RECURSO_IMAGENES = "/Imagenes/productos/";
+
+    private final TemaAdmin tema = new TemaAdmin();
+    private final ProductoCRUD productoCRUD = new ProductoCRUD();
+    private final ModeloTablaProductos modeloTabla = new ModeloTablaProductos();
+    private final List<BotonRedondeado> botonesPagina = new ArrayList<>();
+    private final Map<Integer, String> categorias = new LinkedHashMap<>();
+    private final Map<String, ImageIcon> cacheImagenes = new HashMap<>();
+    private final Timer temporizadorBusqueda;
 
     private int paginaActual = 1;
-
     private int totalPaginas = 1;
-
-    private String busquedaActual = "";
-
-    private Integer categoriaActual = null;
-
-    private Boolean estadoActual = null;
-
-    private String imagenSeleccionada = null;
-
-    private static final String CARPETA_IMAGENES =
-            "src/Imagenes/productos/";
-
-    private static final String RECURSO_IMAGENES =
-            "/Imagenes/productos/";
+    private int secuenciaCarga;
+    private Integer categoriaActual;
+    private Boolean estadoActual;
+    private boolean mostrandoErrorConexion;
 
     public GestionMenuPanel() {
-
         initComponents();
-
+        temporizadorBusqueda = new Timer(300, evento -> {
+            paginaActual = 1;
+            cargarDatos();
+        });
+        temporizadorBusqueda.setRepeats(false);
+        configurarApariencia();
+        configurarFiltros();
         configurarTabla();
-
         configurarEventos();
-
         cargarCategorias();
-
+        cargarResumen();
         cargarDatos();
     }
     @SuppressWarnings("unchecked")
@@ -424,1647 +442,1154 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_campoBusquedaActionPerformed
 
 
-    // ============================================================
-// CONFIGURACIÓN DE TABLA
-// ============================================================
+  /** Sólo cambia propiedades fuera del bloque generado por NetBeans. */
+    private void configurarApariencia() {
+        setBackground(new Color(248, 249, 251));
+        labelTitulo3.setFont(tema.negrita(55f));
+        labelTitulo3.setForeground(AZUL);
+        labelTitulo3.setBounds(70, 30, 620, 76);
+        labelTitulo2.setFont(tema.regular(17f));
+        labelTitulo2.setForeground(SECUNDARIO);
+        botonAgregarProducto.setFont(tema.negrita(16f));
+        botonAgregarProducto.setBounds(1050, 60, 230, 80);
+        botonAgregarProducto.addActionListener(evento -> mostrarFormularioProducto(null));
 
-private void configurarTabla() {
+        Componentes.PanelFlotante[] tarjetas = {
+            panelFlotante1, panelFlotante2, panelFlotante4, panelFlotante3
+        };
+        for (int i = 0; i < tarjetas.length; i++) {
+            tarjetas[i].setColorFondo(Color.WHITE);
+            tarjetas[i].setColorBorde(BORDE);
+            tarjetas[i].setBounds(60 + i * 370, 150, 360, 150);
+        }
+        panelCircular2.setColorFondo(new Color(255, 244, 211));
+        panelCircular3.setColorFondo(new Color(252, 233, 233));
+        panelCircular5.setColorFondo(new Color(255, 244, 211));
+        panelCircular4.setColorFondo(new Color(252, 233, 233));
+        JLabel[] titulos = {
+            labelTitulo4, labelTitulo7, labelTitulo13, labelTitulo10
+        };
+        JLabel[] cifras = {
+            labelTotalProductos, labelStockBajo, labelActivos, labelInactivos
+        };
+        for (JLabel titulo : titulos) {
+            titulo.setFont(tema.media(14f));
+            titulo.setForeground(SECUNDARIO);
+        }
+        for (JLabel cifra : cifras) {
+            cifra.setFont(tema.negrita(40f));
+            cifra.setForeground(AZUL);
+        }
+        labelStockBajo.setForeground(ROJO);
+        // En UsuariosPanel las tarjetas sólo contienen nombre y cantidad.
+        labelTitulo6.setVisible(false);
+        labelTitulo9.setVisible(false);
+        labelTitulo15.setVisible(false);
+        labelTitulo12.setVisible(false);
 
-    DefaultTableModel modelo = new DefaultTableModel(
-            new Object[]{
-                "ID",
-                "Imagen",
-                "Nombre",
-                "Categoría",
-                "Precio",
-                "Disponibilidad",
-                "Tipo",
-                "Stock",
-                "Estado",
-                "Acciones"
-            },
-            0
-    ) {
-        @Override
-        public boolean isCellEditable(
-                int row,
-                int column) {
+        botonExportar.setFont(tema.negrita(14f));
+        botonExportar.setIcon(IconosUsuarios.crear(
+                IconosUsuarios.Tipo.EXPORTAR, ROJO, 22));
+        botonExportar.setIconTextGap(12);
+        botonExportar.addActionListener(evento -> exportarCsv());
+    }
 
+    private void configurarFiltros() {
+        panelFiltros.setColorFondo(Color.WHITE);
+        panelFiltros.setColorBorde(BORDE);
+        campoBusqueda.setFont(tema.regular(14f));
+        configurarSelector(filtroCategoria, 330);
+        configurarSelector(filtroEstado, 330);
+        filtroCategoria.addMenuOpcionListener(evento -> {
+            String opcion = evento.getActionCommand();
+            filtroCategoria.setText(opcion);
+            categoriaActual = null;
+            if (!"Todas las categorías".equals(opcion)) {
+                for (Map.Entry<Integer, String> entrada : categorias.entrySet()) {
+                    if (entrada.getValue().equals(opcion)) {
+                        categoriaActual = entrada.getKey();
+                        break;
+                    }
+                }
+            }
+            paginaActual = 1;
+            cargarDatos();
+        });
+        filtroEstado.addMenuOpcionListener(evento -> {
+            String opcion = evento.getActionCommand();
+            filtroEstado.setText(opcion);
+            estadoActual = switch (opcion) {
+                case "Activo" -> Boolean.TRUE;
+                case "Inactivo" -> Boolean.FALSE;
+                default -> null;
+            };
+            paginaActual = 1;
+            cargarDatos();
+        });
+        botonLimpiarFiltros.setFont(tema.negrita(14f));
+        botonLimpiarFiltros.setIcon(IconosUsuarios.crear(
+                IconosUsuarios.Tipo.FILTRO, ROJO, 21));
+        botonLimpiarFiltros.setIconTextGap(10);
+        botonLimpiarFiltros.addActionListener(evento -> {
+            temporizadorBusqueda.stop();
+            campoBusqueda.setText("");
+            categoriaActual = null;
+            estadoActual = null;
+            filtroCategoria.setText("Todas las categorías");
+            filtroEstado.setText("Todos los estados");
+            paginaActual = 1;
+            cargarDatos();
+        });
+    }
+
+    private void configurarSelector(BotonDesplegable selector, int ancho) {
+        selector.setForeground(AZUL);
+        selector.setFont(tema.regular(14f));
+        selector.setColorFondo(Color.WHITE);
+        selector.setColorHover(new Color(248, 249, 251));
+        selector.setColorDesplegado(new Color(255, 247, 222));
+        selector.setColorTextoOpcion(AZUL);
+        selector.setColorBordeMenu(BORDE);
+        selector.setAnchoMenu(ancho);
+        selector.setAltoOpcion(42);
+        selector.setBorderPainted(true);
+        selector.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDE, 1, true),
+                new EmptyBorder(0, 14, 0, 34)));
+    }
+
+    private void configurarTabla() {
+        panelTabla.setColorFondo(Color.WHITE);
+        panelTabla.setColorBorde(BORDE);
+        tablaProductos.setModel(modeloTabla);
+        tablaProductos.aplicarEstilo();
+        tablaProductos.setRowHeight(60);
+        tablaProductos.setAutoCreateRowSorter(false);
+        tablaProductos.getColumnModel().getColumn(1)
+                .setCellRenderer(new RenderProducto());
+        tablaProductos.getColumnModel().getColumn(6)
+                .setCellRenderer(new RenderEstado());
+        tablaProductos.getColumnModel().getColumn(7)
+                .setCellRenderer(new RenderAcciones());
+        tablaProductos.getColumnModel().getColumn(7)
+                .setCellEditor(new EditorAcciones());
+        int[] anchos = {75, 315, 170, 115, 165, 90, 110, 130};
+        for (int i = 0; i < anchos.length; i++) {
+            tablaProductos.getColumnModel().getColumn(i)
+                    .setPreferredWidth(anchos[i]);
+        }
+        scrollUsuarios.setBorder(BorderFactory.createEmptyBorder());
+        scrollUsuarios.getViewport().setBackground(Color.WHITE);
+        scrollUsuarios.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        etiquetaRango.setFont(tema.regular(12f));
+        etiquetaRango.setForeground(SECUNDARIO);
+
+        configurarBotonPagina(botonAnterior, IconosUsuarios.Tipo.ANTERIOR);
+        botonAnterior.addActionListener(evento -> cambiarPagina(paginaActual - 1));
+        botonesPagina.add(botonPagina1);
+        botonesPagina.add(botonPagina2);
+        botonesPagina.add(botonPagina3);
+        for (BotonRedondeado boton : botonesPagina) {
+            configurarBotonPagina(boton, null);
+            boton.addActionListener(evento -> {
+                Object pagina = boton.getClientProperty("pagina");
+                if (pagina instanceof Integer numero) {
+                    cambiarPagina(numero);
+                }
+            });
+        }
+        configurarBotonPagina(botonSiguiente, IconosUsuarios.Tipo.SIGUIENTE);
+        botonSiguiente.addActionListener(evento -> cambiarPagina(paginaActual + 1));
+    }
+
+    private void configurarBotonPagina(BotonRedondeado boton,
+            IconosUsuarios.Tipo tipoIcono) {
+        boton.setDegradado(false);
+        boton.setColorInicio(Color.WHITE);
+        boton.setColorFinal(Color.WHITE);
+        boton.setColorBorde(BORDE);
+        boton.setGrosorBorde(1f);
+        boton.setRadio(12);
+        boton.setFont(tema.media(13f));
+        if (tipoIcono != null) {
+            boton.setText("");
+            boton.setIcon(IconosUsuarios.crear(tipoIcono, AZUL, 17));
+        }
+    }
+
+    private void configurarEventos() {
+        campoBusqueda.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { temporizadorBusqueda.restart(); }
+            @Override public void removeUpdate(DocumentEvent e) { temporizadorBusqueda.restart(); }
+            @Override public void changedUpdate(DocumentEvent e) { temporizadorBusqueda.restart(); }
+        });
+    }
+
+    private void cargarCategorias() {
+        new SwingWorker<Map<Integer, String>, Void>() {
+            @Override protected Map<Integer, String> doInBackground()
+                    throws SQLException {
+                return productoCRUD.listarCategoriasActivas();
+            }
+            @Override protected void done() {
+                try {
+                    categorias.clear();
+                    categorias.putAll(get());
+                    List<String> opciones = new ArrayList<>();
+                    opciones.add("Todas las categorías");
+                    opciones.addAll(categorias.values());
+                    filtroCategoria.setTextoDesplegable(String.join(";", opciones));
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException ex) {
+                    mostrarErrorDatos("cargar las categorías", ex.getCause());
+                }
+            }
+        }.execute();
+    }
+
+    private void cargarResumen() {
+        new SwingWorker<ResumenProductos, Void>() {
+            @Override protected ResumenProductos doInBackground()
+                    throws SQLException {
+                return productoCRUD.obtenerResumen();
+            }
+            @Override protected void done() {
+                try {
+                    ResumenProductos resumen = get();
+                    labelTotalProductos.setText(String.valueOf(resumen.total()));
+                    labelStockBajo.setText(String.valueOf(resumen.stockBajo()));
+                    labelActivos.setText(String.valueOf(resumen.activos()));
+                    labelInactivos.setText(String.valueOf(resumen.inactivos()));
+                    mostrandoErrorConexion = false;
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException ex) {
+                    mostrarErrorDatos("cargar el resumen", ex.getCause());
+                }
+            }
+        }.execute();
+    }
+
+    private void cargarDatos() {
+        final int solicitud = ++secuenciaCarga;
+        final String busqueda = campoBusqueda.getText().trim();
+        final Integer categoria = categoriaActual;
+        final Boolean estado = estadoActual;
+        final int paginaSolicitada = paginaActual;
+        tablaProductos.setEnabled(false);
+        etiquetaRango.setText("Cargando productos...");
+        new SwingWorker<PaginaProductos, Void>() {
+            @Override protected PaginaProductos doInBackground()
+                    throws SQLException {
+                return productoCRUD.listarPagina(busqueda, categoria, null,
+                        estado, paginaSolicitada, PRODUCTOS_POR_PAGINA);
+            }
+            @Override protected void done() {
+                if (solicitud != secuenciaCarga) return;
+                try {
+                    PaginaProductos resultado = get();
+                    totalPaginas = Math.max(1, (int) Math.ceil(
+                            resultado.totalRegistros() / (double) PRODUCTOS_POR_PAGINA));
+                    if (paginaActual > totalPaginas) {
+                        paginaActual = totalPaginas;
+                        cargarDatos();
+                        return;
+                    }
+                    modeloTabla.setProductos(resultado.productos());
+                    actualizarPaginacion(resultado.totalRegistros());
+                    mostrandoErrorConexion = false;
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException ex) {
+                    modeloTabla.setProductos(List.of());
+                    actualizarPaginacion(0);
+                    mostrarErrorDatos("cargar los productos", ex.getCause());
+                } finally {
+                    tablaProductos.setEnabled(true);
+                }
+            }
+        }.execute();
+    }
+
+    private void actualizarPaginacion(int totalRegistros) {
+        if (totalRegistros == 0) {
+            etiquetaRango.setText("No se encontraron productos");
+        } else {
+            int primero = (paginaActual - 1) * PRODUCTOS_POR_PAGINA + 1;
+            int ultimo = Math.min(primero + PRODUCTOS_POR_PAGINA - 1, totalRegistros);
+            etiquetaRango.setText(String.format("Mostrando %d–%d de %d productos",
+                    primero, ultimo, totalRegistros));
+        }
+        botonAnterior.setEnabled(paginaActual > 1);
+        botonSiguiente.setEnabled(paginaActual < totalPaginas);
+        int inicio = Math.max(1, Math.min(paginaActual - 1, totalPaginas - 2));
+        for (int i = 0; i < botonesPagina.size(); i++) {
+            BotonRedondeado boton = botonesPagina.get(i);
+            int pagina = inicio + i;
+            boton.setVisible(pagina <= totalPaginas);
+            if (pagina > totalPaginas) continue;
+            boton.putClientProperty("pagina", pagina);
+            boton.setText(String.valueOf(pagina));
+            boolean actual = pagina == paginaActual;
+            boton.setColorInicio(actual ? AMARILLO : Color.WHITE);
+            boton.setColorFinal(actual ? AMARILLO : Color.WHITE);
+            boton.setColorBorde(actual ? AMARILLO : BORDE);
+            boton.setFont(actual ? tema.negrita(13f) : tema.media(13f));
+        }
+    }
+
+    private void cambiarPagina(int pagina) {
+        if (pagina < 1 || pagina > totalPaginas || pagina == paginaActual) return;
+        paginaActual = pagina;
+        cargarDatos();
+    }
+
+    private void mostrarErrorDatos(String operacion, Throwable causa) {
+        if (mostrandoErrorConexion) return;
+        mostrandoErrorConexion = true;
+        JOptionPane.showMessageDialog(this,
+                "No fue posible " + operacion + ".\n"
+                        + (causa == null ? "Error desconocido" : causa.getMessage()),
+                "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private final class ModeloTablaProductos extends AbstractTableModel {
+        private final String[] columnas = {
+            "ID", "Producto", "Categoría", "Precio", "Disponibilidad",
+            "Stock", "Estado", "Acciones"
+        };
+        private List<Producto> productos = List.of();
+
+        private void setProductos(List<Producto> nuevos) {
+            productos = List.copyOf(nuevos);
+            fireTableDataChanged();
+        }
+
+        @Override public int getRowCount() { return productos.size(); }
+        @Override public int getColumnCount() { return columnas.length; }
+        @Override public String getColumnName(int c) { return columnas[c]; }
+        @Override public Class<?> getColumnClass(int c) {
+            return c == 1 || c == 6 || c == 7 ? Producto.class : String.class;
+        }
+        @Override public boolean isCellEditable(int r, int c) { return c == 7; }
+
+        @Override public Object getValueAt(int fila, int columna) {
+            Producto producto = productos.get(fila);
+            return switch (columna) {
+                case 0 -> String.format("#%04d", producto.getIdProducto());
+                case 1, 6, 7 -> producto;
+                case 2 -> producto.getCategoria();
+                case 3 -> producto.getPrecioBase() == null ? "Q0.00"
+                        : "Q" + producto.getPrecioBase().setScale(2,
+                                java.math.RoundingMode.HALF_UP).toPlainString();
+                case 4 -> nombreDisponibilidad(producto.getDisponibilidadMenu());
+                case 5 -> String.valueOf(producto.getStockActual());
+                default -> "";
+            };
+        }
+    }
+
+    private String nombreDisponibilidad(String valor) {
+        if (valor == null) return "";
+        return switch (valor) {
+            case "DESAYUNO" -> "Desayuno";
+            case "ALMUERZO" -> "Almuerzo";
+            case "TODO_DIA" -> "Todo el día";
+            default -> valor;
+        };
+    }
+
+    private final class RenderProducto implements TableCellRenderer {
+        @Override public Component getTableCellRendererComponent(
+                javax.swing.JTable tabla, Object valor, boolean seleccionado,
+                boolean foco, int fila, int columna) {
+            Producto producto = (Producto) valor;
+            JPanel panel = new JPanel(new BorderLayout(12, 0));
+            panel.setBorder(new EmptyBorder(3, 10, 3, 8));
+            panel.setBackground(seleccionado
+                    ? tabla.getSelectionBackground() : Color.WHITE);
+            JLabel imagen = new JLabel();
+            imagen.setHorizontalAlignment(SwingConstants.CENTER);
+            imagen.setPreferredSize(new Dimension(40, 40));
+            imagen.setIcon(cargarImagen(producto.getImagen(), 40));
+            if (imagen.getIcon() == null) imagen.setText("—");
+            JPanel textos = new JPanel(new java.awt.GridLayout(2, 1, 0, 0));
+            textos.setOpaque(false);
+            JLabel nombre = new JLabel(producto.getNombre());
+            nombre.setFont(tema.media(13f));
+            nombre.setForeground(AZUL);
+            String subtipo = producto.isCombo() ? "Combo" : "Producto";
+            if (producto.getSubCategoria() != null
+                    && !producto.getSubCategoria().isBlank()) {
+                subtipo += " · " + producto.getSubCategoria();
+            }
+            JLabel tipo = new JLabel(subtipo);
+            tipo.setFont(tema.regular(11f));
+            tipo.setForeground(SECUNDARIO);
+            textos.add(nombre);
+            textos.add(tipo);
+            panel.add(imagen, BorderLayout.WEST);
+            panel.add(textos, BorderLayout.CENTER);
+            return panel;
+        }
+    }
+
+    private final class RenderEstado implements TableCellRenderer {
+        @Override public Component getTableCellRendererComponent(
+                javax.swing.JTable tabla, Object valor, boolean seleccionado,
+                boolean foco, int fila, int columna) {
+            Producto producto = (Producto) valor;
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 16));
+            panel.setBackground(seleccionado
+                    ? tabla.getSelectionBackground() : Color.WHITE);
+            JLabel estado = new JLabel(producto.isActivo() ? "Activo" : "Inactivo");
+            estado.setFont(tema.media(11f));
+            estado.setOpaque(true);
+            estado.setForeground(producto.isActivo()
+                    ? new Color(34, 139, 71) : SECUNDARIO);
+            estado.setBackground(producto.isActivo()
+                    ? new Color(230, 245, 234) : new Color(237, 239, 243));
+            estado.setBorder(new EmptyBorder(3, 13, 3, 13));
+            panel.add(estado);
+            return panel;
+        }
+    }
+
+    private final class RenderAcciones implements TableCellRenderer {
+        @Override public Component getTableCellRendererComponent(
+                javax.swing.JTable tabla, Object valor, boolean seleccionado,
+                boolean foco, int fila, int columna) {
+            Producto producto = (Producto) valor;
+            JPanel panel = crearPanelAcciones(seleccionado
+                    ? tabla.getSelectionBackground() : Color.WHITE);
+            BotonRedondeado editar = crearBotonAccion(
+                    IconosUsuarios.Tipo.EDITAR, new Color(214, 151, 0));
+            BotonRedondeado desactivar = crearBotonAccion(
+                    IconosUsuarios.Tipo.ELIMINAR, ROJO);
+            desactivar.setEnabled(producto.isActivo());
+            panel.add(editar);
+            panel.add(desactivar);
+            return panel;
+        }
+    }
+
+    private final class EditorAcciones extends AbstractCellEditor
+            implements TableCellEditor {
+        private final JPanel panel = crearPanelAcciones(Color.WHITE);
+        private final BotonRedondeado editar = crearBotonAccion(
+                IconosUsuarios.Tipo.EDITAR, new Color(214, 151, 0));
+        private final BotonRedondeado desactivar = crearBotonAccion(
+                IconosUsuarios.Tipo.ELIMINAR, ROJO);
+        private Producto producto;
+
+        private EditorAcciones() {
+            editar.addActionListener(evento -> {
+                Producto seleccionado = producto;
+                fireEditingStopped();
+                editarProducto(seleccionado.getIdProducto());
+            });
+            desactivar.addActionListener(evento -> {
+                Producto seleccionado = producto;
+                fireEditingStopped();
+                desactivarProducto(seleccionado, GestionMenuPanel.this);
+            });
+            panel.add(editar);
+            panel.add(desactivar);
+        }
+
+        @Override public Component getTableCellEditorComponent(
+                javax.swing.JTable tabla, Object valor, boolean seleccionado,
+                int fila, int columna) {
+            producto = (Producto) valor;
+            desactivar.setEnabled(producto.isActivo());
+            panel.setBackground(tabla.getSelectionBackground());
+            return panel;
+        }
+        @Override public Object getCellEditorValue() { return producto; }
+    }
+
+    private JPanel crearPanelAcciones(Color fondo) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 7, 14));
+        panel.setBackground(fondo);
+        return panel;
+    }
+
+    private BotonRedondeado crearBotonAccion(IconosUsuarios.Tipo icono,
+            Color color) {
+        BotonRedondeado boton = new BotonRedondeado();
+        boton.setText("");
+        boton.setIcon(IconosUsuarios.crear(icono, color, 17));
+        boton.setDegradado(false);
+        boton.setColorInicio(Color.WHITE);
+        boton.setColorFinal(Color.WHITE);
+        boton.setColorBorde(color);
+        boton.setGrosorBorde(1f);
+        boton.setRadio(9);
+        boton.setPreferredSize(new Dimension(33, 30));
+        boton.setToolTipText(icono == IconosUsuarios.Tipo.EDITAR
+                ? "Editar producto" : "Desactivar producto");
+        return boton;
+    }
+
+    private void editarProducto(int id) {
+        try {
+            Producto producto = productoCRUD.obtenerPorId(id);
+            if (producto == null) {
+                JOptionPane.showMessageDialog(this, "No se encontró el producto.",
+                        "Producto", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            mostrarFormularioProducto(producto);
+        } catch (SQLException ex) {
+            mostrarError("No fue posible obtener el producto", ex);
+        }
+    }
+
+    private boolean desactivarProducto(Producto seleccionado, Component padre) {
+        if (!seleccionado.isActivo()) return false;
+        int respuesta = JOptionPane.showConfirmDialog(padre,
+                "¿Desactivar «" + seleccionado.getNombre() + "»?",
+                "Confirmar desactivación", JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (respuesta != JOptionPane.YES_OPTION) return false;
+        try {
+            productoCRUD.desactivar(seleccionado.getIdProducto());
+            cargarResumen();
+            cargarDatos();
+            return true;
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(padre,
+                    "No fue posible desactivar el producto.\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-
-        @Override
-        public Class<?> getColumnClass(int column) {
-
-            if (column == 0) {
-                return Integer.class;
-            }
-
-            if (column == 1) {
-                return ImageIcon.class;
-            }
-
-            return String.class;
-        }
-    };
-
-    tablaProductos.setModel(modelo);
-
-    tablaProductos.setRowHeight(75);
-
-    tablaProductos.setAutoCreateRowSorter(true);
-
-    tablaProductos.getColumnModel()
-            .getColumn(0)
-            .setPreferredWidth(50);
-
-    tablaProductos.getColumnModel()
-            .getColumn(1)
-            .setPreferredWidth(90);
-
-    tablaProductos.getColumnModel()
-            .getColumn(2)
-            .setPreferredWidth(200);
-
-    tablaProductos.getColumnModel()
-            .getColumn(3)
-            .setPreferredWidth(150);
-
-    tablaProductos.getColumnModel()
-            .getColumn(4)
-            .setPreferredWidth(90);
-
-    tablaProductos.getColumnModel()
-            .getColumn(5)
-            .setPreferredWidth(130);
-
-    tablaProductos.getColumnModel()
-            .getColumn(6)
-            .setPreferredWidth(100);
-
-    tablaProductos.getColumnModel()
-            .getColumn(7)
-            .setPreferredWidth(80);
-
-    tablaProductos.getColumnModel()
-            .getColumn(8)
-            .setPreferredWidth(100);
-
-    tablaProductos.getColumnModel()
-            .getColumn(9)
-            .setPreferredWidth(180);
-
-    // Renderer para imagen
-    tablaProductos.getColumnModel()
-            .getColumn(1)
-            .setCellRenderer(
-                    new ImagenRenderer()
-            );
-}
-
-private static class ImagenRenderer
-        extends DefaultTableCellRenderer {
-
-    @Override
-    public java.awt.Component getTableCellRendererComponent(
-            javax.swing.JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
-
-        JLabel label = new JLabel();
-
-        label.setHorizontalAlignment(
-                JLabel.CENTER
-        );
-
-        label.setVerticalAlignment(
-                JLabel.CENTER
-        );
-
-        if (value instanceof ImageIcon icon) {
-
-            label.setIcon(icon);
-
-        } else {
-
-            label.setText("Sin imagen");
-            label.setFont(
-                    new Font(
-                            "Arial",
-                            Font.PLAIN,
-                            11
-                    )
-            );
-        }
-
-        return label;
     }
-}
 
-private void configurarEventos() {
-
-    // AGREGAR PRODUCTO
-    botonAgregarProducto.addActionListener(e -> {
-
-        mostrarFormularioProducto(null);
-
-    });
-
-    // BUSCAR
-    campoBusqueda.addActionListener(e -> {
-
-        busquedaActual =
-                campoBusqueda.getText().trim();
-
-        paginaActual = 1;
-
-        cargarDatos();
-
-    });
-
-    // FILTRO CATEGORÍA
-    filtroCategoria.addActionListener(e -> {
-
-        String texto =
-                filtroCategoria.getText();
-
-        if (texto == null
-                || texto.equals("Todas las categorías")) {
-
-            categoriaActual = null;
-
-        } else {
-
-            categoriaActual =
-                    obtenerIdCategoriaPorNombre(texto);
+    private void exportarCsv() {
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Exportar productos");
+        selector.setSelectedFile(new File("productos.csv"));
+        selector.setFileFilter(new FileNameExtensionFilter("Archivo CSV (*.csv)", "csv"));
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+        Path destino = selector.getSelectedFile().toPath();
+        if (!destino.getFileName().toString().toLowerCase(Locale.ROOT)
+                .endsWith(".csv")) {
+            destino = destino.resolveSibling(destino.getFileName() + ".csv");
         }
-
-        paginaActual = 1;
-
-        cargarDatos();
-    });
-
-    // FILTRO ESTADO
-    filtroEstado.addActionListener(e -> {
-
-        String texto =
-                filtroEstado.getText();
-
-        if (texto == null
-                || texto.equals("Todos los estados")) {
-
-            estadoActual = null;
-
-        } else if (texto.equals("Activo")) {
-
-            estadoActual = true;
-
-        } else if (texto.equals("Inactivo")) {
-
-            estadoActual = false;
-        }
-
-        paginaActual = 1;
-
-        cargarDatos();
-    });
-
-    // LIMPIAR
-    botonLimpiarFiltros.addActionListener(e -> {
-
-        campoBusqueda.setText("");
-
-        busquedaActual = "";
-
-        categoriaActual = null;
-
-        estadoActual = null;
-
-        paginaActual = 1;
-
-        filtroCategoria.setText(
-                "Todas las categorías"
-        );
-
-        filtroEstado.setText(
-                "Todos los estados"
-        );
-
-        cargarDatos();
-    });
-
-    // PAGINACIÓN
-    botonAnterior.addActionListener(e -> {
-
-        if (paginaActual > 1) {
-
-            paginaActual--;
-
-            cargarDatos();
-        }
-    });
-
-    botonSiguiente.addActionListener(e -> {
-
-        if (paginaActual < totalPaginas) {
-
-            paginaActual++;
-
-            cargarDatos();
-        }
-    });
-
-    botonPagina1.addActionListener(e -> irPagina(1));
-
-    botonPagina2.addActionListener(e -> irPagina(2));
-
-    botonPagina3.addActionListener(e -> irPagina(3));
-
-    // DOBLE CLICK PARA EDITAR
-    tablaProductos.addMouseListener(
-            new java.awt.event.MouseAdapter() {
-
-        @Override
-        public void mouseClicked(
-                java.awt.event.MouseEvent e) {
-
-            if (e.getClickCount() == 2
-                    && e.getButton()
-                    == java.awt.event.MouseEvent.BUTTON1) {
-
-                int fila =
-                        tablaProductos.rowAtPoint(
-                                e.getPoint()
-                        );
-
-                if (fila >= 0) {
-
-                    int id =
-                            (int) tablaProductos
-                                    .getValueAt(
-                                            fila,
-                                            0
-                                    );
-
-                    editarProducto(id);
+        if (Files.exists(destino) && JOptionPane.showConfirmDialog(this,
+                "El archivo ya existe. ¿Deseas reemplazarlo?",
+                "Confirmar exportación", JOptionPane.YES_NO_OPTION)
+                != JOptionPane.YES_OPTION) return;
+        final Path archivo = destino;
+        final String busqueda = campoBusqueda.getText().trim();
+        final Integer categoria = categoriaActual;
+        final Boolean estado = estadoActual;
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        botonExportar.setEnabled(false);
+        new SwingWorker<Integer, Void>() {
+            @Override protected Integer doInBackground() throws Exception {
+                List<Producto> productos = new ArrayList<>();
+                PaginaProductos primera = productoCRUD.listarPagina(
+                        busqueda, categoria, null, estado, 1, 100);
+                productos.addAll(primera.productos());
+                int paginas = (int) Math.ceil(primera.totalRegistros() / 100.0);
+                for (int pagina = 2; pagina <= paginas; pagina++) {
+                    productos.addAll(productoCRUD.listarPagina(
+                            busqueda, categoria, null, estado, pagina, 100).productos());
+                }
+                escribirCsv(archivo, productos);
+                return productos.size();
+            }
+            @Override protected void done() {
+                botonExportar.setEnabled(true);
+                setCursor(Cursor.getDefaultCursor());
+                try {
+                    JOptionPane.showMessageDialog(GestionMenuPanel.this,
+                            "Se exportaron " + get() + " productos en:\n" + archivo,
+                            "Exportación completada", JOptionPane.INFORMATION_MESSAGE);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException ex) {
+                    mostrarError("No fue posible exportar", ex.getCause());
                 }
             }
-        }
-    });
-}
-
-private void cargarCategorias() {
-
-    try {
-
-        Map<Integer, String> categorias =
-                productoCRUD
-                        .listarCategoriasActivas();
-
-        String[] nombres =
-                new String[categorias.size() + 1];
-
-        nombres[0] =
-                "Todas las categorías";
-
-        int i = 1;
-
-        for (String nombre
-                : categorias.values()) {
-
-            nombres[i++] = nombre;
-        }
-
-        filtroCategoria.setTextoDesplegable(
-                String.join(";", nombres)
-        );
-
-    } catch (SQLException e) {
-
-        mostrarError(
-                "No fue posible cargar las categorías.",
-                e
-        );
+        }.execute();
     }
-}
 
-private Integer obtenerIdCategoriaPorNombre(
-        String nombre) {
-
-    try {
-
-        Map<Integer, String> categorias =
-                productoCRUD
-                        .listarCategoriasActivas();
-
-        for (Map.Entry<Integer, String> entrada
-                : categorias.entrySet()) {
-
-            if (entrada.getValue()
-                    .equalsIgnoreCase(nombre)) {
-
-                return entrada.getKey();
+    private void escribirCsv(Path archivo, List<Producto> productos)
+            throws IOException {
+        try (BufferedWriter escritor = Files.newBufferedWriter(
+                archivo, StandardCharsets.UTF_8)) {
+            escritor.write('\ufeff');
+            escritor.write("ID,Nombre,Categoría,Subcategoría,Descripción,Precio,Disponibilidad,"
+                    + "Tamaño bebida,Combo,Stock,Stock mínimo,Estado,Imagen");
+            escritor.newLine();
+            for (Producto producto : productos) {
+                escritor.write(String.join(",",
+                        csv(String.valueOf(producto.getIdProducto())),
+                        csv(producto.getNombre()), csv(producto.getCategoria()),
+                        csv(producto.getSubCategoria()),
+                        csv(producto.getDescripcion()),
+                        csv(producto.getPrecioBase() == null ? ""
+                                : producto.getPrecioBase().toPlainString()),
+                        csv(producto.getDisponibilidadMenu()),
+                        csv(producto.getTamanoBebida()),
+                        csv(producto.isCombo() ? "Sí" : "No"),
+                        csv(String.valueOf(producto.getStockActual())),
+                        csv(String.valueOf(producto.getStockMinimo())),
+                        csv(producto.isActivo() ? "Activo" : "Inactivo"),
+                        csv(producto.getImagen())));
+                escritor.newLine();
             }
         }
-
-    } catch (SQLException e) {
-
-        mostrarError(
-                "No fue posible consultar las categorías.",
-                e
-        );
     }
 
-    return null;
-}
-
-private void cargarDatos() {
-
-    try {
-
-        cargarResumen();
-
-        PaginaProductos pagina =
-                productoCRUD.listarPagina(
-                        busquedaActual,
-                        categoriaActual,
-                        null,
-                        estadoActual,
-                        paginaActual,
-                        PRODUCTOS_POR_PAGINA
-                );
-
-        mostrarProductos(
-                pagina.productos()
-        );
-
-        actualizarPaginacion(
-                pagina.totalRegistros()
-        );
-
-    } catch (SQLException e) {
-
-        mostrarError(
-                "No fue posible cargar los productos.",
-                e
-        );
+    private String csv(String valor) {
+        return "\"" + (valor == null ? "" : valor).replace("\"", "\"\"") + "\"";
     }
-}
 
-private void cargarResumen() {
-
-    try {
-
-        ResumenProductos resumen =
-                productoCRUD.obtenerResumen();
-
-        labelTotalProductos.setText(
-                String.valueOf(
-                        resumen.total()
-                )
-        );
-
-        labelStockBajo.setText(
-                String.valueOf(
-                        resumen.stockBajo()
-                )
-        );
-
-        labelActivos.setText(
-                String.valueOf(
-                        resumen.activos()
-                )
-        );
-
-        labelInactivos.setText(
-                String.valueOf(
-                        resumen.inactivos()
-                )
-        );
-
-    } catch (SQLException e) {
-
-        mostrarError(
-                "No fue posible cargar el resumen.",
-                e
-        );
+    private ImageIcon cargarImagen(String ruta, int tamano) {
+        if (ruta == null || ruta.isBlank()) return null;
+        String clave = ruta + "#" + tamano;
+        if (cacheImagenes.containsKey(clave)) return cacheImagenes.get(clave);
+        try {
+            File archivo = new File(ruta);
+            if (!archivo.isFile()) archivo = new File("src/" + ruta.replaceFirst("^/", ""));
+            ImageIcon original = null;
+            if (archivo.isFile()) original = new ImageIcon(archivo.getAbsolutePath());
+            else {
+                java.net.URL recurso = getClass().getResource(
+                        ruta.startsWith("/") ? ruta : "/" + ruta);
+                if (recurso != null) original = new ImageIcon(recurso);
+            }
+            if (original != null && original.getIconWidth() > 0) {
+                Image escalada = original.getImage().getScaledInstance(
+                        tamano, tamano, Image.SCALE_SMOOTH);
+                cacheImagenes.put(clave, new ImageIcon(escalada));
+            }
+        } catch (RuntimeException ex) {
+            // Se muestra el producto sin miniatura si el archivo falta.
+        }
+        return cacheImagenes.get(clave);
     }
-}
 
-private void mostrarProductos(
-        List<Producto> productos) {
+    private String copiarImagenProducto(File archivo) throws IOException {
+        Path carpeta = Paths.get(CARPETA_IMAGENES);
+        Files.createDirectories(carpeta);
+        String nombre = archivo.getName();
+        int punto = nombre.lastIndexOf('.');
+        String extension = punto < 0 ? ""
+                : nombre.substring(punto).toLowerCase(Locale.ROOT);
+        String base = (punto < 0 ? nombre : nombre.substring(0, punto))
+                .replaceAll("[^a-zA-Z0-9_-]", "_");
+        String nombreFinal = base + "_" + System.currentTimeMillis() + extension;
+        Files.copy(archivo.toPath(), carpeta.resolve(nombreFinal),
+                StandardCopyOption.REPLACE_EXISTING);
+        return RECURSO_IMAGENES + nombreFinal;
+    }
 
-    DefaultTableModel modelo =
-            (DefaultTableModel)
-                    tablaProductos.getModel();
+    private void mostrarError(String mensaje, Throwable causa) {
+        JOptionPane.showMessageDialog(this,
+                mensaje + ".\n" + (causa == null ? "" : causa.getMessage()),
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
-    modelo.setRowCount(0);
+    @Override public void removeNotify() {
+        temporizadorBusqueda.stop();
+        super.removeNotify();
+    }
 
-    for (Producto producto
-            : productos) {
-
-        ImageIcon imagen =
-                cargarImagen(
-                        producto.getImagen()
-                );
-
-        String estado =
-                producto.isActivo()
-                        ? "Activo"
-                        : "Inactivo";
-
-        String tipo =
-                producto.isCombo()
-                        ? "Combo"
-                        : "Producto";
-
-        String precio =
-                producto.getPrecioBase() == null
-                        ? "Q0.00"
-                        : "Q" + producto
-                                .getPrecioBase()
-                                .toPlainString();
-
-        String disponibilidad =
-                convertirDisponibilidad(
-                        producto
-                                .getDisponibilidadMenu()
-                );
-
-        modelo.addRow(
-                new Object[]{
-                    producto.getIdProducto(),
-                    imagen,
-                    producto.getNombre(),
-                    producto.getCategoria(),
-                    precio,
-                    disponibilidad,
-                    tipo,
-                    producto.getStockActual(),
-                    estado,
-                    "Editar / Cambiar estado"
+    private static final class FondoOscuro extends JPanel {
+        private FondoOscuro() {
+            setOpaque(false);
+            addMouseListener(new java.awt.event.MouseAdapter() { });
+        }
+        @Override protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setColor(new Color(0, 12, 28, 90));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.dispose();
+        }
+    }
+    
+    private void mostrarFormularioProducto(Producto original) {
+        Window propietario = SwingUtilities.getWindowAncestor(this);
+        JRootPane raiz = SwingUtilities.getRootPane(this);
+        Component cristalAnterior = raiz == null ? null : raiz.getGlassPane();
+        boolean cristalVisible = cristalAnterior != null && cristalAnterior.isVisible();
+        try {
+            Map<Integer, String> disponibles = productoCRUD
+                    .listarCategoriasParaFormulario(original == null
+                            ? null : original.getIdCategoria());
+            if (disponibles.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Primero registra una categoría activa.",
+                        "Sin categorías", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            JDialog dialogo = new JDialog(propietario,
+                    java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+            dialogo.setUndecorated(true);
+            dialogo.setBackground(new Color(0, 0, 0, 0));
+            dialogo.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            final boolean[] guardado = {false};
+            dialogo.setContentPane(crearFormulario(dialogo, original,
+                    disponibles, guardado));
+            dialogo.pack();
+            dialogo.setLocationRelativeTo(propietario);
+            if (raiz != null) {
+                FondoOscuro fondo = new FondoOscuro();
+                raiz.setGlassPane(fondo);
+                fondo.setVisible(true);
+            }
+            try {
+                dialogo.setVisible(true);
+            } finally {
+                if (raiz != null && cristalAnterior != null) {
+                    raiz.setGlassPane(cristalAnterior);
+                    cristalAnterior.setVisible(cristalVisible);
                 }
-        );
-    }
-}
-
-private String convertirDisponibilidad(
-        String disponibilidad) {
-
-    if (disponibilidad == null) {
-        return "";
-    }
-
-    return switch (disponibilidad) {
-
-        case "DESAYUNO" ->
-                "Desayuno";
-
-        case "ALMUERZO" ->
-                "Almuerzo";
-
-        case "TODO_DIA" ->
-                "Todo el día";
-
-        default ->
-                disponibilidad;
-    };
-}
-
-private ImageIcon cargarImagen(
-        String ruta) {
-
-    if (ruta == null
-            || ruta.isBlank()) {
-
-        return null;
+            }
+            if (guardado[0]) {
+                cacheImagenes.clear();
+                cargarResumen();
+                cargarDatos();
+                JOptionPane.showMessageDialog(this, original == null
+                        ? "Producto agregado correctamente."
+                        : "Producto actualizado correctamente.",
+                        "Gestión del menú", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            mostrarError("No fue posible abrir el formulario", ex);
+        }
     }
 
-    try {
+    private JPanel crearFormulario(JDialog dialogo, Producto original,
+            Map<Integer, String> categoriasDisponibles, boolean[] guardado) {
+        boolean editando = original != null;
+        Componentes.PanelFlotante tarjeta = new Componentes.PanelFlotante();
+        tarjeta.setColorFondo(Color.WHITE);
+        tarjeta.setColorBorde(BORDE);
+        tarjeta.setRadio(26);
+        tarjeta.setPreferredSize(new Dimension(790, 660));
+        tarjeta.setLayout(new BorderLayout());
 
-        File archivo =
-                new File(ruta);
+        JPanel cabecera = new JPanel(null);
+        cabecera.setOpaque(false);
+        cabecera.setPreferredSize(new Dimension(790, 112));
+        Componentes.PanelCircular icono = new Componentes.PanelCircular();
+        icono.setColorFondo(new Color(255, 244, 211));
+        icono.setLayout(new BorderLayout());
+        java.net.URL urlIcono = getClass().getResource("/Imagenes/lista_icono.png");
+        if (urlIcono != null) {
+            JLabel imagen = new JLabel(new ImageIcon(new ImageIcon(urlIcono)
+                    .getImage().getScaledInstance(39, 39, Image.SCALE_SMOOTH)));
+            imagen.setHorizontalAlignment(SwingConstants.CENTER);
+            icono.add(imagen, BorderLayout.CENTER);
+        }
+        cabecera.add(icono);
+        icono.setBounds(30, 20, 80, 80);
+        JLabel titulo = new JLabel(editando ? "Editar producto" : "Agregar producto");
+        titulo.setFont(tema.negrita(25f));
+        titulo.setForeground(AZUL);
+        titulo.setBounds(125, 27, 595, 36);
+        cabecera.add(titulo);
+        JLabel subtitulo = new JLabel(editando
+                ? "Actualiza la información de "
+                        + String.format("#%04d", original.getIdProducto())
+                : "Completa los datos del nuevo producto");
+        subtitulo.setFont(tema.regular(15f));
+        subtitulo.setForeground(SECUNDARIO);
+        subtitulo.setBounds(125, 62, 600, 28);
+        cabecera.add(subtitulo);
+        tarjeta.add(cabecera, BorderLayout.NORTH);
 
-        if (!archivo.exists()) {
+        JTextField nombre = new JTextField(editando ? original.getNombre() : "");
+        JTextField subCategoria = new JTextField(editando
+                && original.getSubCategoria() != null
+                        ? original.getSubCategoria() : "");
+        JTextField precio = new JTextField(editando && original.getPrecioBase() != null
+                ? original.getPrecioBase().toPlainString() : "");
+        JTextArea descripcion = new JTextArea(editando
+                && original.getDescripcion() != null ? original.getDescripcion() : "");
+        descripcion.setLineWrap(true);
+        descripcion.setWrapStyleWord(true);
+        descripcion.setFont(tema.regular(14f));
+        descripcion.setForeground(AZUL);
+        descripcion.setBorder(new EmptyBorder(8, 12, 8, 12));
+        JScrollPane scrollDescripcion = new JScrollPane(descripcion);
+        scrollDescripcion.setBorder(BorderFactory.createLineBorder(BORDE, 1, true));
+        scrollDescripcion.setPreferredSize(new Dimension(330, 78));
+        scrollDescripcion.setWheelScrollingEnabled(false);
+        aplicarEstiloCampo(nombre);
+        aplicarEstiloCampo(subCategoria);
+        aplicarEstiloCampo(precio);
 
-            archivo =
-                    new File(
-                            "src/" + ruta
-                    );
+        BotonDesplegable categoria = nuevoSelector("Seleccionar categoría",
+                String.join(";", categoriasDisponibles.values()));
+        BotonDesplegable disponibilidad = nuevoSelector("Todo el día",
+                "Desayuno;Almuerzo;Todo el día");
+        BotonDesplegable tamano = nuevoSelector("Sin tamaño",
+                "Sin tamaño;Pequeña;Mediana;Grande");
+        BotonDesplegable estado = nuevoSelector("Activo", "Activo;Inactivo");
+        if (editando) {
+            categoria.setText(original.getCategoria());
+            disponibilidad.setText(nombreDisponibilidad(original.getDisponibilidadMenu()));
+            tamano.setText(nombreTamano(original.getTamanoBebida()));
+            estado.setText(original.isActivo() ? "Activo" : "Inactivo");
         }
 
-        if (archivo.exists()) {
+        JSpinner stock = new JSpinner(new SpinnerNumberModel(
+                editando ? original.getStockActual() : 0, 0, 999999999, 1));
+        JSpinner stockMinimo = new JSpinner(new SpinnerNumberModel(
+                editando ? original.getStockMinimo() : 0, 0, 999999999, 1));
+        estilizarSpinner(stock);
+        estilizarSpinner(stockMinimo);
+        JCheckBox esCombo = new JCheckBox("Es combo",
+                editando && original.isCombo());
+        esCombo.setFont(tema.media(14f));
+        esCombo.setForeground(AZUL);
+        esCombo.setOpaque(false);
 
-            ImageIcon original =
-                    new ImageIcon(
-                            archivo.getAbsolutePath()
-                    );
+        JPanel campos = new JPanel(new GridBagLayout());
+        campos.setOpaque(false);
+        campos.setBorder(new EmptyBorder(3, 28, 12, 28));
+        agregarFila(campos, 0, crearCampo("Nombre", nombre),
+                crearCampo("Categoría", categoria));
+        agregarFila(campos, 1, crearCampo("Subcategoría (opcional)", subCategoria),
+                crearCampo("Precio (Q)", precio));
+        agregarFila(campos, 2, crearCampo("Disponibilidad", disponibilidad),
+                crearCampo("Tamaño de bebida", tamano));
+        agregarFila(campos, 3, crearCampo("Stock actual", stock),
+                crearCampo("Stock mínimo", stockMinimo));
+        agregarFila(campos, 4, crearCampo("Estado", estado),
+                crearCampo("Tipo", esCombo));
+        agregarFilaCompleta(campos, 5, crearCampo("Descripción", scrollDescripcion));
 
-            Image imagen =
-                    original.getImage()
-                            .getScaledInstance(
-                                    65,
-                                    65,
-                                    Image.SCALE_SMOOTH
-                            );
+        final String[] rutaImagen = {editando ? original.getImagen() : null};
+        final File[] imagenNueva = {null};
+        JLabel vistaPrevia = new JLabel("Sin imagen", SwingConstants.CENTER);
+        vistaPrevia.setPreferredSize(new Dimension(84, 84));
+        vistaPrevia.setBorder(BorderFactory.createLineBorder(BORDE));
+        mostrarVistaPrevia(vistaPrevia, rutaImagen[0]);
+        JLabel nombreImagen = new JLabel(rutaImagen[0] == null
+                ? "Sin imagen seleccionada" : new File(rutaImagen[0]).getName());
+        nombreImagen.setFont(tema.regular(13f));
+        nombreImagen.setForeground(SECUNDARIO);
+        BotonRedondeado elegir = botonFormulario("Seleccionar imagen", false);
+        BotonRedondeado quitar = botonFormulario("Quitar imagen", false);
+        elegir.setPreferredSize(new Dimension(165, 38));
+        quitar.setPreferredSize(new Dimension(145, 38));
+        JPanel controlesImagen = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        controlesImagen.setOpaque(false);
+        controlesImagen.add(elegir);
+        controlesImagen.add(quitar);
+        JPanel detallesImagen = new JPanel(new BorderLayout(0, 9));
+        detallesImagen.setOpaque(false);
+        detallesImagen.add(nombreImagen, BorderLayout.NORTH);
+        detallesImagen.add(controlesImagen, BorderLayout.CENTER);
+        JPanel panelImagen = new JPanel(new BorderLayout(18, 0));
+        panelImagen.setOpaque(false);
+        panelImagen.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panelImagen.add(vistaPrevia, BorderLayout.WEST);
+        panelImagen.add(detallesImagen, BorderLayout.CENTER);
+        agregarFilaCompleta(campos, 6, crearCampo("Imagen del producto", panelImagen));
 
-            return new ImageIcon(imagen);
+        elegir.addActionListener(evento -> {
+            JFileChooser selector = new JFileChooser();
+            selector.setFileFilter(new FileNameExtensionFilter(
+                    "Imágenes PNG, JPG y JPEG", "png", "jpg", "jpeg"));
+            if (selector.showOpenDialog(dialogo) == JFileChooser.APPROVE_OPTION) {
+                imagenNueva[0] = selector.getSelectedFile();
+                rutaImagen[0] = imagenNueva[0].getAbsolutePath();
+                nombreImagen.setText(imagenNueva[0].getName());
+                mostrarVistaPrevia(vistaPrevia, rutaImagen[0]);
+            }
+        });
+        quitar.addActionListener(evento -> {
+            imagenNueva[0] = null;
+            rutaImagen[0] = null;
+            nombreImagen.setText("Sin imagen seleccionada");
+            mostrarVistaPrevia(vistaPrevia, null);
+        });
+
+        JScrollPane desplazamiento = new JScrollPane(campos);
+        desplazamiento.setBorder(BorderFactory.createEmptyBorder());
+        desplazamiento.setOpaque(false);
+        desplazamiento.getViewport().setOpaque(false);
+        desplazamiento.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        // La rueda se dirige aquí desde todo el formulario.
+        desplazamiento.setWheelScrollingEnabled(false);
+        javax.swing.JScrollBar barraVertical =
+                desplazamiento.getVerticalScrollBar();
+        barraVertical.setPreferredSize(new Dimension(0, 0));
+        barraVertical.setUnitIncrement(36);
+        barraVertical.setBlockIncrement(180);
+        tarjeta.add(desplazamiento, BorderLayout.CENTER);
+
+        JPanel pie = new JPanel(new BorderLayout());
+        pie.setOpaque(false);
+        pie.setBorder(new EmptyBorder(0, 30, 22, 30));
+        pie.setPreferredSize(new Dimension(790, 105));
+        JLabel error = new JLabel(" ");
+        error.setFont(tema.media(13f));
+        error.setForeground(ROJO);
+        pie.add(error, BorderLayout.NORTH);
+        JPanel filaBotones = new JPanel(new BorderLayout());
+        filaBotones.setOpaque(false);
+        BotonRedondeado desactivar = botonFormulario("Desactivar producto", false);
+        desactivar.setPreferredSize(new Dimension(180, 48));
+        desactivar.setVisible(editando && original.isActivo());
+        filaBotones.add(desactivar, BorderLayout.WEST);
+        JPanel botonesDerecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
+        botonesDerecha.setOpaque(false);
+        BotonRedondeado cancelar = botonFormulario("Cancelar", false);
+        cancelar.setPreferredSize(new Dimension(130, 48));
+        BotonRedondeado guardar = botonFormulario("Guardar producto", true);
+        guardar.setPreferredSize(new Dimension(165, 48));
+        botonesDerecha.add(cancelar);
+        botonesDerecha.add(guardar);
+        filaBotones.add(botonesDerecha, BorderLayout.EAST);
+        pie.add(filaBotones, BorderLayout.CENTER);
+        tarjeta.add(pie, BorderLayout.SOUTH);
+        cancelar.addActionListener(evento -> dialogo.dispose());
+        desactivar.addActionListener(evento -> {
+            if (desactivarProducto(original, dialogo)) {
+                dialogo.dispose();
+            }
+        });
+        guardar.addActionListener(evento -> guardarProducto(dialogo, original,
+                categoriasDisponibles, nombre, subCategoria, precio, descripcion, categoria,
+                disponibilidad, tamano, estado, stock, stockMinimo, esCombo,
+                rutaImagen[0], imagenNueva[0], error, guardar, guardado));
+        java.awt.event.MouseWheelListener ruedaFormulario = evento -> {
+            int avance = (int) Math.round(evento.getPreciseWheelRotation()
+                    * 3 * barraVertical.getUnitIncrement());
+            if (avance != 0) {
+                barraVertical.setValue(barraVertical.getValue() + avance);
+                evento.consume();
+            }
+        };
+        escucharRuedaEnFormulario(tarjeta, ruedaFormulario);
+        return tarjeta;
+    }
+
+    private void escucharRuedaEnFormulario(Component componente,
+            java.awt.event.MouseWheelListener oyente) {
+        componente.addMouseWheelListener(oyente);
+        if (componente instanceof java.awt.Container contenedor) {
+            for (Component hijo : contenedor.getComponents()) {
+                escucharRuedaEnFormulario(hijo, oyente);
+            }
         }
+    }
 
-        java.net.URL recurso =
-                getClass()
-                        .getResource(
-                                ruta.startsWith("/")
-                                        ? ruta
-                                        : "/" + ruta
-                        );
-
-        if (recurso != null) {
-
-            ImageIcon original =
-                    new ImageIcon(recurso);
-
-            Image imagen =
-                    original.getImage()
-                            .getScaledInstance(
-                                    65,
-                                    65,
-                                    Image.SCALE_SMOOTH
-                            );
-
-            return new ImageIcon(imagen);
+    private JPanel crearCampo(String titulo, javax.swing.JComponent control) {
+        JPanel campo = new JPanel(new BorderLayout(0, 5));
+        campo.setOpaque(false);
+        JLabel etiqueta = new JLabel(titulo);
+        etiqueta.setFont(tema.media(14f));
+        etiqueta.setForeground(AZUL);
+        campo.add(etiqueta, BorderLayout.NORTH);
+        if (control instanceof JTextField || control instanceof BotonDesplegable
+                || control instanceof JSpinner || control instanceof JCheckBox) {
+            control.setPreferredSize(new Dimension(320, 46));
         }
-
-    } catch (Exception e) {
-
-        System.out.println(
-                "Error cargando imagen: "
-                + e.getMessage()
-        );
+        campo.add(control, BorderLayout.CENTER);
+        return campo;
     }
 
-    return null;
-}
-
-private void actualizarPaginacion(
-        int totalRegistros) {
-
-    totalPaginas =
-            Math.max(
-                    1,
-                    (int) Math.ceil(
-                            (double) totalRegistros
-                            / PRODUCTOS_POR_PAGINA
-                    )
-            );
-
-    int inicio;
-
-    if (totalRegistros == 0) {
-
-        inicio = 0;
-
-    } else {
-
-        inicio =
-                ((paginaActual - 1)
-                        * PRODUCTOS_POR_PAGINA)
-                + 1;
+    private void agregarFila(JPanel panel, int fila,
+            JPanel izquierda, JPanel derecha) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = fila;
+        gbc.gridx = 0;
+        gbc.weightx = 0.5;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.insets = new Insets(5, 8, 8, 12);
+        panel.add(izquierda, gbc);
+        gbc.gridx = 1;
+        gbc.insets = new Insets(5, 12, 8, 8);
+        panel.add(derecha, gbc);
     }
 
-    int fin =
-            Math.min(
-                    paginaActual
-                            * PRODUCTOS_POR_PAGINA,
-                    totalRegistros
-            );
-
-    etiquetaRango.setText(
-            "Mostrando "
-            + inicio
-            + "–"
-            + fin
-            + " de "
-            + totalRegistros
-            + " productos"
-    );
-
-    botonAnterior.setEnabled(
-            paginaActual > 1
-    );
-
-    botonSiguiente.setEnabled(
-            paginaActual < totalPaginas
-    );
-
-    botonPagina1.setVisible(
-            totalPaginas >= 1
-    );
-
-    botonPagina2.setVisible(
-            totalPaginas >= 2
-    );
-
-    botonPagina3.setVisible(
-            totalPaginas >= 3
-    );
-
-    botonPagina1.setText("1");
-
-    botonPagina2.setText("2");
-
-    botonPagina3.setText("3");
-
-    botonPagina1.setColorInicio(
-            paginaActual == 1
-                    ? new Color(255, 188, 0)
-                    : Color.WHITE
-    );
-
-    botonPagina2.setColorInicio(
-            paginaActual == 2
-                    ? new Color(255, 188, 0)
-                    : Color.WHITE
-    );
-
-    botonPagina3.setColorInicio(
-            paginaActual == 3
-                    ? new Color(255, 188, 0)
-                    : Color.WHITE
-    );
-}
-
-private void irPagina(int pagina) {
-
-    if (pagina < 1
-            || pagina > totalPaginas) {
-
-        return;
+    private void agregarFilaCompleta(JPanel panel, int fila, JPanel contenido) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = fila;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 8, 8, 8);
+        panel.add(contenido, gbc);
     }
 
-    paginaActual = pagina;
+    private void aplicarEstiloCampo(JTextField campo) {
+        campo.setFont(tema.regular(14f));
+        campo.setForeground(AZUL);
+        campo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDE, 1, true),
+                new EmptyBorder(0, 13, 0, 13)));
+    }
 
-    cargarDatos();
-}
+    private BotonDesplegable nuevoSelector(String texto, String opciones) {
+        BotonDesplegable selector = new BotonDesplegable();
+        configurarSelector(selector, 330);
+        selector.setTextoDesplegable(opciones);
+        selector.setText(texto);
+        selector.addMenuOpcionListener(
+                evento -> selector.setText(evento.getActionCommand()));
+        return selector;
+    }
 
-private void editarProducto(
-        int idProducto) {
+    private void estilizarSpinner(JSpinner spinner) {
+        spinner.setFont(tema.regular(14f));
+        spinner.setForeground(AZUL);
+        spinner.setBorder(BorderFactory.createLineBorder(BORDE, 1, true));
+        if (spinner.getEditor() instanceof JSpinner.DefaultEditor editor) {
+            editor.getTextField().setFont(tema.regular(14f));
+            editor.getTextField().setForeground(AZUL);
+            editor.getTextField().setBorder(new EmptyBorder(0, 13, 0, 13));
+        }
+    }
 
-    try {
+    private BotonRedondeado botonFormulario(String texto, boolean principal) {
+        BotonRedondeado boton = new BotonRedondeado();
+        boton.setText(texto);
+        boton.setFont(tema.negrita(14f));
+        boton.setDegradado(false);
+        boton.setColorInicio(principal ? AMARILLO : Color.WHITE);
+        boton.setColorFinal(principal ? AMARILLO : Color.WHITE);
+        boton.setColorBorde(principal ? AMARILLO : ROJO);
+        boton.setGrosorBorde(1f);
+        boton.setForeground(principal ? AZUL : ROJO);
+        boton.setRadio(12);
+        return boton;
+    }
 
-        Producto producto =
-                productoCRUD
-                        .obtenerPorId(
-                                idProducto
-                        );
+    private void mostrarVistaPrevia(JLabel etiqueta, String ruta) {
+        etiqueta.setIcon(null);
+        etiqueta.setText("Sin imagen");
+        ImageIcon icono = cargarImagen(ruta, 75);
+        if (icono != null) {
+            etiqueta.setIcon(icono);
+            etiqueta.setText("");
+        }
+    }
 
-        if (producto == null) {
+    private String nombreTamano(String codigo) {
+        if (codigo == null) return "Sin tamaño";
+        return switch (codigo) {
+            case "PEQUENA" -> "Pequeña";
+            case "MEDIANA" -> "Mediana";
+            case "GRANDE" -> "Grande";
+            default -> "Sin tamaño";
+        };
+    }
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "No se encontró el producto.",
-                    "Producto",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
+    private void guardarProducto(JDialog dialogo, Producto original,
+            Map<Integer, String> categoriasDisponibles,
+            JTextField nombre, JTextField subCategoria, JTextField precio,
+            JTextArea descripcion,
+            BotonDesplegable categoria, BotonDesplegable disponibilidad,
+            BotonDesplegable tamano, BotonDesplegable estado,
+            JSpinner stock, JSpinner stockMinimo, JCheckBox esCombo,
+            String rutaImagen, File imagenNueva, JLabel error,
+            BotonRedondeado guardar, boolean[] guardado) {
+        error.setText(" ");
+        String nombreValor = nombre.getText().trim();
+        String subCategoriaValor = subCategoria.getText().trim();
+        String descripcionValor = descripcion.getText().trim();
+        if (nombreValor.isBlank() || nombreValor.length() > 100) {
+            error.setText("Ingresa un nombre de hasta 100 caracteres.");
             return;
         }
-
-        mostrarFormularioProducto(
-                producto
-        );
-
-    } catch (SQLException e) {
-
-        mostrarError(
-                "No fue posible obtener el producto.",
-                e
-        );
-    }
-}
-
-private void mostrarFormularioProducto(
-        Producto productoExistente) {
-
-    boolean editar =
-            productoExistente != null;
-
-    JDialog dialogo =
-            new JDialog(
-                    javax.swing.SwingUtilities
-                            .getWindowAncestor(this),
-                    editar
-                            ? "Editar producto"
-                            : "Agregar producto",
-                    java.awt.Dialog.ModalityType.APPLICATION_MODAL
-            );
-
-    dialogo.setSize(650, 720);
-
-    dialogo.setLocationRelativeTo(this);
-
-    dialogo.setLayout(
-            new BorderLayout()
-    );
-
-    JPanel formulario =
-            new JPanel(
-                    new GridBagLayout()
-            );
-
-    formulario.setBorder(
-            BorderFactory.createEmptyBorder(
-                    20,
-                    25,
-                    20,
-                    25
-            )
-    );
-
-    GridBagConstraints gbc =
-            new GridBagConstraints();
-
-    gbc.insets =
-            new Insets(
-                    6,
-                    6,
-                    6,
-                    6
-            );
-
-    gbc.fill =
-            GridBagConstraints.HORIZONTAL;
-
-    gbc.weightx = 1;
-
-    JTextField campoNombre =
-            new JTextField();
-
-    JTextArea campoDescripcion =
-            new JTextArea(4, 20);
-
-    campoDescripcion.setLineWrap(true);
-
-    campoDescripcion.setWrapStyleWord(true);
-
-    JTextField campoPrecio =
-            new JTextField();
-
-    JComboBox<String> comboCategoria =
-            new JComboBox<>();
-
-    JComboBox<String> comboDisponibilidad =
-            new JComboBox<>(
-                    new String[]{
-                        "DESAYUNO",
-                        "ALMUERZO",
-                        "TODO_DIA"
-                    }
-            );
-
-    JComboBox<String> comboTamano =
-            new JComboBox<>(
-                    new String[]{
-                        "",
-                        "PEQUENA",
-                        "MEDIANA",
-                        "GRANDE"
-                    }
-            );
-
-    JCheckBox checkCombo =
-            new JCheckBox(
-                    "Es combo"
-            );
-
-    JSpinner spinnerStock =
-            new JSpinner(
-                    new SpinnerNumberModel(
-                            0,
-                            0,
-                            999999,
-                            1
-                    )
-            );
-
-    JSpinner spinnerStockMinimo =
-            new JSpinner(
-                    new SpinnerNumberModel(
-                            0,
-                            0,
-                            999999,
-                            1
-                    )
-            );
-
-    JCheckBox checkActivo =
-            new JCheckBox(
-                    "Producto activo"
-            );
-
-    JLabel labelImagen =
-            new JLabel(
-                    "Sin imagen"
-            );
-
-    labelImagen.setPreferredSize(
-            new Dimension(
-                    180,
-                    150
-            )
-    );
-
-    labelImagen.setHorizontalAlignment(
-            JLabel.CENTER
-    );
-
-    labelImagen.setBorder(
-            BorderFactory.createLineBorder(
-                    new Color(
-                            220,
-                            220,
-                            220
-                    )
-            )
-    );
-
-    JButton botonSeleccionarImagen =
-            new JButton(
-                    "Seleccionar imagen"
-            );
-
-    JButton botonQuitarImagen =
-            new JButton(
-                    "Quitar imagen"
-            );
-
-    imagenSeleccionada =
-            editar
-                    ? productoExistente.getImagen()
-                    : null;
-
-    // ---------------------------------------------------------
-    // CATEGORÍAS
-    // ---------------------------------------------------------
-
-    try {
-
-        Map<Integer, String> categorias =
-                productoCRUD
-                        .listarCategoriasParaFormulario(
-                                editar
-                                        ? productoExistente
-                                                .getIdCategoria()
-                                        : null
-                        );
-
-        for (String nombre
-                : categorias.values()) {
-
-            comboCategoria.addItem(
-                    nombre
-            );
+        if (descripcionValor.length() > 255) {
+            error.setText("La descripción admite hasta 255 caracteres.");
+            return;
         }
-
-        if (editar) {
-
-            comboCategoria.setSelectedItem(
-                    productoExistente
-                            .getCategoria()
-            );
+        if (subCategoriaValor.length() > 50) {
+            error.setText("La subcategoría admite hasta 50 caracteres.");
+            return;
         }
-
-    } catch (SQLException e) {
-
-        mostrarError(
-                "No fue posible cargar las categorías.",
-                e
-        );
-
-        return;
-    }
-
-    // ---------------------------------------------------------
-    // DATOS DE EDICIÓN
-    // ---------------------------------------------------------
-
-    if (editar) {
-
-        campoNombre.setText(
-                productoExistente
-                        .getNombre()
-        );
-
-        campoDescripcion.setText(
-                productoExistente
-                        .getDescripcion() == null
-                        ? ""
-                        : productoExistente
-                                .getDescripcion()
-        );
-
-        campoPrecio.setText(
-                productoExistente
-                        .getPrecioBase()
-                        .toPlainString()
-        );
-
-        comboDisponibilidad.setSelectedItem(
-                productoExistente
-                        .getDisponibilidadMenu()
-        );
-
-        if (productoExistente
-                .getTamanoBebida() != null) {
-
-            comboTamano.setSelectedItem(
-                    productoExistente
-                            .getTamanoBebida()
-            );
-        }
-
-        checkCombo.setSelected(
-                productoExistente
-                        .isCombo()
-        );
-
-        spinnerStock.setValue(
-                productoExistente
-                        .getStockActual()
-        );
-
-        spinnerStockMinimo.setValue(
-                productoExistente
-                        .getStockMinimo()
-        );
-
-        checkActivo.setSelected(
-                productoExistente
-                        .isActivo()
-        );
-
-        if (productoExistente
-                .getImagen() != null) {
-
-            ImageIcon imagen =
-                    cargarImagen(
-                            productoExistente
-                                    .getImagen()
-                    );
-
-            if (imagen != null) {
-
-                labelImagen.setIcon(
-                        imagen
-                );
-
-                labelImagen.setText(
-                        ""
-                );
+        Integer idCategoria = null;
+        for (Map.Entry<Integer, String> entrada : categoriasDisponibles.entrySet()) {
+            if (entrada.getValue().equals(categoria.getText())) {
+                idCategoria = entrada.getKey();
+                break;
             }
         }
-
-    } else {
-
-        checkActivo.setSelected(true);
-    }
-
-    // ---------------------------------------------------------
-    // SELECCIONAR IMAGEN
-    // ---------------------------------------------------------
-
-    botonSeleccionarImagen.addActionListener(e -> {
-
-        JFileChooser selector =
-                new JFileChooser();
-
-        selector.setDialogTitle(
-                "Seleccionar imagen del producto"
-        );
-
-        selector.setFileFilter(
-                new javax.swing.filechooser
-                        .FileNameExtensionFilter(
-                                "Imágenes PNG, JPG y JPEG",
-                                "png",
-                                "jpg",
-                                "jpeg"
-                        )
-        );
-
-        int resultado =
-                selector.showOpenDialog(
-                        dialogo
-                );
-
-        if (resultado
-                == JFileChooser.APPROVE_OPTION) {
-
-            File archivo =
-                    selector.getSelectedFile();
-
-            try {
-
-                String ruta =
-                        copiarImagenProducto(
-                                archivo
-                        );
-
-                imagenSeleccionada =
-                        ruta;
-
-                ImageIcon imagen =
-                        cargarImagen(
-                                ruta
-                        );
-
-                if (imagen != null) {
-
-                    labelImagen.setIcon(
-                            imagen
-                    );
-
-                    labelImagen.setText(
-                            ""
-                    );
-                }
-
-            } catch (IOException ex) {
-
-                mostrarError(
-                        "No fue posible guardar la imagen.",
-                        ex
-                );
-            }
+        if (idCategoria == null) {
+            error.setText("Selecciona una categoría.");
+            return;
         }
-    });
-
-    // ---------------------------------------------------------
-    // QUITAR IMAGEN
-    // ---------------------------------------------------------
-
-    botonQuitarImagen.addActionListener(e -> {
-
-        imagenSeleccionada = null;
-
-        labelImagen.setIcon(null);
-
-        labelImagen.setText(
-                "Sin imagen"
-        );
-    });
-
-    // ---------------------------------------------------------
-    // CAMPOS
-    // ---------------------------------------------------------
-
-    int fila = 0;
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Nombre:",
-            campoNombre
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Descripción:",
-            new JScrollPane(
-                    campoDescripcion
-            )
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Precio:",
-            campoPrecio
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Categoría:",
-            comboCategoria
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Disponibilidad:",
-            comboDisponibilidad
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Tamaño bebida:",
-            comboTamano
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Stock actual:",
-            spinnerStock
-    );
-
-    agregarCampo(
-            formulario,
-            gbc,
-            fila++,
-            "Stock mínimo:",
-            spinnerStockMinimo
-    );
-
-    gbc.gridx = 0;
-    gbc.gridy = fila++;
-    gbc.gridwidth = 2;
-
-    formulario.add(
-            checkCombo,
-            gbc
-    );
-
-    gbc.gridy = fila++;
-
-    formulario.add(
-            checkActivo,
-            gbc
-    );
-
-    gbc.gridy = fila++;
-
-    formulario.add(
-            labelImagen,
-            gbc
-    );
-
-    JPanel panelImagenBotones =
-            new JPanel(
-                    new FlowLayout(
-                            FlowLayout.CENTER
-                    )
-            );
-
-    panelImagenBotones.add(
-            botonSeleccionarImagen
-    );
-
-    panelImagenBotones.add(
-            botonQuitarImagen
-    );
-
-    gbc.gridy = fila++;
-
-    formulario.add(
-            panelImagenBotones,
-            gbc
-    );
-
-    // ---------------------------------------------------------
-    // BOTONES
-    // ---------------------------------------------------------
-
-    JButton botonGuardar =
-            new JButton(
-                    editar
-                            ? "Guardar cambios"
-                            : "Agregar producto"
-            );
-
-    JButton botonCancelar =
-            new JButton(
-                    "Cancelar"
-            );
-
-    JPanel panelBotones =
-            new JPanel(
-                    new FlowLayout(
-                            FlowLayout.RIGHT
-                    )
-            );
-
-    panelBotones.add(
-            botonCancelar
-    );
-
-    panelBotones.add(
-            botonGuardar
-    );
-
-    botonCancelar.addActionListener(e ->
-            dialogo.dispose()
-    );
-
-    // ---------------------------------------------------------
-    // GUARDAR
-    // ---------------------------------------------------------
-
-    botonGuardar.addActionListener(e -> {
-
+        BigDecimal precioValor;
         try {
-
-            String nombre =
-                    campoNombre
-                            .getText()
-                            .trim();
-
-            String descripcion =
-                    campoDescripcion
-                            .getText()
-                            .trim();
-
-            String precioTexto =
-                    campoPrecio
-                            .getText()
-                            .trim();
-
-            if (nombre.isBlank()) {
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "Ingrese el nombre del producto.",
-                        "Validación",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            if (comboCategoria
-                    .getSelectedItem() == null) {
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "Seleccione una categoría.",
-                        "Validación",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            if (precioTexto.isBlank()) {
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "Ingrese el precio.",
-                        "Validación",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            BigDecimal precio;
-
-            try {
-
-                precio =
-                        new BigDecimal(
-                                precioTexto
-                        );
-
-            } catch (NumberFormatException ex) {
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "El precio no es válido.",
-                        "Validación",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            if (precio.compareTo(
-                    BigDecimal.ZERO
-            ) < 0) {
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "El precio no puede ser negativo.",
-                        "Validación",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            String nombreCategoria =
-                    comboCategoria
-                            .getSelectedItem()
-                            .toString();
-
-            Integer idCategoria =
-                    obtenerIdCategoriaPorNombre(
-                            nombreCategoria
-                    );
-
-            if (idCategoria == null) {
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "No fue posible determinar la categoría.",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
-
-                return;
-            }
-
-            String disponibilidad =
-                    comboDisponibilidad
-                            .getSelectedItem()
-                            .toString();
-
-            String tamano =
-                    comboTamano
-                            .getSelectedItem()
-                            .toString();
-
-            if (tamano.isBlank()) {
-
-                tamano = null;
-            }
-
-            int stock =
-                    (Integer)
-                            spinnerStock
-                                    .getValue();
-
-            int stockMinimo =
-                    (Integer)
-                            spinnerStockMinimo
-                                    .getValue();
-
-            boolean esCombo =
-                    checkCombo.isSelected();
-
-            boolean activo =
-                    checkActivo.isSelected();
-
-            Producto producto;
-
-            if (editar) {
-
-                producto =
-                        productoExistente;
-
-            } else {
-
-                producto =
-                        new Producto();
-            }
-
-            producto.setIdCategoria(
-                    idCategoria
-            );
-
-            producto.setCategoria(
-                    nombreCategoria
-            );
-
-            producto.setNombre(
-                    nombre
-            );
-
-            producto.setDescripcion(
-                    descripcion.isBlank()
-                            ? null
-                            : descripcion
-            );
-
-            producto.setPrecioBase(
-                    precio
-            );
-
-            producto.setImagen(
-                    imagenSeleccionada
-            );
-
-            producto.setDisponibilidadMenu(
-                    disponibilidad
-            );
-
-            producto.setTamanoBebida(
-                    tamano
-            );
-
-            producto.setCombo(
-                    esCombo
-            );
-
-            producto.setStockActual(
-                    stock
-            );
-
-            producto.setStockMinimo(
-                    stockMinimo
-            );
-
-            producto.setActivo(
-                    activo
-            );
-
-            if (editar) {
-
-                productoCRUD.actualizar(
-                        producto
-                );
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "Producto actualizado correctamente.",
-                        "Éxito",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-
-            } else {
-
-                productoCRUD.insertar(
-                        producto
-                );
-
-                JOptionPane.showMessageDialog(
-                        dialogo,
-                        "Producto agregado correctamente.",
-                        "Éxito",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-            }
-
-            dialogo.dispose();
-
-            cargarDatos();
-
-        } catch (SQLException ex) {
-
-            mostrarError(
-                    "No fue posible guardar el producto.",
-                    ex
-            );
+            precioValor = new BigDecimal(precio.getText().trim());
+        } catch (NumberFormatException ex) {
+            error.setText("Ingresa un precio válido.");
+            return;
         }
-    });
-
-    dialogo.add(
-            new JScrollPane(
-                    formulario
-            ),
-            BorderLayout.CENTER
-    );
-
-    dialogo.add(
-            panelBotones,
-            BorderLayout.SOUTH
-    );
-
-    dialogo.setVisible(true);
-}
-
-private void agregarCampo(
-        JPanel panel,
-        GridBagConstraints gbc,
-        int fila,
-        String texto,
-        java.awt.Component componente) {
-
-    gbc.gridx = 0;
-    gbc.gridy = fila;
-    gbc.gridwidth = 1;
-    gbc.weightx = 0;
-
-    JLabel etiqueta =
-            new JLabel(
-                    texto
-            );
-
-    etiqueta.setFont(
-            new Font(
-                    "Arial",
-                    Font.BOLD,
-                    14
-            )
-    );
-
-    panel.add(
-            etiqueta,
-            gbc
-    );
-
-    gbc.gridx = 1;
-    gbc.weightx = 1;
-
-    panel.add(
-            componente,
-            gbc
-    );
-}
-
-private String copiarImagenProducto(
-        File archivo)
-        throws IOException {
-
-    Path carpeta =
-            Paths.get(
-                    CARPETA_IMAGENES
-            );
-
-    if (!Files.exists(carpeta)) {
-
-        Files.createDirectories(
-                carpeta
-        );
+        if (precioValor.compareTo(BigDecimal.ZERO) < 0
+                || precioValor.compareTo(new BigDecimal("99999999.99")) > 0
+                || precioValor.stripTrailingZeros().scale() > 2) {
+            error.setText("El precio debe ser positivo y tener hasta dos decimales.");
+            return;
+        }
+        String codigoDisponibilidad = switch (disponibilidad.getText()) {
+            case "Desayuno" -> "DESAYUNO";
+            case "Almuerzo" -> "ALMUERZO";
+            default -> "TODO_DIA";
+        };
+        String codigoTamano = switch (tamano.getText()) {
+            case "Pequeña" -> "PEQUENA";
+            case "Mediana" -> "MEDIANA";
+            case "Grande" -> "GRANDE";
+            default -> null;
+        };
+        String imagenCopiada = null;
+        guardar.setEnabled(false);
+        try {
+            if (imagenNueva != null) {
+                imagenCopiada = copiarImagenProducto(imagenNueva);
+                rutaImagen = imagenCopiada;
+            }
+            Producto producto = original == null ? new Producto() : original;
+            producto.setIdCategoria(idCategoria);
+            producto.setCategoria(categoria.getText());
+            producto.setSubCategoria(subCategoriaValor.isBlank()
+                    ? null : subCategoriaValor);
+            producto.setNombre(nombreValor);
+            producto.setDescripcion(descripcionValor.isBlank()
+                    ? null : descripcionValor);
+            producto.setPrecioBase(precioValor);
+            producto.setDisponibilidadMenu(codigoDisponibilidad);
+            producto.setTamanoBebida(codigoTamano);
+            producto.setCombo(esCombo.isSelected());
+            producto.setStockActual(((Number) stock.getValue()).intValue());
+            producto.setStockMinimo(((Number) stockMinimo.getValue()).intValue());
+            producto.setActivo("Activo".equals(estado.getText()));
+            producto.setImagen(rutaImagen);
+            if (original == null) productoCRUD.insertar(producto);
+            else productoCRUD.actualizar(producto);
+            guardado[0] = true;
+            dialogo.dispose();
+        } catch (SQLException | IOException ex) {
+            if (imagenCopiada != null) {
+                try {
+                    Files.deleteIfExists(Paths.get("src", imagenCopiada.substring(1)));
+                } catch (IOException ignorada) { /* Se conserva el error original. */ }
+            }
+            error.setText("No fue posible guardar: " + ex.getMessage());
+        } finally {
+            guardar.setEnabled(true);
+        }
     }
-
-    String nombreOriginal =
-            archivo.getName();
-
-    String nombreSinExtension =
-            nombreOriginal;
-
-    int punto =
-            nombreOriginal
-                    .lastIndexOf('.');
-
-    if (punto > 0) {
-
-        nombreSinExtension =
-                nombreOriginal
-                        .substring(
-                                0,
-                                punto
-                        );
-    }
-
-    String extension = "";
-
-    if (punto > 0) {
-
-        extension =
-                nombreOriginal
-                        .substring(
-                                punto
-                        )
-                        .toLowerCase();
-    }
-
-    nombreSinExtension =
-            nombreSinExtension
-                    .replaceAll(
-                            "[^a-zA-Z0-9_-]",
-                            "_"
-                    );
-
-    String nombreFinal =
-            nombreSinExtension
-            + "_"
-            + System.currentTimeMillis()
-            + extension;
-
-    Path destino =
-            carpeta.resolve(
-                    nombreFinal
-            );
-
-    Files.copy(
-            archivo.toPath(),
-            destino,
-            StandardCopyOption.REPLACE_EXISTING
-    );
-
-    return RECURSO_IMAGENES
-            + nombreFinal;
-}
-
-private void mostrarError(
-        String mensaje,
-        Exception e) {
-
-    e.printStackTrace();
-
-    JOptionPane.showMessageDialog(
-            this,
-            mensaje
-            + "\n\n"
-            + e.getMessage(),
-            "Error",
-            JOptionPane.ERROR_MESSAGE
-    );
-}
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
