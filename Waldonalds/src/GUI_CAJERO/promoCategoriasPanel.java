@@ -5,7 +5,8 @@ public class promoCategoriasPanel extends javax.swing.JPanel {
     public promoCategoriasPanel() {
         initComponents();
     }
-
+    
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

@@ -1,97 +1,103 @@
 package GUI_CAJERO;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import javax.swing.SwingUtilities;
+
 public class promocionesPanel extends javax.swing.JPanel {
+
     private Componentes.EscaladorPanel escalador;
+
+    private Componentes.Scroll_Categorias
+            scrollCategorias;
 
     public promocionesPanel() {
 
-    initComponents();
+        initComponents();
 
-    // TAMAÑO BASE DEL DISEÑO
-    setSize(1920, 1080);
+        // Tamaño base del diseño
+        setSize(1920, 1080);
 
-    doLayout();
-    setLayout(null);
+        // NO usar setLayout(null)
+        // NetBeans ya utiliza GroupLayout
 
-    // ==========================================
-    // CARGAR CATEGORÍAS DE PROMOCIONES
-    // ==========================================
+        // ==========================================
+        // CREAR PANEL DE CATEGORÍAS
+        // ==========================================
 
-    promoCategoriasPanel categorias = new promoCategoriasPanel();
+        promoCategoriasPanel categorias =
+                new promoCategoriasPanel();
 
-    // Crear el Scroll_Categorias
-    Componentes.Scroll_Categorias scrollCategorias
-            = new Componentes.Scroll_Categorias();
-
-    // Meter promoCategoriasPanel dentro del scroll
-    scrollCategorias.setPanelCategorias(
-            categorias
-    );
-
-    // Limpiar el panel contenedor
-    panelCategoriaPromo.removeAll();
-
-    // Usar BorderLayout
-    panelCategoriaPromo.setLayout(
-            new java.awt.BorderLayout()
-    );
-
-    // Meter el scroll dentro de panelCategoriaPromo
-    panelCategoriaPromo.add(
-            scrollCategorias,
-            java.awt.BorderLayout.CENTER
-    );
-
-    // Actualizar
-    panelCategoriaPromo.revalidate();
-    panelCategoriaPromo.repaint();
-    
-    panelCategoriaPromo.add(
-        scrollCategorias,
-        java.awt.BorderLayout.CENTER
-);
-
-panelCategoriaPromo.revalidate();
-panelCategoriaPromo.repaint();
-
-    // ==========================================
-    // FORZAR SCROLL AL INICIO (IZQUIERDA)
-    // ==========================================
-
-    javax.swing.SwingUtilities.invokeLater(() -> {
-
-        scrollCategorias.getHorizontalScrollBar().setValue(
-                scrollCategorias.getHorizontalScrollBar().getMinimum()
+        categorias.setPreferredSize(
+                new Dimension(1790 ,190)
         );
 
-        scrollCategorias.getViewport().setViewPosition(
-                new java.awt.Point(0, 0)
+        categorias.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT
         );
-    });
-    // ==========================================
-    // ESCALADOR
-    // ==========================================
 
-    escalador = new Componentes.EscaladorPanel(
-            this,
-            1920,
-            1080
-    );
-}
-    
-public void mostrarContenidoPromo(javax.swing.JPanel panel) {
+        // ==========================================
+        // CREAR SCROLL
+        // ==========================================
 
-    panelContenidoPromo.removeAll();
-    panelContenidoPromo.setLayout(new java.awt.BorderLayout());
+        scrollCategorias =
+                new Componentes.Scroll_Categorias();
 
-    panelContenidoPromo.add(
-            panel,
-            java.awt.BorderLayout.CENTER
-    );
+        scrollCategorias.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT
+        );
 
-    panelContenidoPromo.revalidate();
-    panelContenidoPromo.repaint();
-}
+        scrollCategorias.setPanelCategorias(
+                categorias
+        );
+
+        // ==========================================
+        // AGREGAR SCROLL AL PANEL
+        // ==========================================
+
+        panelCategoriaPromo.removeAll();
+
+        panelCategoriaPromo.setLayout(
+                new BorderLayout()
+        );
+
+        panelCategoriaPromo.setBackground(
+                Color.WHITE
+        );
+
+        panelCategoriaPromo.add(
+                scrollCategorias,
+                BorderLayout.CENTER
+        );
+
+        panelCategoriaPromo.revalidate();
+        panelCategoriaPromo.repaint();
+
+        // ==========================================
+        // INICIAR DESDE LA IZQUIERDA
+        // ==========================================
+
+        SwingUtilities.invokeLater(() -> {
+
+            scrollCategorias.irAlInicio();
+
+            scrollCategorias.revalidate();
+            scrollCategorias.repaint();
+        });
+
+        // ==========================================
+        // ESCALADOR
+        // ==========================================
+
+        escalador =
+                new Componentes.EscaladorPanel(
+                        this,
+                        1920,
+                        1080
+                );
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -110,12 +116,11 @@ public void mostrarContenidoPromo(javax.swing.JPanel panel) {
         add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(67, 30, 760, 100));
 
         panelCategoriaPromo.setBackground(new java.awt.Color(255, 255, 255));
-        add(panelCategoriaPromo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 1810, 250));
+        add(panelCategoriaPromo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 1790, 190));
 
         panelContenidoPromo.setBackground(new java.awt.Color(255, 255, 255));
         add(panelContenidoPromo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 410, 1810, 660));
     }// </editor-fold>//GEN-END:initComponents
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
