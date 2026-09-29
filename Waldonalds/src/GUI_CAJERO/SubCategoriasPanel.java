@@ -7,6 +7,7 @@ import Modelos.Productos;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseWheelEvent;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,8 +23,7 @@ public class SubCategoriasPanel extends JPanel {
     private final List<String> subcategoriasConfiguradas;
     private final JPanel barraSubcategorias = new JPanel(
             new FlowLayout(FlowLayout.LEFT, 10, 0));
-    private final JPanel panelProductos = new JPanel(
-            new FlowLayout(FlowLayout.LEFT, 10, 12));
+    private final JPanel panelProductos = new Componentes.PanelProductosVertical();
     private final JScrollPane scrollProductos = new JScrollPane(panelProductos);
 
     public SubCategoriasPanel(
@@ -46,8 +46,25 @@ public class SubCategoriasPanel extends JPanel {
         panelProductos.setBackground(Color.WHITE);
         scrollProductos.setBackground(Color.WHITE);
         scrollProductos.getViewport().setBackground(Color.WHITE);
+        scrollProductos.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollProductos.getHorizontalScrollBar().setEnabled(false);
+        scrollProductos.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        configurarRuedaVertical();
         add(scrollProductos,
                 new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 1810, 680));
+    }
+
+    private void configurarRuedaVertical() {
+        java.awt.event.MouseWheelListener rueda = (MouseWheelEvent evento) -> {
+            javax.swing.JScrollBar barra = scrollProductos.getVerticalScrollBar();
+            int paso = evento.getUnitsToScroll() * barra.getUnitIncrement();
+            barra.setValue(barra.getValue() + paso);
+            evento.consume();
+        };
+        scrollProductos.addMouseWheelListener(rueda);
+        scrollProductos.getViewport().addMouseWheelListener(rueda);
+        panelProductos.addMouseWheelListener(rueda);
     }
 
     private void cargarCategoria() {

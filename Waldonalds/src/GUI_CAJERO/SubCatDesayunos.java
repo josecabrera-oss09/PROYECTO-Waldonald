@@ -51,7 +51,7 @@ public class SubCatDesayunos extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new Componentes.PanelProductosVertical();
         botonLetras1 = new Componentes.BotonLetras();
         botonLetras2 = new Componentes.BotonLetras();
         botonLetras3 = new Componentes.BotonLetras();
@@ -64,6 +64,21 @@ public class SubCatDesayunos extends javax.swing.JPanel {
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
+        jScrollPane1.setHorizontalScrollBarPolicy(
+                javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setVerticalScrollBarPolicy(
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        jScrollPane1.getHorizontalScrollBar().setEnabled(false);
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        java.awt.event.MouseWheelListener rueda = evento -> {
+            javax.swing.JScrollBar barra = jScrollPane1.getVerticalScrollBar();
+            int paso = evento.getUnitsToScroll() * barra.getUnitIncrement();
+            barra.setValue(barra.getValue() + paso);
+            evento.consume();
+        };
+        jScrollPane1.addMouseWheelListener(rueda);
+        jScrollPane1.getViewport().addMouseWheelListener(rueda);
+        jPanel1.addMouseWheelListener(rueda);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());

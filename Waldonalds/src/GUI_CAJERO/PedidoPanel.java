@@ -20,33 +20,92 @@ import javax.swing.table.DefaultTableModel;
 public class PedidoPanel extends JPanel {
     private static final Color AMARILLO = new Color(255, 188, 13);
     private static final Color ROJO = new Color(196, 30, 42);
+    private static final Color ROJO_HEADER = new Color(1, 20, 36);
     private static final Color TINTA = new Color(20, 27, 35);
+    private static final Color FONDO = new Color(246, 246, 248);
+    private static final Color BORDE_SUAVE = new Color(231, 226, 213);
+    private static final String FUENTE = "Arial";
     private final Map<Integer, LineaPedido> lineas = new LinkedHashMap<>();
     private final DefaultTableModel modelo = new DefaultTableModel(new String[]{"Producto", "Cant.", "Importe"}, 0) {
         @Override public boolean isCellEditable(int r, int c) { return false; }
     };
     private final TablaAdministrativa tabla = new TablaAdministrativa() {
+        private int filaHover = -1;
+
         @Override protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            for (int fila = 0; fila < getRowCount(); fila++) {
+                Rectangle area = getCellRect(fila, 0, true);
+                g2.setColor(getSelectionModel().isSelectedIndex(fila)
+                        ? new Color(255, 235, 170)
+                        : fila == filaHover ? new Color(255, 251, 239) : Color.WHITE);
+                g2.fillRoundRect(4, area.y + 3, getWidth() - 8,
+                        Math.max(1, area.height - 6), 22, 22);
+            }
+            g2.dispose();
             super.paintComponent(g);
             if (getRowCount() == 0) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                Graphics2D emptyG2 = (Graphics2D) g.create();
+                emptyG2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 int y = Math.max(48, getHeight() / 2 - 10);
-                g2.setFont(new Font("SansSerif", Font.BOLD, 16));
-                g2.setColor(TINTA);
+                emptyG2.setFont(new Font("SansSerif", Font.BOLD, 16));
+                emptyG2.setColor(TINTA);
                 String titulo = "El pedido está vacío";
-                g2.drawString(titulo, (getWidth() - g2.getFontMetrics().stringWidth(titulo)) / 2, y);
-                g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                g2.setColor(new Color(105, 109, 115));
+                emptyG2.drawString(titulo, (getWidth() - emptyG2.getFontMetrics().stringWidth(titulo)) / 2, y);
+                emptyG2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                emptyG2.setColor(new Color(105, 109, 115));
                 String ayuda = "Agrega productos desde el menú";
-                g2.drawString(ayuda, (getWidth() - g2.getFontMetrics().stringWidth(ayuda)) / 2, y + 24);
-                g2.dispose();
+                emptyG2.drawString(ayuda, (getWidth() - emptyG2.getFontMetrics().stringWidth(ayuda)) / 2, y + 24);
+                emptyG2.dispose();
             }
+        }
+
+        @Override public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer,
+                int row, int column) {
+            Component componente = super.prepareRenderer(renderer, row, column);
+            if (componente instanceof JComponent componenteSwing) {
+                componenteSwing.setOpaque(false);
+                componenteSwing.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+            }
+            return componente;
+        }
+
+        private void actualizarHover(java.awt.event.MouseEvent evento) {
+            int anterior = filaHover;
+            filaHover = rowAtPoint(evento.getPoint());
+            if (anterior != filaHover) repaint();
+        }
+
+        {
+            addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+                @Override public void mouseMoved(java.awt.event.MouseEvent evento) {
+                    actualizarHover(evento);
+                }
+            });
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override public void mouseExited(java.awt.event.MouseEvent evento) {
+                    if (filaHover != -1) {
+                        filaHover = -1;
+                        repaint();
+                    }
+                }
+            });
         }
     };
     private final JLabel total = new JLabel("Total: Q0.00");
+    private final JLabel contador = new JLabel("0 productos") {
+        @Override protected void paintComponent(Graphics graphics) {
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(239, 241, 244));
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
+            g2.dispose();
+            super.paintComponent(graphics);
+        }
+    };
     private final JButton cobrar = boton("Continuar al pago", AMARILLO, TINTA);
-    private final JButton mas = boton("+", AMARILLO, TINTA), menos = boton("−", new Color(255, 246, 217), TINTA), quitar = boton("Quitar", new Color(255, 237, 238), ROJO);
+    private final JButton mas = boton("+", AMARILLO, TINTA), menos = boton("-", new Color(255, 246, 217), TINTA), quitar = boton("Quitar", new Color(255, 237, 238), ROJO);
     private final JButton cancelar = boton("Cancelar pedido", ROJO, Color.WHITE), ultimo = boton("Último comprobante", new Color(245, 246, 248), TINTA);
     private boolean ocupado;
     private SolicitudPago pendiente;
@@ -56,23 +115,64 @@ public class PedidoPanel extends JPanel {
 
     public PedidoPanel() {
         super(new BorderLayout(8, 16));
-        setBackground(Color.WHITE);
-        setBorder(BorderFactory.createEmptyBorder(24, 16, 24, 16));
-        JLabel titulo = new JLabel("Pedido");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 26));
-        titulo.setForeground(TINTA);
-        titulo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 4, 0, AMARILLO),
-                BorderFactory.createEmptyBorder(0, 0, 12, 0)));
-        add(titulo, BorderLayout.NORTH);
+        setOpaque(false);
+        setBorder(BorderFactory.createEmptyBorder(22, 16, 22, 16));
+        JPanel encabezadoPedido = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0)) {
+            @Override protected void paintComponent(Graphics graphics) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(ROJO_HEADER);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+                g2.dispose();
+                super.paintComponent(graphics);
+            }
+        };
+        encabezadoPedido.setOpaque(false);
+        JPanel indicador = new JPanel() {
+            @Override protected void paintComponent(Graphics graphics) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(AMARILLO);
+                g2.fillOval(1, 1, getWidth() - 2, getHeight() - 2);
+                g2.dispose();
+            }
+        };
+        indicador.setOpaque(false);
+        indicador.setPreferredSize(new Dimension(48, 48));
+        JLabel marca = new JLabel("W", SwingConstants.CENTER);
+        marca.setFont(new Font(FUENTE, Font.BOLD, 25));
+        marca.setForeground(ROJO_HEADER);
+        indicador.setLayout(new BorderLayout());
+        indicador.add(marca, BorderLayout.CENTER);
+        JPanel textosHeader = new JPanel();
+        textosHeader.setOpaque(false);
+        textosHeader.setLayout(new BoxLayout(textosHeader, BoxLayout.Y_AXIS));
+        JLabel titulo = new JLabel("PEDIDO");
+        titulo.setFont(new Font(FUENTE, Font.BOLD, 21));
+        titulo.setForeground(Color.WHITE);
+        JLabel subtitulo = new JLabel("RESUMEN DEL PEDIDO");
+        subtitulo.setFont(new Font(FUENTE, Font.BOLD, 11));
+        subtitulo.setForeground(new Color(255, 235, 192));
+        textosHeader.add(titulo);
+        textosHeader.add(subtitulo);
+        encabezadoPedido.add(indicador);
+        encabezadoPedido.add(textosHeader);
+        encabezadoPedido.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+        add(encabezadoPedido, BorderLayout.NORTH);
 
         tabla.setModel(modelo);
-        tabla.setRowHeight(48);
-        tabla.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        tabla.setOpaque(false);
+        tabla.setBorder(BorderFactory.createEmptyBorder());
+        tabla.setBackground(new Color(247, 247, 249));
+        tabla.setRowHeight(54);
+        tabla.setShowHorizontalLines(false);
+        tabla.setShowVerticalLines(false);
+        tabla.setIntercellSpacing(new Dimension(0, 4));
+        tabla.setFont(new Font(FUENTE, Font.PLAIN, 13));
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabla.setColorCabecera(AMARILLO);
         tabla.setColorTextoCabecera(TINTA);
-        tabla.setFuenteCabecera(new Font("SansSerif", Font.BOLD, 12));
+        tabla.setFuenteCabecera(new Font(FUENTE, Font.BOLD, 12));
         tabla.setAltoCabecera(42);
         tabla.setColorFilas(Color.WHITE);
         tabla.setFilasAlternadas(true);
@@ -90,12 +190,99 @@ public class PedidoPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setColumnHeaderView(tabla.getTableHeader());
         scroll.setPreferredSize(new Dimension(320, 180));
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(238, 231, 211)));
-        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setViewportBorder(BorderFactory.createEmptyBorder());
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.getViewport().setBackground(new Color(247, 247, 249));
+        javax.swing.table.JTableHeader encabezado = new javax.swing.table.JTableHeader(tabla.getColumnModel()) {
+            @Override protected void paintComponent(Graphics graphics) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(AMARILLO);
+                g2.fillRoundRect(0, 0, Math.max(1, getWidth() - 1),
+                        Math.max(1, getHeight() - 1), 18, 18);
+                g2.setColor(TINTA);
+                g2.setFont(new Font(FUENTE, Font.BOLD, 12));
+                for (int columna = 0; columna < getColumnModel().getColumnCount(); columna++) {
+                    Rectangle area = getHeaderRect(columna);
+                    String texto = tabla.getColumnName(columna);
+                    int x;
+                    if (columna == 1) {
+                        x = area.x + (area.width - g2.getFontMetrics().stringWidth(texto)) / 2;
+                    } else if (columna == 2) {
+                        x = area.x + area.width - g2.getFontMetrics().stringWidth(texto) - 10;
+                    } else {
+                        x = area.x + 10;
+                    }
+                    int y = (getHeight() - g2.getFontMetrics().getHeight()) / 2
+                            + g2.getFontMetrics().getAscent();
+                    g2.drawString(texto, x, y);
+                }
+                g2.dispose();
+            }
+        };
+        encabezado.setOpaque(false);
+        encabezado.setBackground(Color.WHITE);
+        encabezado.setBorder(BorderFactory.createEmptyBorder());
+        encabezado.setPreferredSize(new Dimension(0, 36));
+        encabezado.setReorderingAllowed(false);
+        encabezado.setResizingAllowed(false);
+        encabezado.setFocusable(false);
+        encabezado.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mousePressed(java.awt.event.MouseEvent evento) { evento.consume(); }
+            @Override public void mouseReleased(java.awt.event.MouseEvent evento) { evento.consume(); }
+            @Override public void mouseClicked(java.awt.event.MouseEvent evento) { evento.consume(); }
+        });
+        encabezado.setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override public Component getTableCellRendererComponent(javax.swing.JTable table,
+                    Object value, boolean selected, boolean focused, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(
+                        table, value, selected, focused, row, column);
+                label.setOpaque(false);
+                label.setForeground(TINTA);
+                label.setFont(new Font(FUENTE, Font.BOLD, 12));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+                label.setHorizontalAlignment(column == 1 ? SwingConstants.CENTER
+                        : column == 2 ? SwingConstants.RIGHT : SwingConstants.LEFT);
+                return label;
+            }
+        });
+        tabla.setTableHeader(encabezado);
+        scroll.setColumnHeaderView(encabezado);
         scroll.getVerticalScrollBar().setUnitIncrement(24);
+        javax.swing.JScrollBar barraVertical = scroll.getVerticalScrollBar();
+        barraVertical.setUI(new BarraPedidoMinimalista());
+        barraVertical.setOpaque(false);
+        barraVertical.setPreferredSize(new Dimension(10, 0));
+        barraVertical.setBackground(new Color(0, 0, 0, 0));
+        JPanel esquinaAmarilla = new JPanel();
+        esquinaAmarilla.setOpaque(true);
+        esquinaAmarilla.setBackground(Color.WHITE);
+        scroll.setCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER, esquinaAmarilla);
         JPanel centro = new JPanel(new BorderLayout(0, 10));
         centro.setOpaque(false);
-        centro.add(scroll);
+        JPanel tablaContenedor = new JPanel(new BorderLayout());
+        tablaContenedor.setOpaque(false);
+        tablaContenedor.setBorder(BorderFactory.createEmptyBorder());
+        tablaContenedor.add(scroll);
+        JPanel encabezadoTabla = new JPanel(new BorderLayout());
+        encabezadoTabla.setOpaque(false);
+        JLabel tituloProductos = new JLabel("Productos seleccionados");
+        tituloProductos.setFont(new Font(FUENTE, Font.BOLD, 16));
+        tituloProductos.setForeground(TINTA);
+        contador.setFont(new Font(FUENTE, Font.BOLD, 11));
+        contador.setForeground(new Color(31, 41, 55));
+        contador.setHorizontalAlignment(SwingConstants.CENTER);
+        contador.setBorder(BorderFactory.createEmptyBorder(5, 11, 5, 11));
+        contador.setOpaque(false);
+        encabezadoTabla.add(tituloProductos, BorderLayout.WEST);
+        encabezadoTabla.add(contador, BorderLayout.EAST);
+        JPanel contenidoTabla = new JPanel(new BorderLayout(0, 8));
+        contenidoTabla.setOpaque(false);
+        contenidoTabla.add(encabezadoTabla, BorderLayout.NORTH);
+        contenidoTabla.add(tablaContenedor, BorderLayout.CENTER);
+        centro.add(contenidoTabla);
         JPanel cantidades = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         cantidades.setOpaque(false);
         menos.setPreferredSize(new Dimension(42, 36));
@@ -103,8 +290,8 @@ public class PedidoPanel extends JPanel {
         mas.setMargin(new Insets(0, 0, 0, 0));
         mas.setPreferredSize(new Dimension(42, 36));
         quitar.setPreferredSize(new Dimension(92, 36));
-        menos.setFont(new Font("SansSerif", Font.BOLD, 20));
-        mas.setFont(new Font("SansSerif", Font.BOLD, 20));
+        menos.setFont(new Font(FUENTE, Font.BOLD, 20));
+        mas.setFont(new Font(FUENTE, Font.BOLD, 20));
         menos.setToolTipText("Reducir cantidad del producto seleccionado");
         mas.setToolTipText("Aumentar cantidad del producto seleccionado");
         quitar.setToolTipText("Quitar el producto seleccionado");
@@ -115,7 +302,7 @@ public class PedidoPanel extends JPanel {
         JPanel pie = new JPanel(new GridLayout(0, 1, 0, 10));
         pie.setOpaque(false);
         pie.setPreferredSize(new Dimension(320, 202));
-        total.setFont(new Font("SansSerif", Font.BOLD, 23));
+        total.setFont(new Font(FUENTE, Font.BOLD, 23));
         total.setForeground(TINTA);
         total.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(238, 231, 211)));
         pie.add(total); pie.add(cobrar); pie.add(cancelar); pie.add(ultimo);
@@ -157,13 +344,69 @@ public class PedidoPanel extends JPanel {
         b.setDegradado(false);
         b.setColorInicio(fondo);
         b.setForeground(textoColor);
-        b.setRadio(18);
+        b.setRadio(20);
         b.setFocusPainted(true);
         b.setRolloverEnabled(true);
         b.setMargin(new Insets(8, 12, 8, 12));
         b.setPreferredSize(new Dimension(220, 44));
         return b;
     }
+
+    /** Scroll minimalista: solo muestra el pulgar, sin flechas ni riel gris. */
+    private static final class BarraPedidoMinimalista
+            extends javax.swing.plaf.basic.BasicScrollBarUI {
+
+        @Override protected JButton createDecreaseButton(int orientation) {
+            return botonInvisible();
+        }
+
+        @Override protected JButton createIncreaseButton(int orientation) {
+            return botonInvisible();
+        }
+
+        @Override protected void paintTrack(Graphics graphics, JComponent componente,
+                Rectangle limites) {
+            // El riel queda transparente para mostrar únicamente la barra.
+        }
+
+        @Override protected void paintThumb(Graphics graphics, JComponent componente,
+                Rectangle limites) {
+            if (limites.isEmpty()) return;
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(110, 119, 132, 170));
+            int ancho = Math.min(6, Math.max(4, limites.width - 3));
+            int x = limites.x + (limites.width - ancho) / 2;
+            g2.fillRoundRect(x, limites.y + 2, ancho,
+                    Math.max(8, limites.height - 4), ancho, ancho);
+            g2.dispose();
+        }
+
+        private static JButton botonInvisible() {
+            JButton boton = new JButton();
+            boton.setPreferredSize(new Dimension(0, 0));
+            boton.setMinimumSize(new Dimension(0, 0));
+            boton.setMaximumSize(new Dimension(0, 0));
+            boton.setBorder(BorderFactory.createEmptyBorder());
+            boton.setOpaque(false);
+            boton.setContentAreaFilled(false);
+            boton.setFocusPainted(false);
+            return boton;
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics graphics) {
+        Graphics2D g2 = (Graphics2D) graphics.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(new Color(0, 0, 0, 10));
+        g2.fillRoundRect(2, 4, Math.max(1, getWidth() - 4), Math.max(1, getHeight() - 6), 30, 30);
+        g2.setColor(Color.WHITE);
+        g2.fillRoundRect(0, 0, getWidth(), Math.max(1, getHeight() - 2), 30, 30);
+        g2.dispose();
+        super.paintComponent(graphics);
+    }
+
     public void agregar(int id) {
         if (bloqueado()) { aviso("Termine o reintente el cobro pendiente antes de modificar el pedido."); return; }
         ocupado = true; actualizar();
@@ -200,6 +443,7 @@ public class PedidoPanel extends JPanel {
         for (LineaPedido l : lineas.values()) modelo.addRow(new Object[]{l.nombre(), l.cantidad(), "Q" + l.subtotal().toPlainString()});
         if (seleccion >= 0 && seleccion < modelo.getRowCount()) tabla.setRowSelectionInterval(seleccion, seleccion);
         total.setText("Total: Q" + suma().toPlainString());
+        contador.setText(modelo.getRowCount() + (modelo.getRowCount() == 1 ? " producto" : " productos"));
         cobrar.setText(pendiente == null ? "Continuar al pago" : "Reintentar cobro pendiente");
         cobrar.setEnabled(!ocupado && !recuperacionFallida && !lineas.isEmpty());
         for (JButton b : new JButton[]{mas, menos, quitar}) b.setEnabled(!bloqueado() && !lineas.isEmpty());

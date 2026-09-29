@@ -10,6 +10,8 @@ import javax.swing.border.EmptyBorder;
 
 public class TarjetaProducto extends JPanel {
 
+    private static final String FUENTE = "Arial";
+
     private int idProducto;
 
     private JLabel lblImagen;
@@ -82,12 +84,12 @@ public class TarjetaProducto extends JPanel {
         lblNombre = new JLabel(
                 "<html><b>" + nombre + "</b></html>"
         );
-        lblNombre.setFont(new Font("SansSerif", Font.BOLD, 17));
+        lblNombre.setFont(new Font(FUENTE, Font.BOLD, 17));
         lblNombre.setForeground(new Color(20, 27, 35));
         lblNombre.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         lblEstado = new JLabel("No disponible ahora");
-        lblEstado.setFont(new Font("SansSerif", Font.BOLD, 11));
+        lblEstado.setFont(new Font(FUENTE, Font.BOLD, 11));
         lblEstado.setForeground(new Color(102, 108, 115));
         lblEstado.setOpaque(true);
         lblEstado.setBackground(new Color(232, 235, 238));
@@ -112,7 +114,7 @@ public class TarjetaProducto extends JPanel {
                 + descripcion
                 + "</div></html>"
         );
-        lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblDescripcion.setFont(new Font(FUENTE, Font.PLAIN, 12));
         lblDescripcion.setForeground(disponible
                 ? new Color(95, 95, 95) : new Color(142, 147, 152));
         lblDescripcion.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -128,7 +130,7 @@ public class TarjetaProducto extends JPanel {
         panelInferior.setOpaque(false);
 
         lblPrecio = new JLabel(String.format("Q%.2f", precio));
-        lblPrecio.setFont(new Font("SansSerif", Font.BOLD, 18));
+        lblPrecio.setFont(new Font(FUENTE, Font.BOLD, 18));
         lblPrecio.setForeground(disponible
                 ? new Color(20, 27, 35) : new Color(135, 140, 145));
 
@@ -138,7 +140,7 @@ public class TarjetaProducto extends JPanel {
         btnAgregar.setContentAreaFilled(false);
         btnAgregar.setOpaque(false);
         btnAgregar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnAgregar.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnAgregar.setFont(new Font(FUENTE, Font.BOLD, 13));
         btnAgregar.setForeground(new Color(20, 27, 35));
         btnAgregar.setPreferredSize(new Dimension(95, 34));
         btnAgregar.setEnabled(disponible);
