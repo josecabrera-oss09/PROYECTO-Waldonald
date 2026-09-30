@@ -26,6 +26,8 @@ public class PedidoPanel extends JPanel {
     private static final Color BORDE_SUAVE = new Color(231, 226, 213);
     private static final String FUENTE = "Arial";
     private final Map<Integer, LineaPedido> lineas = new LinkedHashMap<>();
+    private final Map<Integer, Producto> productosDetalle = new HashMap<>();
+    private final Map<Integer, Personalizacion> personalizaciones = new HashMap<>();
     private final DefaultTableModel modelo = new DefaultTableModel(new String[]{"Producto", "Cant.", "Importe"}, 0) {
         @Override public boolean isCellEditable(int r, int c) { return false; }
     };
@@ -106,12 +108,29 @@ public class PedidoPanel extends JPanel {
     };
     private final JButton cobrar = boton("Continuar al pago", AMARILLO, TINTA);
     private final JButton mas = boton("+", AMARILLO, TINTA), menos = boton("-", new Color(255, 246, 217), TINTA), quitar = boton("Quitar", new Color(255, 237, 238), ROJO);
+    private final JButton personalizar = boton("Opciones", new Color(236, 240, 244), TINTA);
     private final JButton cancelar = boton("Cancelar pedido", ROJO, Color.WHITE), ultimo = boton("Último comprobante", new Color(245, 246, 248), TINTA);
     private boolean ocupado;
     private SolicitudPago pendiente;
     private String comprobante;
     private final Utilidades.PagoPendienteStore respaldo = new Utilidades.PagoPendienteStore(SesionUsuario.getIdUsuario());
+    private final Utilidades.UltimoComprobanteStore ultimoComprobanteStore =
+            new Utilidades.UltimoComprobanteStore(SesionUsuario.getIdUsuario());
     private boolean recuperacionFallida;
+
+    private static final class Personalizacion {
+        private final Set<String> quitar = new LinkedHashSet<>();
+        private final Set<String> agregar = new LinkedHashSet<>();
+        private String tamano = "";
+
+        private Personalizacion copia() {
+            Personalizacion copia = new Personalizacion();
+            copia.quitar.addAll(quitar);
+            copia.agregar.addAll(agregar);
+            copia.tamano = tamano;
+            return copia;
+        }
+    }
 
     public PedidoPanel() {
         super(new BorderLayout(8, 16));
@@ -170,6 +189,11 @@ public class PedidoPanel extends JPanel {
         tabla.setIntercellSpacing(new Dimension(0, 4));
         tabla.setFont(new Font(FUENTE, Font.PLAIN, 13));
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabla.getSelectionModel().addListSelectionListener(evento -> {
+            if (!evento.getValueIsAdjusting()) {
+                personalizar.setEnabled(!bloqueado() && tabla.getSelectedRow() >= 0);
+            }
+        });
         tabla.setColorCabecera(AMARILLO);
         tabla.setColorTextoCabecera(TINTA);
         tabla.setFuenteCabecera(new Font(FUENTE, Font.BOLD, 12));
@@ -295,7 +319,9 @@ public class PedidoPanel extends JPanel {
         menos.setToolTipText("Reducir cantidad del producto seleccionado");
         mas.setToolTipText("Aumentar cantidad del producto seleccionado");
         quitar.setToolTipText("Quitar el producto seleccionado");
-        cantidades.add(menos); cantidades.add(mas); cantidades.add(quitar);
+        personalizar.setPreferredSize(new Dimension(92, 36));
+        personalizar.setToolTipText("Quitar o agregar ingredientes y cambiar tamaño de bebida");
+        cantidades.add(personalizar); cantidades.add(menos); cantidades.add(mas); cantidades.add(quitar);
         centro.add(cantidades, BorderLayout.SOUTH);
         add(centro);
 
@@ -308,6 +334,7 @@ public class PedidoPanel extends JPanel {
         pie.add(total); pie.add(cobrar); pie.add(cancelar); pie.add(ultimo);
         add(pie, BorderLayout.SOUTH);
         mas.addActionListener(e -> cambiar(1)); menos.addActionListener(e -> cambiar(-1)); quitar.addActionListener(e -> cambiar(-999));
+        personalizar.addActionListener(e -> abrirPersonalizacionSeleccionada());
         cancelar.addActionListener(e -> {
             // Un cobro en curso conserva su solicitud; cerrar la vista no lo cancela.
             if (!bloqueado()) {
@@ -315,6 +342,8 @@ public class PedidoPanel extends JPanel {
                         "¿Cancelar todo el pedido y volver al menú?", "Cancelar pedido",
                         JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
                 lineas.clear();
+                productosDetalle.clear();
+                personalizaciones.clear();
                 actualizar();
             }
             setVisible(false);
@@ -333,6 +362,12 @@ public class PedidoPanel extends JPanel {
         } catch (java.io.IOException ex) {
             recuperacionFallida = true;
             SwingUtilities.invokeLater(() -> aviso(ex.getMessage()));
+        }
+        try {
+            comprobante = ultimoComprobanteStore.cargar();
+        } catch (java.io.IOException ex) {
+            SwingUtilities.invokeLater(() -> aviso(
+                    "No se pudo recuperar el último comprobante: " + ex.getMessage()));
         }
         actualizar();
     }
@@ -420,6 +455,7 @@ public class PedidoPanel extends JPanel {
                     int cantidad = anterior == null ? 1 : anterior.cantidad() + 1;
                     if (cantidad > p.getStockActual()) throw new IllegalArgumentException("No hay suficientes existencias de " + p.getNombre() + ".");
                     lineas.put(id, new LineaPedido(id, p.getNombre(), p.getPrecioBase(), cantidad));
+                    productosDetalle.put(id, p);
                 } catch (Exception ex) { aviso(mensaje(ex)); }
                 finally { ocupado = false; actualizar(); }
             }
@@ -431,7 +467,11 @@ public class PedidoPanel extends JPanel {
         LineaPedido l = new ArrayList<>(lineas.values()).get(tabla.getSelectedRow());
         if (incremento > 0) { agregar(l.idProducto()); return; }
         int n = l.cantidad() + incremento;
-        if (n <= 0) lineas.remove(l.idProducto());
+        if (n <= 0) {
+            lineas.remove(l.idProducto());
+            productosDetalle.remove(l.idProducto());
+            personalizaciones.remove(l.idProducto());
+        }
         else lineas.put(l.idProducto(), new LineaPedido(l.idProducto(), l.nombre(), l.precio(), n));
         actualizar();
     }
@@ -440,15 +480,121 @@ public class PedidoPanel extends JPanel {
     private BigDecimal suma() { return lineas.values().stream().map(LineaPedido::subtotal).reduce(new BigDecimal("0.00"), BigDecimal::add); }
     private void actualizar() {
         int seleccion = tabla.getSelectedRow(); modelo.setRowCount(0);
-        for (LineaPedido l : lineas.values()) modelo.addRow(new Object[]{l.nombre(), l.cantidad(), "Q" + l.subtotal().toPlainString()});
+        for (LineaPedido l : lineas.values()) modelo.addRow(new Object[]{
+            nombreMostrado(l), l.cantidad(), "Q" + l.subtotal().toPlainString()});
         if (seleccion >= 0 && seleccion < modelo.getRowCount()) tabla.setRowSelectionInterval(seleccion, seleccion);
         total.setText("Total: Q" + suma().toPlainString());
         contador.setText(modelo.getRowCount() + (modelo.getRowCount() == 1 ? " producto" : " productos"));
         cobrar.setText(pendiente == null ? "Continuar al pago" : "Reintentar cobro pendiente");
         cobrar.setEnabled(!ocupado && !recuperacionFallida && !lineas.isEmpty());
         for (JButton b : new JButton[]{mas, menos, quitar}) b.setEnabled(!bloqueado() && !lineas.isEmpty());
+        personalizar.setEnabled(!bloqueado() && !lineas.isEmpty() && tabla.getSelectedRow() >= 0);
         cancelar.setEnabled(true);
         ultimo.setEnabled(comprobante != null);
+    }
+
+    private String nombreMostrado(LineaPedido linea) {
+        Personalizacion p = personalizaciones.get(linea.idProducto());
+        if (p == null) return linea.nombre();
+        java.util.List<String> detalles = new ArrayList<>();
+        if (!p.tamano.isBlank()) detalles.add(p.tamano);
+        if (!p.quitar.isEmpty()) detalles.add("sin " + String.join(", ", p.quitar));
+        if (!p.agregar.isEmpty()) detalles.add("+ " + String.join(", ", p.agregar));
+        return detalles.isEmpty()
+                ? linea.nombre()
+                : linea.nombre() + " (" + String.join("; ", detalles) + ")";
+    }
+
+    private java.util.List<LineaPedido> lineasParaCobro() {
+        return lineas.values().stream()
+                .map(linea -> new LineaPedido(
+                        linea.idProducto(), nombreMostrado(linea),
+                        linea.precio(), linea.cantidad()))
+                .toList();
+    }
+
+    private void abrirPersonalizacionSeleccionada() {
+        if (bloqueado() || tabla.getSelectedRow() < 0) return;
+        LineaPedido linea = new ArrayList<>(lineas.values()).get(tabla.getSelectedRow());
+        Producto producto = productosDetalle.get(linea.idProducto());
+        Personalizacion actual = personalizaciones
+                .getOrDefault(linea.idProducto(), new Personalizacion()).copia();
+
+        JPanel contenido = new JPanel();
+        contenido.setBorder(BorderFactory.createEmptyBorder(8, 8, 4, 8));
+        contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
+
+        JLabel titulo = new JLabel("Personalizar: " + linea.nombre());
+        titulo.setFont(new Font(FUENTE, Font.BOLD, 15));
+        contenido.add(titulo);
+        contenido.add(Box.createVerticalStrut(12));
+
+        java.util.List<String> ingredientes = ingredientesDisponibles(linea, producto);
+        Map<String, JCheckBox> quitar = new LinkedHashMap<>();
+        Map<String, JCheckBox> agregar = new LinkedHashMap<>();
+        agregarSeccionIngredientes(contenido, "Quitar ingredientes", ingredientes, actual.quitar, quitar);
+        agregarSeccionIngredientes(contenido, "Agregar ingredientes", ingredientes, actual.agregar, agregar);
+
+        JComboBox<String> tamano = null;
+        if (esBebida(linea, producto)) {
+            contenido.add(Box.createVerticalStrut(8));
+            JLabel etiquetaTamano = new JLabel("Tamaño de bebida");
+            etiquetaTamano.setFont(new Font(FUENTE, Font.BOLD, 12));
+            contenido.add(etiquetaTamano);
+            tamano = new JComboBox<>(new String[]{"Pequeña", "Mediana", "Grande"});
+            tamano.setSelectedItem(actual.tamano.isBlank() ? tamano.getItemAt(0) : actual.tamano);
+            contenido.add(tamano);
+        }
+
+        JComboBox<String> selectorTamano = tamano;
+        int respuesta = JOptionPane.showConfirmDialog(this, contenido,
+                "Opciones del producto", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        if (respuesta != JOptionPane.OK_OPTION) return;
+
+        Personalizacion nueva = new Personalizacion();
+        quitar.forEach((nombre, check) -> { if (check.isSelected()) nueva.quitar.add(nombre); });
+        agregar.forEach((nombre, check) -> { if (check.isSelected()) nueva.agregar.add(nombre); });
+        if (selectorTamano != null) nueva.tamano = String.valueOf(selectorTamano.getSelectedItem());
+        if (nueva.quitar.isEmpty() && nueva.agregar.isEmpty() && nueva.tamano.isBlank()) {
+            personalizaciones.remove(linea.idProducto());
+        } else {
+            personalizaciones.put(linea.idProducto(), nueva);
+        }
+        actualizar();
+    }
+
+    private void agregarSeccionIngredientes(JPanel destino, String titulo,
+            java.util.List<String> ingredientes, Set<String> seleccionados,
+            Map<String, JCheckBox> controles) {
+        JLabel etiqueta = new JLabel(titulo);
+        etiqueta.setFont(new Font(FUENTE, Font.BOLD, 12));
+        destino.add(etiqueta);
+        for (String ingrediente : ingredientes) {
+            JCheckBox check = new JCheckBox(ingrediente, seleccionados.contains(ingrediente));
+            check.setFont(new Font(FUENTE, Font.PLAIN, 12));
+            controles.put(ingrediente, check);
+            destino.add(check);
+        }
+    }
+
+    private java.util.List<String> ingredientesDisponibles(LineaPedido linea, Producto producto) {
+        String texto = linea.nombre().toLowerCase(Locale.ROOT);
+        if (esBebida(linea, producto)) return java.util.List.of("Hielo", "Limón", "Sin azúcar");
+        if (texto.contains("papas") || texto.contains("hash")) return java.util.List.of("Sal", "Salsa de tomate", "Mayonesa");
+        return java.util.List.of("Lechuga", "Tomate", "Cebolla", "Queso", "Pepinillos", "Salsa especial");
+    }
+
+    private boolean esBebida(LineaPedido linea, Producto producto) {
+        if (producto != null && producto.getTamanoBebida() != null
+                && !producto.getTamanoBebida().isBlank()
+                && !producto.getTamanoBebida().equalsIgnoreCase("Sin tamaño")) return true;
+        String texto = linea.nombre().toLowerCase(Locale.ROOT);
+        return texto.contains("bebida") || texto.contains("gaseosa")
+                || texto.contains("agua") || texto.contains("jugo")
+                || texto.contains("café") || texto.contains("cafe")
+                || texto.contains("frapp") || texto.contains("té")
+                || texto.contains("te ");
     }
 
     private void abrirPago() {
@@ -491,7 +637,7 @@ public class PedidoPanel extends JPanel {
                 if (pendiente == null) {
                     boolean tarjeta = metodo.getSelectedIndex() == 1;
                     if (tarjeta && !confirmado.isSelected()) throw new IllegalArgumentException("Confirme primero la aprobación en la terminal externa.");
-                    pendiente = new SolicitudPago(UUID.randomUUID().toString(), SesionUsuario.getIdUsuario(), new ArrayList<>(lineas.values()),
+                    pendiente = new SolicitudPago(UUID.randomUUID().toString(), SesionUsuario.getIdUsuario(), lineasParaCobro(),
                             servicio.getSelectedIndex() == 0 ? "COMER_AQUI" : "PARA_LLEVAR", tarjeta ? "TARJETA" : "EFECTIVO",
                             tarjeta ? suma() : monto(recibido.getText()), tarjeta ? referencia.getText() : "");
                 }
@@ -509,8 +655,20 @@ public class PedidoPanel extends JPanel {
                 @Override protected void done() {
                     try {
                         comprobante = get();
+                        try {
+                            ultimoComprobanteStore.guardar(comprobante);
+                        } catch (java.io.IOException ex) {
+                            // El cobro ya fue confirmado en MySQL; el fallo local
+                            // no debe hacer que la venta parezca fallida.
+                            aviso("El pago se confirmó, pero no se pudo guardar el último comprobante: "
+                                    + ex.getMessage());
+                        }
                         respaldo.eliminar();
-                        pendiente = null; lineas.clear(); dialogo.dispose(); mostrarComprobante();
+                        pendiente = null;
+                        lineas.clear();
+                        productosDetalle.clear();
+                        personalizaciones.clear();
+                        dialogo.dispose(); mostrarComprobante();
                     } catch (Exception ex) {
                         Throwable causa = ex instanceof java.util.concurrent.ExecutionException ? ex.getCause() : ex;
                         if (causa instanceof IllegalArgumentException) {
