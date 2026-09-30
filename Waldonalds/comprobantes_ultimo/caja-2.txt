@@ -1,17 +1,18 @@
 WALDONALD'S
 Comprobante de venta
-Pedido #1
-2026-09-29T20:46:53
+Pedido #2
+2026-09-30T10:02:54
 Cajero: 2
 Comer aquí
 
-1 x mc cono vainilla  Q10.00
-1 x mcflurry m&ms fresa  Q25.00
-1 x mcflurry m&ms  Q24.00
+1 x Pan WlGriddle  Q18.00
+1 x WlGriddle de Salchicha y Huevo  Q36.00
+1 x WlGriddle Salchicha  Q31.00
+1 x WlGriddle Tocino Huevo  Q33.00
 
-Total: Q59.00
+Total: Q118.00
 Método: EFECTIVO
-Recibido: Q59.00
-Cambio: Q0.00
+Recibido: Q350.00
+Cambio: Q232.00
 
 Gracias por su compra.
