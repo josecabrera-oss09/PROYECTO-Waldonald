@@ -50,14 +50,23 @@ public class PagoDAO {
                 }
                 // Orden estable de bloqueos para evitar sobreventa entre cajas.
                 for (LineaPedido linea : pago.lineas().stream().sorted(Comparator.comparingInt(LineaPedido::idProducto)).toList()) {
-                    try (PreparedStatement s = c.prepareStatement("SELECT nombre,precio_base,stock_actual,estado,disponibilidad_menu FROM producto WHERE id_producto=? FOR UPDATE")) {
+                    try (PreparedStatement s = c.prepareStatement(
+                            "SELECT nombre,precio_base,estado,disponibilidad_menu "
+                            + "FROM producto WHERE id_producto=? FOR UPDATE")) {
                         s.setInt(1, linea.idProducto());
                         try (ResultSet r = s.executeQuery()) {
                             if (!r.next() || !r.getBoolean("estado") || !HorarioMenu.estaDisponible(r.getString("disponibilidad_menu"), LocalTime.now()))
                                 throw new IllegalArgumentException(linea.nombre() + ": ya no está disponible.");
-                            if (r.getInt("stock_actual") < linea.cantidad()) throw new IllegalArgumentException(linea.nombre() + ": existencias insuficientes.");
                             if (r.getBigDecimal("precio_base").compareTo(linea.precio()) != 0)
                                 throw new IllegalArgumentException(linea.nombre() + ": cambió el precio. Quite el producto y agréguelo nuevamente.");
+                        }
+                    }
+                    try (PreparedStatement s = c.prepareStatement(
+                            "SELECT stock_disponible FROM vista_stock_disponible WHERE id_producto=?")) {
+                        s.setInt(1, linea.idProducto());
+                        try (ResultSet r = s.executeQuery()) {
+                            if (!r.next() || r.getInt(1) < linea.cantidad())
+                                throw new IllegalArgumentException(linea.nombre() + ": existencias insuficientes.");
                         }
                     }
                 }
@@ -69,9 +78,8 @@ public class PagoDAO {
                 }
                 ejecutar(c, "UPDATE pedido SET numero_orden=? WHERE id_pedido=?", id, id);
                 for (LineaPedido linea : pago.lineas()) {
-                    ejecutar(c, "INSERT INTO pedido_detalle(id_pedido,id_producto,cantidad,precio_unitario) VALUES(?,?,?,?)", id, linea.idProducto(), linea.cantidad(), linea.precio());
-                    ejecutar(c, "UPDATE producto SET stock_actual=stock_actual-? WHERE id_producto=?", linea.cantidad(), linea.idProducto());
-                    ejecutar(c, "INSERT INTO movimiento_inventario(id_producto,id_pedido,tipo_movimiento,cantidad,motivo) VALUES(?,?,'SALIDA',?,'Venta en caja')", linea.idProducto(), id, linea.cantidad());
+                    int detalle = insertarDetalle(c, id, linea);
+                    descontarInventario(c, linea.idProducto(), linea.cantidad(), id, detalle);
                 }
                 String ticket = comprobante(id, pago);
                 ejecutar(c, "UPDATE pago_operacion SET id_pedido=?,comprobante=? WHERE clave=?", id, ticket, pago.clave());
@@ -91,6 +99,103 @@ public class PagoDAO {
             for (int i = 0; i < args.length; i++) s.setObject(i + 1, args[i]);
             s.executeUpdate();
         }
+    }
+
+    private static int insertarDetalle(Connection c, int idPedido, LineaPedido linea) throws SQLException {
+        try (PreparedStatement s = c.prepareStatement(
+                "INSERT INTO pedido_detalle(id_pedido,id_producto,cantidad,precio_unitario) VALUES(?,?,?,?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            s.setInt(1, idPedido);
+            s.setInt(2, linea.idProducto());
+            s.setInt(3, linea.cantidad());
+            s.setBigDecimal(4, linea.precio());
+            s.executeUpdate();
+            try (ResultSet r = s.getGeneratedKeys()) {
+                if (!r.next()) throw new SQLException("No se obtuvo el detalle del pedido.");
+                return r.getInt(1);
+            }
+        }
+    }
+
+    /** Descuenta el producto directo o todos los componentes de una receta/combos. */
+    private static void descontarInventario(Connection c, int idProducto, int cantidad,
+            int idPedido, int idDetalle) throws SQLException {
+        String tipo;
+        try (PreparedStatement s = c.prepareStatement(
+                "SELECT tipo_control_stock FROM producto WHERE id_producto=? FOR UPDATE")) {
+            s.setInt(1, idProducto);
+            try (ResultSet r = s.executeQuery()) {
+                if (!r.next()) throw new SQLException("Producto inexistente: " + idProducto);
+                tipo = r.getString(1);
+            }
+        }
+
+        if ("DIRECTO".equals(tipo)) {
+            ejecutar(c, "UPDATE producto SET stock_actual=stock_actual-? "
+                    + "WHERE id_producto=? AND stock_actual>=?", cantidad, idProducto, cantidad);
+            registrarSalidaProducto(c, idProducto, cantidad, idPedido, idDetalle, "Venta en caja");
+            return;
+        }
+
+        if ("RECETA".equals(tipo)) {
+            try (PreparedStatement s = c.prepareStatement(
+                    "SELECT id_ingrediente,cantidad_requerida FROM receta_producto "
+                    + "WHERE id_producto=? ORDER BY id_ingrediente FOR UPDATE")) {
+                s.setInt(1, idProducto);
+                try (ResultSet r = s.executeQuery()) {
+                    boolean tieneIngredientes = false;
+                    while (r.next()) {
+                        tieneIngredientes = true;
+                        int ingrediente = r.getInt("id_ingrediente");
+                        java.math.BigDecimal consumo = r.getBigDecimal("cantidad_requerida")
+                                .multiply(java.math.BigDecimal.valueOf(cantidad));
+                        int actual;
+                        try (PreparedStatement lock = c.prepareStatement(
+                                "SELECT stock_actual FROM ingrediente WHERE id_ingrediente=? FOR UPDATE")) {
+                            lock.setInt(1, ingrediente);
+                            try (ResultSet stock = lock.executeQuery()) {
+                                if (!stock.next()) throw new SQLException("Ingrediente inexistente: " + ingrediente);
+                                actual = stock.getBigDecimal(1).compareTo(consumo) >= 0 ? 1 : 0;
+                            }
+                        }
+                        if (actual == 0) throw new IllegalArgumentException("No hay ingredientes suficientes para el producto.");
+                        ejecutar(c, "UPDATE ingrediente SET stock_actual=stock_actual-? WHERE id_ingrediente=?",
+                                consumo, ingrediente);
+                        ejecutar(c, "INSERT INTO movimiento_inventario(id_ingrediente,id_pedido,id_detalle,tipo_movimiento,cantidad,motivo) "
+                                + "VALUES(?,?,?,'SALIDA',?,'Venta en caja - receta')",
+                                ingrediente, idPedido, idDetalle, consumo);
+                    }
+                    if (!tieneIngredientes) throw new IllegalArgumentException("El producto no tiene receta configurada.");
+                }
+            }
+            return;
+        }
+
+        if ("COMBO".equals(tipo)) {
+            try (PreparedStatement s = c.prepareStatement(
+                    "SELECT id_producto_opcion,cantidad_incluida FROM combo_opcion "
+                    + "WHERE id_combo=? AND estado=TRUE ORDER BY id_producto_opcion FOR UPDATE")) {
+                s.setInt(1, idProducto);
+                try (ResultSet r = s.executeQuery()) {
+                    boolean tieneOpciones = false;
+                    while (r.next()) {
+                        tieneOpciones = true;
+                        descontarInventario(c, r.getInt("id_producto_opcion"),
+                                Math.multiplyExact(cantidad, r.getInt("cantidad_incluida")), idPedido, idDetalle);
+                    }
+                    if (!tieneOpciones) throw new IllegalArgumentException("El combo no tiene productos configurados.");
+                }
+            }
+            return;
+        }
+
+        throw new IllegalArgumentException("Tipo de inventario no configurado para el producto.");
+    }
+
+    private static void registrarSalidaProducto(Connection c, int idProducto, int cantidad,
+            int idPedido, int idDetalle, String motivo) throws SQLException {
+        ejecutar(c, "INSERT INTO movimiento_inventario(id_producto,id_pedido,id_detalle,tipo_movimiento,cantidad,motivo) "
+                + "VALUES(?,?,?,'SALIDA',?,?)", idProducto, idPedido, idDetalle, cantidad, motivo);
     }
 
     private static String comprobante(int id, SolicitudPago p) {
