@@ -1,0 +1,16 @@
+WALDONALD'S
+Comprobante de venta
+Pedido #4
+2026-10-01T03:31:05
+Cajero: 3
+Comer aquí
+
+1 x Big Tasty Bacon Doble (+ Queso)  Q68.00
+1 x Big Tasty Bacon  Q54.00
+
+Total: Q122.00
+Método: EFECTIVO
+Recibido: Q122.00
+Cambio: Q0.00
+
+Gracias por su compra.

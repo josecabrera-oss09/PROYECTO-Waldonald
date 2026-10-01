@@ -22,6 +22,9 @@ public final class PagoPendienteStore {
             LineaPedido l=pago.lineas().get(i); String prefijo="linea."+i+".";
             p.setProperty(prefijo+"id", ""+l.idProducto()); p.setProperty(prefijo+"nombre", l.nombre());
             p.setProperty(prefijo+"precio", l.precio().toPlainString()); p.setProperty(prefijo+"cantidad", ""+l.cantidad());
+            p.setProperty(prefijo+"quitar", String.join("|", l.quitar()));
+            p.setProperty(prefijo+"agregar", String.join("|", l.agregar()));
+            p.setProperty(prefijo+"tamano", l.tamano());
         }
         Files.createDirectories(archivo.toAbsolutePath().getParent());
         Path temporal = Files.createTempFile(archivo.toAbsolutePath().getParent(), "pago-", ".tmp");
@@ -43,11 +46,23 @@ public final class PagoPendienteStore {
             for(int i=0;i<cantidad;i++) {
                 String prefijo="linea."+i+".";
                 lineas.add(new LineaPedido(Integer.parseInt(p.getProperty(prefijo+"id")),p.getProperty(prefijo+"nombre"),
-                        new BigDecimal(p.getProperty(prefijo+"precio")),Integer.parseInt(p.getProperty(prefijo+"cantidad"))));
+                        new BigDecimal(p.getProperty(prefijo+"precio")),Integer.parseInt(p.getProperty(prefijo+"cantidad")),
+                        conjunto(p.getProperty(prefijo+"quitar", "")),
+                        conjunto(p.getProperty(prefijo+"agregar", "")),
+                        p.getProperty(prefijo+"tamano", "")));
             }
             return new SolicitudPago(p.getProperty("clave"),Integer.parseInt(p.getProperty("usuario")),lineas,
                     p.getProperty("servicio"),p.getProperty("metodo"),new BigDecimal(p.getProperty("recibido")),p.getProperty("referencia"));
         } catch(RuntimeException ex) { throw new IOException("El archivo de cobro pendiente no se puede leer. Verifique la venta antes de continuar.",ex); }
     }
     public void eliminar() throws IOException { Files.deleteIfExists(archivo); }
+
+    private static Set<String> conjunto(String valor) {
+        if (valor == null || valor.isBlank()) return Set.of();
+        Set<String> resultado = new LinkedHashSet<>();
+        for (String elemento : valor.split("\\|")) {
+            if (!elemento.isBlank()) resultado.add(elemento.trim());
+        }
+        return resultado;
+    }
 }

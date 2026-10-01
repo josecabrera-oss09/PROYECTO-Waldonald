@@ -16,8 +16,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.math.BigDecimal;
 
 public class ProductoCRUD {
+
+    public record OpcionCombo(int idProducto, String nombre, String grupo,
+            BigDecimal precioAdicional, boolean predeterminado) { }
 
     private Connection conectar() throws SQLException {
 
@@ -778,5 +783,60 @@ public class ProductoCRUD {
         } else {
             ps.setString(12, subCategoria.trim());
         }
+    }
+
+    /** Suma el precio de los extras configurados para un producto. */
+    public BigDecimal calcularPrecioExtras(int idProducto, Set<String> ingredientes)
+            throws SQLException {
+        if (ingredientes == null || ingredientes.isEmpty()) return BigDecimal.ZERO;
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < ingredientes.size(); i++) {
+            if (i > 0) placeholders.append(',');
+            placeholders.append('?');
+        }
+        String sql = "SELECT COALESCE(SUM(rp.precio_extra),0) "
+                + "FROM receta_producto rp JOIN ingrediente i "
+                + "ON i.id_ingrediente=rp.id_ingrediente "
+                + "WHERE rp.id_producto=? AND i.nombre IN (" + placeholders + ")";
+        try (Connection conexion = conectar();
+                PreparedStatement ps = conexion.prepareStatement(sql)) {
+            int indice = 1;
+            ps.setInt(indice++, idProducto);
+            for (String ingrediente : ingredientes) ps.setString(indice++, ingrediente);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getBigDecimal(1);
+            }
+        }
+    }
+
+    public List<OpcionCombo> listarOpcionesCombo(int idCombo) throws SQLException {
+        String sql = "SELECT co.id_producto_opcion,p.nombre,co.grupo,"
+                + "co.precio_adicional,co.es_predeterminado "
+                + "FROM combo_opcion co JOIN producto p "
+                + "ON p.id_producto=co.id_producto_opcion "
+                + "WHERE co.id_combo=? AND co.estado=TRUE AND p.estado=TRUE "
+                + "ORDER BY FIELD(co.grupo,'PRINCIPAL','ACOMPANAMIENTO','BEBIDA','POSTRE','OTRO'),p.nombre";
+        List<OpcionCombo> opciones = new ArrayList<>();
+        try (Connection conexion = conectar(); PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, idCombo);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) opciones.add(new OpcionCombo(rs.getInt(1), rs.getString(2),
+                        rs.getString(3), rs.getBigDecimal(4), rs.getBoolean(5)));
+            }
+        }
+        return opciones;
+    }
+
+    public BigDecimal calcularPrecioOpcionesCombo(int idCombo, Set<String> nombres)
+            throws SQLException {
+        if (nombres == null || nombres.isEmpty()) return BigDecimal.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
+        for (OpcionCombo opcion : listarOpcionesCombo(idCombo)) {
+            if (nombres.stream().anyMatch(n -> n.equalsIgnoreCase(opcion.nombre()))) {
+                total = total.add(opcion.precioAdicional());
+            }
+        }
+        return total;
     }
 }

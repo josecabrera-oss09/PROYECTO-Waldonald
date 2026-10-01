@@ -453,8 +453,12 @@ public class PedidoPanel extends JPanel {
                     if (p == null || !p.isActivo() || !HorarioMenu.estaDisponible(p.getDisponibilidadMenu(), LocalTime.now())) throw new IllegalArgumentException("El producto no está disponible ahora.");
                     LineaPedido anterior = lineas.get(id);
                     int cantidad = anterior == null ? 1 : anterior.cantidad() + 1;
-                    if (cantidad > p.getStockActual()) throw new IllegalArgumentException("No hay suficientes existencias de " + p.getNombre() + ".");
-                    lineas.put(id, new LineaPedido(id, p.getNombre(), p.getPrecioBase(), cantidad));
+                    BigDecimal precio = anterior == null ? p.getPrecioBase() : anterior.precio();
+                    Set<String> quitar = anterior == null ? Set.of() : anterior.quitar();
+                    Set<String> agregar = anterior == null ? Set.of() : anterior.agregar();
+                    String tamano = anterior == null ? "" : anterior.tamano();
+                    lineas.put(id, new LineaPedido(id, p.getNombre(), precio, cantidad,
+                            quitar, agregar, tamano));
                     productosDetalle.put(id, p);
                 } catch (Exception ex) { aviso(mensaje(ex)); }
                 finally { ocupado = false; actualizar(); }
@@ -472,7 +476,8 @@ public class PedidoPanel extends JPanel {
             productosDetalle.remove(l.idProducto());
             personalizaciones.remove(l.idProducto());
         }
-        else lineas.put(l.idProducto(), new LineaPedido(l.idProducto(), l.nombre(), l.precio(), n));
+        else lineas.put(l.idProducto(), new LineaPedido(l.idProducto(), l.nombre(), l.precio(), n,
+                l.quitar(), l.agregar(), l.tamano()));
         actualizar();
     }
 
@@ -507,9 +512,14 @@ public class PedidoPanel extends JPanel {
 
     private java.util.List<LineaPedido> lineasParaCobro() {
         return lineas.values().stream()
-                .map(linea -> new LineaPedido(
-                        linea.idProducto(), nombreMostrado(linea),
-                        linea.precio(), linea.cantidad()))
+                .map(linea -> {
+                    Personalizacion p = personalizaciones.getOrDefault(
+                            linea.idProducto(), new Personalizacion());
+                    return new LineaPedido(
+                            linea.idProducto(), nombreMostrado(linea),
+                            linea.precio(), linea.cantidad(),
+                            p.quitar, p.agregar, p.tamano);
+                })
                 .toList();
     }
 
@@ -517,6 +527,10 @@ public class PedidoPanel extends JPanel {
         if (bloqueado() || tabla.getSelectedRow() < 0) return;
         LineaPedido linea = new ArrayList<>(lineas.values()).get(tabla.getSelectedRow());
         Producto producto = productosDetalle.get(linea.idProducto());
+        if (producto != null && producto.isCombo()) {
+            abrirConfiguradorCombo(linea, producto);
+            return;
+        }
         Personalizacion actual = personalizaciones
                 .getOrDefault(linea.idProducto(), new Personalizacion()).copia();
 
@@ -561,7 +575,104 @@ public class PedidoPanel extends JPanel {
         } else {
             personalizaciones.put(linea.idProducto(), nueva);
         }
+        try {
+            BigDecimal extra = new ProductoCRUD().calcularPrecioExtras(
+                    linea.idProducto(), nueva.agregar);
+            BigDecimal precioBase = producto == null ? linea.precio() : producto.getPrecioBase();
+            lineas.put(linea.idProducto(), new LineaPedido(
+                    linea.idProducto(), linea.nombre(), precioBase.add(extra), linea.cantidad()));
+        } catch (java.sql.SQLException ex) {
+            aviso("No se pudo calcular el precio de los ingredientes extra: " + ex.getMessage());
+            return;
+        }
         actualizar();
+    }
+
+    private void abrirConfiguradorCombo(LineaPedido linea, Producto producto) {
+        try {
+            java.util.List<ProductoCRUD.OpcionCombo> opciones = new ProductoCRUD().listarOpcionesCombo(producto.getIdProducto());
+            if (opciones.isEmpty()) {
+                aviso("Este combo todavía no tiene opciones configuradas.");
+                return;
+            }
+            Map<String, ButtonGroup> grupos = new LinkedHashMap<>();
+            Map<String, java.util.List<JRadioButton>> controles = new LinkedHashMap<>();
+            JPanel contenido = new JPanel();
+            contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
+            JTabbedPane pestañas = new JTabbedPane();
+            JPanel menu = new JPanel();
+            menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+            menu.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
+            JLabel titulo = new JLabel("Configura tu " + producto.getNombre());
+            titulo.setFont(new Font(FUENTE, Font.BOLD, 17));
+            menu.add(titulo);
+            menu.add(Box.createVerticalStrut(10));
+            Map<String, ProductoCRUD.OpcionCombo> seleccionInicial = new HashMap<>();
+            for (String nombre : linea.agregar()) {
+                opciones.stream().filter(o -> o.nombre().equalsIgnoreCase(nombre)).findFirst()
+                        .ifPresent(o -> seleccionInicial.put(o.grupo(), o));
+            }
+            for (ProductoCRUD.OpcionCombo opcion : opciones) {
+                grupos.computeIfAbsent(opcion.grupo(), k -> new ButtonGroup());
+                controles.computeIfAbsent(opcion.grupo(), k -> new ArrayList<>());
+            }
+            for (Map.Entry<String, ButtonGroup> grupo : grupos.entrySet()) {
+                JLabel encabezado = new JLabel(etiquetaGrupo(grupo.getKey()));
+                encabezado.setFont(new Font(FUENTE, Font.BOLD, 13));
+                menu.add(encabezado);
+                for (ProductoCRUD.OpcionCombo opcion : opciones) {
+                    if (!opcion.grupo().equals(grupo.getKey())) continue;
+                    String precio = opcion.precioAdicional().signum() == 0 ? "" :
+                            "  + Q" + opcion.precioAdicional().toPlainString();
+                    JRadioButton radio = new JRadioButton(opcion.nombre() + precio);
+                    radio.setOpaque(false);
+                    radio.setFont(new Font(FUENTE, Font.PLAIN, 13));
+                    grupo.getValue().add(radio);
+                    controles.get(grupo.getKey()).add(radio);
+                    ProductoCRUD.OpcionCombo inicial = seleccionInicial.get(grupo.getKey());
+                    radio.setSelected(inicial != null ? inicial.nombre().equalsIgnoreCase(opcion.nombre()) : opcion.predeterminado());
+                    menu.add(radio);
+                }
+                menu.add(Box.createVerticalStrut(8));
+            }
+            JPanel individual = new JPanel(new BorderLayout());
+            individual.add(new JLabel("Los productos individuales se agregan desde el menú principal."), BorderLayout.NORTH);
+            pestañas.addTab("McMenú", menu);
+            pestañas.addTab("Individual", individual);
+            contenido.add(pestañas);
+            int respuesta = JOptionPane.showConfirmDialog(this, contenido,
+                    "Personaliza tu pedido", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (respuesta != JOptionPane.OK_OPTION) return;
+
+            Personalizacion nueva = new Personalizacion();
+            for (Map.Entry<String, java.util.List<JRadioButton>> entry : controles.entrySet()) {
+                for (JRadioButton radio : entry.getValue()) {
+                    if (radio.isSelected()) {
+                        String texto = radio.getText().replaceFirst("\\s+\\+ Q[0-9.]+$", "");
+                        nueva.agregar.add(texto);
+                    }
+                }
+            }
+            personalizaciones.put(linea.idProducto(), nueva);
+            BigDecimal extra = new ProductoCRUD().calcularPrecioOpcionesCombo(
+                    producto.getIdProducto(), nueva.agregar);
+            lineas.put(linea.idProducto(), new LineaPedido(linea.idProducto(),
+                    linea.nombre(), producto.getPrecioBase().add(extra), linea.cantidad(),
+                    Set.of(), nueva.agregar, ""));
+            actualizar();
+        } catch (java.sql.SQLException ex) {
+            aviso("No se pudo cargar el configurador del combo: " + ex.getMessage());
+        }
+    }
+
+    private String etiquetaGrupo(String grupo) {
+        return switch (grupo) {
+            case "PRINCIPAL" -> "Elige el producto principal";
+            case "ACOMPANAMIENTO" -> "Elige el complemento";
+            case "BEBIDA" -> "Elige la bebida";
+            case "POSTRE" -> "Elige el postre";
+            default -> "Elige una opción";
+        };
     }
 
     private void agregarSeccionIngredientes(JPanel destino, String titulo,
@@ -580,9 +691,9 @@ public class PedidoPanel extends JPanel {
 
     private java.util.List<String> ingredientesDisponibles(LineaPedido linea, Producto producto) {
         String texto = linea.nombre().toLowerCase(Locale.ROOT);
-        if (esBebida(linea, producto)) return java.util.List.of("Hielo", "Limón", "Sin azúcar");
-        if (texto.contains("papas") || texto.contains("hash")) return java.util.List.of("Sal", "Salsa de tomate", "Mayonesa");
-        return java.util.List.of("Lechuga", "Tomate", "Cebolla", "Queso", "Pepinillos", "Salsa especial");
+        if (esBebida(linea, producto)) return java.util.List.of("Hielo");
+        if (texto.contains("papas") || texto.contains("hash")) return java.util.List.of();
+        return java.util.List.of("Lechuga", "Tomate", "Queso", "Salsa especial");
     }
 
     private boolean esBebida(LineaPedido linea, Producto producto) {
