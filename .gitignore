@@ -1,6 +1,5 @@
 /Waldonalds/nbproject/private/
-<<<<<<< HEAD
-=======
 /Waldonalds/build/
 /Waldonalds/dist/
->>>>>>> 5a956c4 (Agregar .gitignore)
+/Waldonalds/pagos_pendientes/
+/Waldonalds/comprobantes_ultimo/

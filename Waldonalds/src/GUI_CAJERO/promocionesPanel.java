@@ -28,10 +28,10 @@ public class promocionesPanel extends javax.swing.JPanel {
         // ==========================================
 
         promoCategoriasPanel categorias =
-                new promoCategoriasPanel();
+                new promoCategoriasPanel(this::mostrarPanelPromocion);
 
         categorias.setPreferredSize(
-                new Dimension(1790 ,190)
+                new Dimension(1900, 170)
         );
 
         categorias.setComponentOrientation(
@@ -87,16 +87,20 @@ public class promocionesPanel extends javax.swing.JPanel {
             scrollCategorias.repaint();
         });
 
-        // ==========================================
-        // ESCALADOR
-        // ==========================================
+        escalador = new Componentes.EscaladorPanel(
+                this,
+                1920,
+                1080
+        );
 
-        escalador =
-                new Componentes.EscaladorPanel(
-                        this,
-                        1920,
-                        1080
-                );
+    }
+
+    private void mostrarPanelPromocion(javax.swing.JPanel panel) {
+        panelContenidoPromo.removeAll();
+        panelContenidoPromo.setLayout(new BorderLayout());
+        panelContenidoPromo.add(panel, BorderLayout.CENTER);
+        panelContenidoPromo.revalidate();
+        panelContenidoPromo.repaint();
     }
     
     @SuppressWarnings("unchecked")
@@ -113,7 +117,7 @@ public class promocionesPanel extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("DM Sans 18pt", 1, 100)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 13, 27));
         jLabel1.setText("Promociones");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(67, 30, 760, 100));
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 20, 760, 100));
 
         panelCategoriaPromo.setBackground(new java.awt.Color(255, 255, 255));
         add(panelCategoriaPromo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 1790, 190));

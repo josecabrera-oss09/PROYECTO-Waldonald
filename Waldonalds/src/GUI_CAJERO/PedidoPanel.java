@@ -112,6 +112,8 @@ public class PedidoPanel extends JPanel {
     private String comprobante;
     private String ticketCocina;
     private final Utilidades.PagoPendienteStore respaldo = new Utilidades.PagoPendienteStore(SesionUsuario.getIdUsuario());
+    private final Utilidades.UltimoComprobanteStore ultimoComprobanteStore =
+            new Utilidades.UltimoComprobanteStore(SesionUsuario.getIdUsuario());
     private boolean recuperacionFallida;
 
     public PedidoPanel() {
@@ -351,6 +353,12 @@ public class PedidoPanel extends JPanel {
             recuperacionFallida = true;
             SwingUtilities.invokeLater(() -> aviso(ex.getMessage()));
         }
+        try {
+            comprobante = ultimoComprobanteStore.cargar();
+        } catch (java.io.IOException ex) {
+            SwingUtilities.invokeLater(() -> aviso(
+                    "No se pudo recuperar el último comprobante: " + ex.getMessage()));
+        }
         actualizar();
     }
 
@@ -556,6 +564,12 @@ public class PedidoPanel extends JPanel {
                     try {
                         comprobante = get();
                         ticketCocina = crearTicketCocina(solicitud);
+                        try {
+                            ultimoComprobanteStore.guardar(comprobante);
+                        } catch (java.io.IOException ex) {
+                            aviso("El pago se confirmó, pero no se pudo guardar el último comprobante: "
+                                    + ex.getMessage());
+                        }
                         respaldo.eliminar();
                         pendiente = null; lineas.clear(); dialogo.dispose(); mostrarComprobante();
                     } catch (Exception ex) {

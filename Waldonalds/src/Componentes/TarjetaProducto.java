@@ -3,10 +3,9 @@
     import java.awt.*;
     import java.awt.event.MouseAdapter;
     import java.awt.event.MouseEvent;
-    import java.io.File;
-    import java.net.URL;
     import javax.swing.*;
     import javax.swing.border.EmptyBorder;
+    import Utilidades.ImageCache;
 
     public class TarjetaProducto extends JPanel {
 
@@ -70,7 +69,7 @@
             lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
             lblImagen.setPreferredSize(new Dimension(180, 100));
 
-            cargarImagen(imagen);
+            cargarImagenDiferida(imagen);
 
             add(lblImagen, BorderLayout.NORTH);
 
@@ -190,44 +189,19 @@
             });
         }
 
-        private void cargarImagen(String ruta) {
-
-            if (ruta == null || ruta.trim().isEmpty()) {
-                lblImagen.setText("Sin imagen");
-                return;
-            }
-
-            try {
-                ImageIcon icono = null;
-
-                URL recurso = getClass().getResource(ruta);
-
-                if (recurso != null) {
-                    icono = new ImageIcon(recurso);
-                } else {
-                    File archivo = new File(ruta);
-                    if (archivo.exists()) {
-                        icono = new ImageIcon(archivo.getAbsolutePath());
-                    }
-                }
-
+        private void cargarImagenDiferida(String ruta) {
+            lblImagen.setText("Cargando...");
+            lblImagen.setIcon(null);
+            ImageCache.cargarAsync(ruta, 125, 95, icono -> {
                 if (icono == null) {
-                    lblImagen.setText("Imagen no encontrada");
-                    return;
+                    lblImagen.setText("Sin imagen");
+                } else {
+                    lblImagen.setText("");
+                    lblImagen.setIcon(icono);
                 }
-
-                Image imagenEscalada = icono.getImage().getScaledInstance(
-                        125,
-                        95,
-                        Image.SCALE_SMOOTH
-                );
-
-                lblImagen.setIcon(new ImageIcon(imagenEscalada));
-
-            } catch (Exception e) {
-                lblImagen.setText("Sin imagen");
-                System.out.println("Error cargando imagen: " + e.getMessage());
-            }
+                lblImagen.revalidate();
+                lblImagen.repaint();
+            });
         }
 
         @Override

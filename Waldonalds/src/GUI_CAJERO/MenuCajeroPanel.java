@@ -21,14 +21,12 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
         doLayout();
         setLayout(null);
 
-        // ==========================================
-        // ESCALADOR
-        // ==========================================
         escalador = new Componentes.EscaladorPanel(
                 this,
                 1920,
                 1080
         );
+
     }
 
     public void mostrarPanelCategoria(javax.swing.JPanel panel) {

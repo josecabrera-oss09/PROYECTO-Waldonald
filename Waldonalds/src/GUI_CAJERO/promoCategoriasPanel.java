@@ -1,35 +1,51 @@
 package GUI_CAJERO;
 
-public class promoCategoriasPanel extends javax.swing.JPanel {
+import java.awt.Dimension;
+import java.util.List;
+import java.util.function.Consumer;
+import javax.swing.JPanel;
 
-    public promoCategoriasPanel() {
-        initComponents();
+/** Selector de promociones con el mismo patrón visual del menú principal. */
+public class promoCategoriasPanel extends JPanel {
+
+    private final Consumer<JPanel> panelDestino;
+    private final JPanel panelCategorias = new JPanel();
+
+    public promoCategoriasPanel() { this(null); }
+
+    public promoCategoriasPanel(Consumer<JPanel> panelDestino) {
+        this.panelDestino = panelDestino;
+        inicializarVista();
     }
-    
-    
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        jPanel1 = new javax.swing.JPanel();
-        botonCategoria1 = new Componentes.BotonCategoria();
-
+    private void inicializarVista() {
+        setBackground(java.awt.Color.WHITE);
+        setPreferredSize(new Dimension(1900, 170));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelCategorias.setBackground(java.awt.Color.WHITE);
+        panelCategorias.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        add(panelCategorias, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1900, 170));
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        agregarCategoria("Combos", 10, "Almuerzos", List.of("Hamburguesas", "McNuggets", "Combos", "Papas", "Bebidas"));
+        agregarCategoria("Familia", 210, "Cajita Feliz", List.of("Hamburguesas", "McNuggets", "Acompañamientos", "Bebidas", "Postres"));
+        agregarCategoria("Descuentos", 410, "Antojos", List.of("Papas", "McNuggets", "Snacks", "Acompañamientos", "Compartir"));
+        agregarCategoria("2x1", 610, "Bebidas", List.of("Gaseosas", "Jugos", "Agua", "Café", "Bebidas frías"));
+        agregarCategoria("Temporada", 810, "Postres", List.of("McFlurry", "Sundae", "Conos", "Pasteles", "Galletas"));
+        agregarCategoria("Cajita Feliz", 1010, "Cajita Feliz", List.of("Hamburguesas", "McNuggets", "Acompañamientos", "Bebidas", "Postres", "Juguetes"));
+        agregarCategoria("McCafé", 1210, "WlCafé", List.of("Café", "Frappés", "Chocolate", "Té", "Bebidas frías", "Repostería"));
+    }
 
-        botonCategoria1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        botonCategoria1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        jPanel1.add(botonCategoria1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 180, 170));
+    private void agregarCategoria(String nombre, int x, String categoriaProductos, List<String> subcategorias) {
+        Componentes.BotonCategoria boton = new Componentes.BotonCategoria();
+        boton.setText(nombre);
+        boton.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 24));
+        boton.setHideActionText(true);
+        boton.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        boton.addActionListener(e -> mostrarCategoria(categoriaProductos, subcategorias));
+        panelCategorias.add(boton, new org.netbeans.lib.awtextra.AbsoluteConstraints(x, 10, 180, 170));
+    }
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1790, 190));
-    }// </editor-fold>//GEN-END:initComponents
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private Componentes.BotonCategoria botonCategoria1;
-    private javax.swing.JPanel jPanel1;
-    // End of variables declaration//GEN-END:variables
+    private void mostrarCategoria(String nombre, List<String> subcategorias) {
+        if (panelDestino != null) panelDestino.accept(new SubCategoriasPanel(nombre, subcategorias));
+    }
 }
