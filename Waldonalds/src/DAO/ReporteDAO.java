@@ -41,7 +41,7 @@ public final class ReporteDAO {
                     + "COALESCE(SUM(estado='CANCELADO'),0) "
                     + "FROM pedido WHERE fecha_hora>=? AND fecha_hora<?", fecha);
                 List<Object[]> stock = consultar(c,
-                    "SELECT COUNT(*) FROM producto WHERE estado=1 AND stock_actual<=stock_minimo", null);
+                    "SELECT COUNT(*) FROM producto WHERE estado=1 AND tipo_stock='DIRECTO' AND stock_actual<=stock_minimo", null);
                 List<Object[]> pedidos = consultar(c,
                     "SELECT p.numero_orden, CONCAT(u.nombre,' ',u.apellido), DATE_FORMAT(p.fecha_hora,'%H:%i'), "
                     + "CASE p.tipo_servicio WHEN 'COMER_AQUI' THEN 'En salón' WHEN 'PARA_LLEVAR' THEN 'Para llevar' ELSE 'A domicilio' END, "
@@ -56,7 +56,7 @@ public final class ReporteDAO {
                         + "WHEN 'PARA_LLEVAR' THEN 'Para llevar' ELSE 'A domicilio' END, "
                         + "p.estado, COALESCE(p.metodo_pago,'-'), "
                         + "COALESCE(p.monto_recibido,0), p.total, "
-                        + "COALESCE(SUM(CASE WHEN d.id_detalle_padre IS NULL THEN d.cantidad ELSE 0 END),0) "
+                        + "COALESCE(SUM(d.cantidad),0) "
                         + "FROM pedido p JOIN usuario u ON u.id_usuario=p.id_usuario "
                         + "LEFT JOIN pedido_detalle d ON d.id_pedido=p.id_pedido "
                         + "WHERE p.fecha_hora>=? AND p.fecha_hora<? "
@@ -67,19 +67,20 @@ public final class ReporteDAO {
                     // Mantiene compatibilidad con bases antiguas sin datos de pago.
                     ventasDetalle = new ArrayList<>();
                 }
-                // Solo líneas principales: un combo no se cuenta nuevamente por cada componente.
+                // La presentación es la línea vendida; sus productos internos no duplican la venta.
                 List<Object[]> productos = consultar(c,
                     "SELECT pr.nombre, ca.nombre, SUM(d.cantidad), "
                     + "CASE WHEN pr.estado=0 THEN 'Inactivo' WHEN pr.stock_actual<=0 THEN 'Agotado' ELSE 'Disponible' END "
                     + "FROM pedido_detalle d JOIN pedido p ON p.id_pedido=d.id_pedido "
-                    + "JOIN producto pr ON pr.id_producto=d.id_producto JOIN categoria ca ON ca.id_categoria=pr.id_categoria "
-                    + "WHERE p.estado='PAGADO' AND p.fecha_hora>=? AND p.fecha_hora<? AND d.id_detalle_padre IS NULL "
+                    + "JOIN presentacion_menu pm ON pm.id_presentacion=d.id_presentacion "
+                    + "JOIN producto pr ON pr.id_producto=pm.id_producto_principal JOIN categoria ca ON ca.id_categoria=pr.id_categoria "
+                    + "WHERE p.estado='PAGADO' AND p.fecha_hora>=? AND p.fecha_hora<? "
                     + "GROUP BY pr.id_producto,pr.nombre,ca.nombre,pr.estado,pr.stock_actual "
                     + "ORDER BY SUM(d.cantidad) DESC,pr.nombre LIMIT 10", fecha);
                 List<Object[]> alertas = consultar(c,
                     "SELECT 'Producto',nombre,stock_actual,stock_minimo,'unidades', "
                     + "CASE WHEN stock_actual<=0 THEN 'Agotado' ELSE 'Stock bajo' END "
-                    + "FROM producto WHERE estado=1 AND stock_actual<=stock_minimo "
+                    + "FROM producto WHERE estado=1 AND tipo_stock='DIRECTO' AND stock_actual<=stock_minimo "
                     + "UNION ALL SELECT 'Ingrediente',nombre,stock_actual,stock_minimo,unidad_medida, "
                     + "CASE WHEN stock_actual<=0 THEN 'Agotado' ELSE 'Stock bajo' END "
                     + "FROM ingrediente WHERE estado=1 AND stock_actual<=stock_minimo ORDER BY 6,2", null);

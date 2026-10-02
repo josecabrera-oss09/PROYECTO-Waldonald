@@ -14,8 +14,8 @@ public record SolicitudPago(String clave, int usuario, List<LineaPedido> lineas,
                 || !List.of("EFECTIVO", "TARJETA").contains(metodo)) {
             throw new IllegalArgumentException("Servicio o método inválido.");
         }
-        if (lineas.stream().map(LineaPedido::idProducto).distinct().count() != lineas.size()) {
-            throw new IllegalArgumentException("Agrupe las cantidades de cada producto.");
+        if (lineas.stream().map(LineaPedido::idLinea).distinct().count() != lineas.size()) {
+            throw new IllegalArgumentException("Hay líneas repetidas en el pedido.");
         }
         BigDecimal total = lineas.stream().map(LineaPedido::subtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         if (total.signum() <= 0 || total.compareTo(new BigDecimal("99999999.99")) > 0

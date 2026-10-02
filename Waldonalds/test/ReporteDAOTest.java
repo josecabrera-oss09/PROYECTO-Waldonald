@@ -15,16 +15,18 @@ public class ReporteDAOTest {
                 // MySQL oculta los nombres reales solo dentro de esta conexión.
                 s.execute("CREATE TEMPORARY TABLE usuario (id_usuario INT,nombre VARCHAR(50),apellido VARCHAR(50))");
                 s.execute("CREATE TEMPORARY TABLE categoria (id_categoria INT,nombre VARCHAR(50))");
-                s.execute("CREATE TEMPORARY TABLE producto (id_producto INT,id_categoria INT,nombre VARCHAR(100),estado BOOLEAN,stock_actual INT,stock_minimo INT)");
+                s.execute("CREATE TEMPORARY TABLE producto (id_producto INT,id_categoria INT,nombre VARCHAR(100),tipo_stock VARCHAR(20),estado BOOLEAN,stock_actual INT,stock_minimo INT)");
                 s.execute("CREATE TEMPORARY TABLE ingrediente (nombre VARCHAR(100),estado BOOLEAN,stock_actual DECIMAL(10,2),stock_minimo DECIMAL(10,2),unidad_medida VARCHAR(20))");
-                s.execute("CREATE TEMPORARY TABLE pedido (id_pedido INT,numero_orden INT,id_usuario INT,fecha_hora DATETIME,tipo_servicio VARCHAR(20),estado VARCHAR(20),total DECIMAL(10,2))");
-                s.execute("CREATE TEMPORARY TABLE pedido_detalle (id_pedido INT,id_producto INT,cantidad INT,id_detalle_padre INT)");
+                s.execute("CREATE TEMPORARY TABLE presentacion_menu (id_presentacion INT,id_producto_principal INT)");
+                s.execute("CREATE TEMPORARY TABLE pedido (id_pedido INT,numero_orden INT,id_usuario INT,fecha_hora DATETIME,tipo_servicio VARCHAR(20),estado VARCHAR(20),metodo_pago VARCHAR(20),monto_recibido DECIMAL(10,2),total DECIMAL(10,2))");
+                s.execute("CREATE TEMPORARY TABLE pedido_detalle (id_pedido INT,id_presentacion INT,cantidad INT)");
                 s.execute("INSERT INTO usuario VALUES (1,'Prueba','Temporal')");
                 s.execute("INSERT INTO categoria VALUES (1,'Comida')");
-                s.execute("INSERT INTO producto VALUES (1,1,'Combo',1,5,5),(2,1,'Componente',1,0,0),(3,1,'Inactivo',0,0,5),(4,1,'Disponible',1,10,5)");
+                s.execute("INSERT INTO producto VALUES (1,1,'Combo','DIRECTO',1,5,5),(2,1,'Componente','DIRECTO',1,0,0),(3,1,'Inactivo','DIRECTO',0,0,5),(4,1,'Disponible','DIRECTO',1,10,5)");
+                s.execute("INSERT INTO presentacion_menu VALUES (1,1),(2,2),(3,3),(4,4)");
                 s.execute("INSERT INTO ingrediente VALUES ('Harina',1,1.25,2.00,'kg'),('Inactivo',0,0,5,'kg')");
-                s.execute("INSERT INTO pedido VALUES (1,1,1,'2026-09-25 00:00:00','COMER_AQUI','PAGADO',100),(2,2,1,'2026-09-25 23:59:59','A_DOMICILIO','PAGADO',50),(3,3,1,'2026-09-25 12:00:00','PARA_LLEVAR','PENDIENTE',30),(4,4,1,'2026-09-25 14:00:00','PARA_LLEVAR','CANCELADO',200),(5,5,1,'2026-09-26 00:00:00','COMER_AQUI','PAGADO',900)");
-                s.execute("INSERT INTO pedido_detalle VALUES (1,1,2,NULL),(1,2,2,1),(2,4,1,NULL),(3,4,9,NULL),(4,4,20,NULL),(5,4,30,NULL)");
+                s.execute("INSERT INTO pedido VALUES (1,1,1,'2026-09-25 00:00:00','COMER_AQUI','PAGADO','EFECTIVO',100,100),(2,2,1,'2026-09-25 23:59:59','A_DOMICILIO','PAGADO','TARJETA',50,50),(3,3,1,'2026-09-25 12:00:00','PARA_LLEVAR','PENDIENTE',NULL,0,30),(4,4,1,'2026-09-25 14:00:00','PARA_LLEVAR','CANCELADO',NULL,0,200),(5,5,1,'2026-09-26 00:00:00','COMER_AQUI','PAGADO','EFECTIVO',900,900)");
+                s.execute("INSERT INTO pedido_detalle VALUES (1,1,2),(2,4,1),(3,4,9),(4,4,20),(5,4,30)");
             }
             var dao = new ReporteDAO();
             var r = dao.cargar(c, LocalDate.of(2026,9,25));

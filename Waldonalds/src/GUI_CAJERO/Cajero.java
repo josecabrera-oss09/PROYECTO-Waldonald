@@ -46,6 +46,7 @@ private promocionesPanel promocionesPanel;
 
 private javax.swing.JPanel zonaCentral;
 private javax.swing.JPanel panelPedido;
+private boolean configurandoProducto;
 
 
 // =====================================================
@@ -783,8 +784,30 @@ private void crearPanelPedido() {
 }
 
 public void agregarProducto(int idProducto) {
-    abrirPedido();
-    ((PedidoPanel) panelPedido).agregar(idProducto);
+    if (configurandoProducto) return;
+    configurandoProducto = true;
+    setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.WAIT_CURSOR));
+    new javax.swing.SwingWorker<Modelos.ConfiguracionProducto, Void>() {
+        @Override protected Modelos.ConfiguracionProducto doInBackground() throws Exception {
+            return new DAO.ConfiguracionMenuDAO().cargarProducto(idProducto);
+        }
+        @Override protected void done() {
+            setCursor(java.awt.Cursor.getDefaultCursor());
+            try {
+                Modelos.ConfiguracionProducto configuracion = get();
+                abrirPedido();
+                ((PedidoPanel) panelPedido).mostrarConfigurador(
+                        configuracion, () -> configurandoProducto = false);
+            } catch (Exception ex) {
+                Throwable causa = ex instanceof java.util.concurrent.ExecutionException
+                        && ex.getCause() != null ? ex.getCause() : ex;
+                javax.swing.JOptionPane.showMessageDialog(Cajero.this,
+                        causa.getMessage() == null ? "No se pudo configurar el producto." : causa.getMessage(),
+                        "Producto no disponible", javax.swing.JOptionPane.WARNING_MESSAGE);
+                configurandoProducto = false;
+            }
+        }
+    }.execute();
 }
 private void configurarHoverSutilCancelar(javax.swing.JButton boton) {
     java.awt.Color bordeNormal = new java.awt.Color(190, 190, 190);

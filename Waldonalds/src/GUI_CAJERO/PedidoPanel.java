@@ -1,15 +1,12 @@
 package GUI_CAJERO;
 
-import CRUD.ProductoCRUD;
 import Componentes.BotonRedondeado;
 import Componentes.TablaAdministrativa;
 import DAO.PagoDAO;
 import Modelos.*;
-import Utilidades.HorarioMenu;
 import Utilidades.SesionUsuario;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.time.LocalTime;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -25,7 +22,10 @@ public class PedidoPanel extends JPanel {
     private static final Color FONDO = new Color(246, 246, 248);
     private static final Color BORDE_SUAVE = new Color(231, 226, 213);
     private static final String FUENTE = "Arial";
-    private final Map<Integer, LineaPedido> lineas = new LinkedHashMap<>();
+    private final CardLayout vistasPanel = new CardLayout();
+    private final JPanel resumenPedido = new JPanel(new BorderLayout(8, 16));
+    private ConfiguradorProductoPanel configuradorActual;
+    private final Map<String, LineaPedido> lineas = new LinkedHashMap<>();
     private final DefaultTableModel modelo = new DefaultTableModel(new String[]{"Producto", "Cant.", "Importe"}, 0) {
         @Override public boolean isCellEditable(int r, int c) { return false; }
     };
@@ -110,13 +110,16 @@ public class PedidoPanel extends JPanel {
     private boolean ocupado;
     private SolicitudPago pendiente;
     private String comprobante;
+    private String ticketCocina;
     private final Utilidades.PagoPendienteStore respaldo = new Utilidades.PagoPendienteStore(SesionUsuario.getIdUsuario());
     private boolean recuperacionFallida;
 
     public PedidoPanel() {
-        super(new BorderLayout(8, 16));
+        super();
+        setLayout(vistasPanel);
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(22, 16, 22, 16));
+        resumenPedido.setOpaque(false);
+        resumenPedido.setBorder(BorderFactory.createEmptyBorder(22, 16, 22, 16));
         JPanel encabezadoPedido = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0)) {
             @Override protected void paintComponent(Graphics graphics) {
                 Graphics2D g2 = (Graphics2D) graphics.create();
@@ -158,13 +161,13 @@ public class PedidoPanel extends JPanel {
         encabezadoPedido.add(indicador);
         encabezadoPedido.add(textosHeader);
         encabezadoPedido.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
-        add(encabezadoPedido, BorderLayout.NORTH);
+        resumenPedido.add(encabezadoPedido, BorderLayout.NORTH);
 
         tabla.setModel(modelo);
         tabla.setOpaque(false);
         tabla.setBorder(BorderFactory.createEmptyBorder());
         tabla.setBackground(new Color(247, 247, 249));
-        tabla.setRowHeight(54);
+        tabla.setRowHeight(76);
         tabla.setShowHorizontalLines(false);
         tabla.setShowVerticalLines(false);
         tabla.setIntercellSpacing(new Dimension(0, 4));
@@ -182,6 +185,18 @@ public class PedidoPanel extends JPanel {
         tabla.setPaddingHorizontal(10);
         tabla.setColumnasCentradas("1");
         tabla.setColumnasDerecha("2");
+        tabla.getColumnModel().getColumn(0).setCellRenderer(
+                new javax.swing.table.DefaultTableCellRenderer() {
+            @Override public Component getTableCellRendererComponent(JTable table,
+                    Object value, boolean selected, boolean focused, int row, int column) {
+                JTextArea area = new JTextArea(String.valueOf(value).replace(" | ", "\n  • "));
+                area.setLineWrap(true); area.setWrapStyleWord(true); area.setEditable(false);
+                area.setOpaque(false); area.setForeground(TINTA);
+                area.setFont(new Font(FUENTE, Font.PLAIN, 12));
+                area.setBorder(BorderFactory.createEmptyBorder(7,10,5,7));
+                return area;
+            }
+        });
         tabla.getColumnModel().getColumn(0).setPreferredWidth(180);
         tabla.getColumnModel().getColumn(1).setPreferredWidth(52);
         tabla.getColumnModel().getColumn(1).setMaxWidth(65);
@@ -297,7 +312,7 @@ public class PedidoPanel extends JPanel {
         quitar.setToolTipText("Quitar el producto seleccionado");
         cantidades.add(menos); cantidades.add(mas); cantidades.add(quitar);
         centro.add(cantidades, BorderLayout.SOUTH);
-        add(centro);
+        resumenPedido.add(centro, BorderLayout.CENTER);
 
         JPanel pie = new JPanel(new GridLayout(0, 1, 0, 10));
         pie.setOpaque(false);
@@ -306,7 +321,7 @@ public class PedidoPanel extends JPanel {
         total.setForeground(TINTA);
         total.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(238, 231, 211)));
         pie.add(total); pie.add(cobrar); pie.add(cancelar); pie.add(ultimo);
-        add(pie, BorderLayout.SOUTH);
+        resumenPedido.add(pie, BorderLayout.SOUTH);
         mas.addActionListener(e -> cambiar(1)); menos.addActionListener(e -> cambiar(-1)); quitar.addActionListener(e -> cambiar(-999));
         cancelar.addActionListener(e -> {
             // Un cobro en curso conserva su solicitud; cerrar la vista no lo cancela.
@@ -324,11 +339,13 @@ public class PedidoPanel extends JPanel {
             }
         });
         cobrar.addActionListener(e -> abrirPago()); ultimo.addActionListener(e -> mostrarComprobante());
+        add(resumenPedido, "RESUMEN");
+        vistasPanel.show(this, "RESUMEN");
         try {
             pendiente = respaldo.cargar();
             if (pendiente != null) {
                 if (pendiente.usuario() != SesionUsuario.getIdUsuario()) throw new java.io.IOException("El cobro pendiente pertenece a otro usuario.");
-                for (LineaPedido l : pendiente.lineas()) lineas.put(l.idProducto(), l);
+                for (LineaPedido l : pendiente.lineas()) lineas.put(l.idLinea(), l);
             }
         } catch (java.io.IOException ex) {
             recuperacionFallida = true;
@@ -407,32 +424,61 @@ public class PedidoPanel extends JPanel {
         super.paintComponent(graphics);
     }
 
-    public void agregar(int id) {
-        if (bloqueado()) { aviso("Termine o reintente el cobro pendiente antes de modificar el pedido."); return; }
-        ocupado = true; actualizar();
-        new SwingWorker<Producto, Void>() {
-            @Override protected Producto doInBackground() throws Exception { return new ProductoCRUD().obtenerPorId(id); }
-            @Override protected void done() {
-                try {
-                    Producto p = get();
-                    if (p == null || !p.isActivo() || !HorarioMenu.estaDisponible(p.getDisponibilidadMenu(), LocalTime.now())) throw new IllegalArgumentException("El producto no está disponible ahora.");
-                    LineaPedido anterior = lineas.get(id);
-                    int cantidad = anterior == null ? 1 : anterior.cantidad() + 1;
-                    if (cantidad > p.getStockActual()) throw new IllegalArgumentException("No hay suficientes existencias de " + p.getNombre() + ".");
-                    lineas.put(id, new LineaPedido(id, p.getNombre(), p.getPrecioBase(), cantidad));
-                } catch (Exception ex) { aviso(mensaje(ex)); }
-                finally { ocupado = false; actualizar(); }
-            }
-        }.execute();
+    public void agregar(LineaPedido linea) {
+        if (bloqueado()) {
+            aviso("Termine o reintente el cobro pendiente antes de modificar el pedido.");
+            return;
+        }
+        lineas.put(linea.idLinea(), linea);
+        actualizar();
+    }
+
+    /**
+     * Sustituye temporalmente el resumen por la personalización del producto.
+     * Al agregar o volver se recupera el mismo carrito, sin perder sus líneas.
+     */
+    public void mostrarConfigurador(ConfiguracionProducto producto,
+            Runnable alFinalizar) {
+        if (bloqueado()) {
+            aviso("Termine o reintente el cobro pendiente antes de agregar productos.");
+            if (alFinalizar != null) alFinalizar.run();
+            return;
+        }
+        if (configuradorActual != null) {
+            remove(configuradorActual);
+        }
+        configuradorActual = new ConfiguradorProductoPanel(producto,
+                linea -> {
+                    agregar(linea);
+                    mostrarResumen();
+                    if (alFinalizar != null) alFinalizar.run();
+                },
+                () -> {
+                    mostrarResumen();
+                    if (alFinalizar != null) alFinalizar.run();
+                });
+        add(configuradorActual, "CONFIGURADOR");
+        vistasPanel.show(this, "CONFIGURADOR");
+        revalidate();
+        repaint();
+    }
+
+    private void mostrarResumen() {
+        vistasPanel.show(this, "RESUMEN");
+        if (configuradorActual != null) {
+            remove(configuradorActual);
+            configuradorActual = null;
+        }
+        revalidate();
+        repaint();
     }
 
     private void cambiar(int incremento) {
         if (bloqueado() || tabla.getSelectedRow() < 0) return;
         LineaPedido l = new ArrayList<>(lineas.values()).get(tabla.getSelectedRow());
-        if (incremento > 0) { agregar(l.idProducto()); return; }
         int n = l.cantidad() + incremento;
-        if (n <= 0) lineas.remove(l.idProducto());
-        else lineas.put(l.idProducto(), new LineaPedido(l.idProducto(), l.nombre(), l.precio(), n));
+        if (n <= 0) lineas.remove(l.idLinea());
+        else if (n <= 999) lineas.put(l.idLinea(), l.conCantidad(n));
         actualizar();
     }
 
@@ -440,7 +486,7 @@ public class PedidoPanel extends JPanel {
     private BigDecimal suma() { return lineas.values().stream().map(LineaPedido::subtotal).reduce(new BigDecimal("0.00"), BigDecimal::add); }
     private void actualizar() {
         int seleccion = tabla.getSelectedRow(); modelo.setRowCount(0);
-        for (LineaPedido l : lineas.values()) modelo.addRow(new Object[]{l.nombre(), l.cantidad(), "Q" + l.subtotal().toPlainString()});
+        for (LineaPedido l : lineas.values()) modelo.addRow(new Object[]{l.resumen(), l.cantidad(), "Q" + l.subtotal().toPlainString()});
         if (seleccion >= 0 && seleccion < modelo.getRowCount()) tabla.setRowSelectionInterval(seleccion, seleccion);
         total.setText("Total: Q" + suma().toPlainString());
         contador.setText(modelo.getRowCount() + (modelo.getRowCount() == 1 ? " producto" : " productos"));
@@ -509,6 +555,7 @@ public class PedidoPanel extends JPanel {
                 @Override protected void done() {
                     try {
                         comprobante = get();
+                        ticketCocina = crearTicketCocina(solicitud);
                         respaldo.eliminar();
                         pendiente = null; lineas.clear(); dialogo.dispose(); mostrarComprobante();
                     } catch (Exception ex) {
@@ -537,10 +584,54 @@ public class PedidoPanel extends JPanel {
     private void mostrarComprobante() {
         if (comprobante == null) return;
         JTextArea texto = new JTextArea(comprobante, 20, 38); texto.setEditable(false); texto.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        Object[] opciones = {"Cerrar", "Imprimir"};
-        if (JOptionPane.showOptionDialog(this, new JScrollPane(texto), "Comprobante", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]) == 1) {
-            try { texto.print(); } catch (java.awt.print.PrinterException ex) { aviso("No se pudo imprimir. Puede reabrir el comprobante. " + ex.getMessage()); }
+        Object[] opciones = {"Cerrar", "Imprimir comprobante", "Ver / imprimir cocina"};
+        int eleccion = JOptionPane.showOptionDialog(this, new JScrollPane(texto), "Comprobante",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
+        if (eleccion == 1) imprimir(texto);
+        if (eleccion == 2 && ticketCocina != null) {
+            JTextArea cocina = new JTextArea(ticketCocina, 24, 42);
+            cocina.setEditable(false); cocina.setFont(new Font(Font.MONOSPACED, Font.BOLD, 13));
+            Object[] acciones = {"Cerrar", "Imprimir cocina"};
+            if (JOptionPane.showOptionDialog(this, new JScrollPane(cocina), "Ticket de cocina",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, acciones, acciones[0]) == 1)
+                imprimir(cocina);
         }
+    }
+    private void imprimir(JTextArea texto) {
+        try { texto.print(); }
+        catch (java.awt.print.PrinterException ex) {
+            aviso("No se pudo imprimir. Puedes reabrir el comprobante. " + ex.getMessage());
+        }
+    }
+    private static String crearTicketCocina(SolicitudPago solicitud) {
+        StringBuilder b = new StringBuilder("WALDONALD'S - COCINA\n")
+                .append(solicitud.servicio().equals("COMER_AQUI") ? "COMER AQUÍ" : "PARA LLEVAR")
+                .append("\n================================\n");
+        for (LineaPedido linea : solicitud.lineas()) {
+            b.append('\n').append(linea.cantidad()).append(" x ").append(linea.nombre())
+                    .append(" [").append(linea.presentacion()).append("]\n");
+            Map<String,Integer> repetidos = new HashMap<>();
+            Map<String,Long> totalesNombre = new HashMap<>();
+            linea.opciones().stream().flatMap(o -> o.productos().stream()).forEach(p ->
+                    totalesNombre.merge(p.nombre(), 1L, Long::sum));
+            for (OpcionPedido opcion : linea.opciones()) {
+                if (!opcion.grupo().startsWith("__"))
+                    b.append("  ").append(opcion.grupo()).append(": ").append(opcion.opcion()).append('\n');
+                for (ProductoPedido producto : opcion.productos()) {
+                    int numero = repetidos.merge(producto.nombre(), 1, Integer::sum);
+                    b.append("    > ").append(producto.nombre());
+                    if (totalesNombre.getOrDefault(producto.nombre(), 0L) > 1)
+                        b.append(" #").append(numero);
+                    if (producto.modificaciones().isEmpty()) b.append(" - CON TODO");
+                    b.append('\n');
+                    for (ModificacionPedido cambio : producto.modificaciones())
+                        b.append("       ** ").append(cambio.tipo().equals("SIN") ? "SIN " : "EXTRA ")
+                                .append(cambio.ingrediente())
+                                .append(cambio.veces() > 1 ? " x" + cambio.veces() : "").append(" **\n");
+                }
+            }
+        }
+        return b.append("\n================================\n").toString();
     }
     private static String mensaje(Exception ex) {
         Throwable causa = ex instanceof java.util.concurrent.ExecutionException ? ex.getCause() : ex;
