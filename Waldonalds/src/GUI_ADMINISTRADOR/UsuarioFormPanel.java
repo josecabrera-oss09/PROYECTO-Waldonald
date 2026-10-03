@@ -261,10 +261,14 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                 || cambiarContrasena.isSelected();
         String contrasena = new String(campoContrasena.getPassword());
         String confirmacion = new String(campoConfirmar.getPassword());
-        if (requiereContrasena && contrasena.length() < 8) {
-            marcarError(campoContrasena);
-            mostrarError("La contraseña debe tener al menos 8 caracteres.");
-            return;
+        if (requiereContrasena) {
+            String errorContrasena = SeguridadContrasena.validarPolitica(
+                    contrasena, usuario);
+            if (errorContrasena != null) {
+                marcarError(campoContrasena);
+                mostrarError(errorContrasena);
+                return;
+            }
         }
         if (requiereContrasena && !contrasena.equals(confirmacion)) {
             marcarError(campoConfirmar);
@@ -307,7 +311,7 @@ public class UsuarioFormPanel extends javax.swing.JPanel {
                             : original.getFechaCreacion(),
                     turno, horaInicio, horaFin);
             String hash = requiereContrasena
-                    ? SeguridadContrasena.sha256(contrasena) : null;
+                    ? SeguridadContrasena.hash(contrasena) : null;
 
             if (original == null) {
                 crud.insertar(datos, hash);

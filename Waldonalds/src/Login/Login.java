@@ -132,21 +132,44 @@ public class Login extends javax.swing.JFrame {
                 SELECT id_usuario,
                        nombre,
                        apellido,
-                       rol
+                       rol,
+                       password_hash
                 FROM usuario
                 WHERE usuario = ?
-                  AND password_hash = ?
                   AND estado = TRUE
                 """;
 
         try (Connection con = conexion; PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario);
-            ps.setString(2, SeguridadContrasena.sha256(contraseña));
 
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (rs.next()) {
+                    String hashAlmacenado = rs.getString("password_hash");
+                    if (!SeguridadContrasena.verificar(contraseña, hashAlmacenado)) {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Usuario o contraseña incorrectos.",
+                                "Inicio de sesión",
+                                JOptionPane.ERROR_MESSAGE);
+                        textbox_Contrasena1.setText("");
+                        textbox_Contrasena1.requestFocus();
+                        return;
+                    }
+
+                    // Migra automáticamente cuentas antiguas con SHA-256 simple.
+                    if (hashAlmacenado == null
+                            || !hashAlmacenado.startsWith("PBKDF2-SHA256$")) {
+                        try (PreparedStatement migracion = con.prepareStatement(
+                                "UPDATE usuario SET password_hash = ? WHERE id_usuario = ?")) {
+                            migracion.setString(1, SeguridadContrasena.hash(contraseña));
+                            migracion.setInt(2, rs.getInt("id_usuario"));
+                            migracion.executeUpdate();
+                        } catch (SQLException migracionFallida) {
+                            // La autenticación ya fue válida; la migración se reintentará después.
+                        }
+                    }
 
                     int idUsuario = rs.getInt("id_usuario");
                     String nombre = rs.getString("nombre");
