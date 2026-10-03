@@ -186,7 +186,10 @@ public class ProductoDAO {
                                 rs.getString("nombre"),
                                 rs.getString("descripcion"),
                                 rs.getDouble("precio_base"),
-                                rs.getString("imagen")
+                                rs.getString("imagen"),
+                                HorarioMenu.estaDisponible(
+                                        rs.getString("disponibilidad_menu"),
+                                        LocalTime.now())
                         ));
                     }
                 }
@@ -247,7 +250,8 @@ public class ProductoDAO {
     private String sqlProductosSubcategoria(Connection conexion) throws SQLException {
         if (columnaExiste(conexion, "producto", "subcategoria")) {
             return """
-                    SELECT id_producto, id_categoria, nombre, descripcion, precio_base, imagen
+                    SELECT id_producto, id_categoria, nombre, descripcion,
+                           precio_base, imagen, disponibilidad_menu
                     FROM producto
                     WHERE id_categoria = ? AND subcategoria = ? AND estado = TRUE
                     """;
@@ -256,7 +260,7 @@ public class ProductoDAO {
         if (tieneRelacionSubcategoria(conexion)) {
             return """
                     SELECT p.id_producto, p.id_categoria, p.nombre, p.descripcion,
-                           p.precio_base, p.imagen
+                           p.precio_base, p.imagen, p.disponibilidad_menu
                     FROM producto p
                     INNER JOIN subcategoria s ON s.id_subcategoria = p.id_subcategoria
                     WHERE p.id_categoria = ? AND s.nombre = ? AND p.estado = TRUE
