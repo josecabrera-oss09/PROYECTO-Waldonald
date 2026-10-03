@@ -10,36 +10,16 @@ public class Producto {
     private String subCategoria;
     private String nombre;
     private String descripcion;
-    private BigDecimal precioBase;
+    private BigDecimal precioBase = BigDecimal.ZERO;
     private String imagen;
-    private String disponibilidadMenu;
-    private String tamanoBebida;
-    private boolean combo;
+    private String disponibilidadMenu = "TODO_DIA";
+    private String tipoStock = "DIRECTO";
+    private boolean personalizable = true;
     private int stockActual;
     private int stockMinimo;
-    private boolean activo;
+    private boolean activo = true;
 
     public Producto() {
-    }
-
-    // Conserva el constructor anterior para las otras clases del proyecto.
-    public Producto(int idProducto, int idCategoria, String categoria,
-            String nombre, String descripcion, BigDecimal precioBase,
-            String imagen, String disponibilidadMenu, String tamanoBebida,
-            boolean combo, int stockActual, int stockMinimo, boolean activo) {
-        this.idProducto = idProducto;
-        this.idCategoria = idCategoria;
-        this.categoria = categoria;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.precioBase = precioBase;
-        this.imagen = imagen;
-        this.disponibilidadMenu = disponibilidadMenu;
-        this.tamanoBebida = tamanoBebida;
-        this.combo = combo;
-        this.stockActual = stockActual;
-        this.stockMinimo = stockMinimo;
-        this.activo = activo;
     }
 
     public int getIdProducto() { return idProducto; }
@@ -73,13 +53,13 @@ public class Producto {
         this.disponibilidadMenu = disponibilidadMenu;
     }
 
-    public String getTamanoBebida() { return tamanoBebida; }
-    public void setTamanoBebida(String tamanoBebida) {
-        this.tamanoBebida = tamanoBebida;
-    }
+    public String getTipoStock() { return tipoStock; }
+    public void setTipoStock(String tipoStock) { this.tipoStock = tipoStock; }
 
-    public boolean isCombo() { return combo; }
-    public void setCombo(boolean combo) { this.combo = combo; }
+    public boolean isPersonalizable() { return personalizable; }
+    public void setPersonalizable(boolean personalizable) {
+        this.personalizable = personalizable;
+    }
 
     public int getStockActual() { return stockActual; }
     public void setStockActual(int stockActual) { this.stockActual = stockActual; }
@@ -90,10 +70,17 @@ public class Producto {
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
 
-    public String getTipo() { return combo ? "Combo" : "Producto"; }
+    public String getTipo() {
+        return switch (tipoStock == null ? "" : tipoStock) {
+            case "RECETA" -> "Preparado por receta";
+            case "NINGUNO" -> "Sin control de stock";
+            default -> "Stock directo";
+        };
+    }
 
     public boolean tieneStockBajo() {
-        return activo && stockMinimo > 0 && stockActual <= stockMinimo;
+        return activo && !"NINGUNO".equals(tipoStock)
+                && stockMinimo > 0 && stockActual <= stockMinimo;
     }
 
     @Override

@@ -30,8 +30,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         );
     }
 
-    /** Constructor reutilizable para vistas que quieran el mismo selector.
-     * @param panelDestino */
+    /** Constructor reutilizable para vistas que quieran el mismo selector. */
     public CategoriasPanel(
             java.util.function.Consumer<javax.swing.JPanel> panelDestino) {
         initComponents();
@@ -134,52 +133,43 @@ public class CategoriasPanel extends javax.swing.JPanel {
 
     private void btnCajitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCajitaActionPerformed
         mostrarCategoriaDinamica("Cajita Feliz", java.util.List.of(
-                "Hamburguesas", "WcNuggets", "Acompañamientos",
+                "Hamburguesas", "McNuggets", "Acompañamientos",
                 "Bebidas", "Postres", "Juguetes"));
     }//GEN-LAST:event_btnCajitaActionPerformed
 
     private void btnDesayuno1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDesayuno1ActionPerformed
         mostrarCategoriaDinamica("Desayunos", java.util.List.of(
-                "Sándwiches", "WlMuffin", "WlGriddle", "Desayunos",
-                "Caja grande"));
+                "Sándwiches", "McMuffin", "Hot Cakes", "Bebidas",
+                "Por tiempo limitado"));
     }//GEN-LAST:event_btnDesayuno1ActionPerformed
 
     private void btnAlmuerzosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAlmuerzosActionPerformed
         mostrarCategoriaDinamica("Almuerzos", java.util.List.of(
-                     "Hamburguesas",
-                    "Pollo",
-                    "Creaciones Gourmet",
-                    "Otras opciones",
-                    "Para compartir"
-            )
-    );
+                "Hamburguesas", "McNuggets", "Combos", "Papas",
+                "Ensaladas", "Bebidas"));
     }//GEN-LAST:event_btnAlmuerzosActionPerformed
 
     private void btnPostresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPostresActionPerformed
         mostrarCategoriaDinamica("Postres", java.util.List.of(
-                "Pasteles",
-                "Helados"));
+                "McFlurry", "Sundae", "Conos", "Pasteles", "Galletas",
+                "Por tiempo limitado"));
     }//GEN-LAST:event_btnPostresActionPerformed
 
     private void btnCafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCafeActionPerformed
-        mostrarCategoriaDinamica("WLCAFE", java.util.List.of(
-                              "Bebidas Frías",
-                    "Bebidas Calientes",
-                    "Postres WlCafé",
-                    "Tostados",
-                    "Café en bolsa"
-            )
-    );
+        mostrarCategoriaDinamica("WlCafé", java.util.List.of(
+                "Café", "Frappés", "Chocolate", "Té", "Bebidas frías",
+                "Repostería"));
     }//GEN-LAST:event_btnCafeActionPerformed
 
     private void btnBebidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBebidosActionPerformed
         mostrarCategoriaDinamica("Bebidas", java.util.List.of(
-               "Sodas", "Naturales", "Calientes "));
+                "Gaseosas", "Jugos", "Agua", "Café", "Bebidas frías",
+                "Batidos"));
     }//GEN-LAST:event_btnBebidosActionPerformed
 
     private void btnAntojosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAntojosActionPerformed
         mostrarCategoriaDinamica("Antojos", java.util.List.of(
-                "Papas", "WlNuggets", "Snacks", "Acompañamientos",
+                "Papas", "McNuggets", "Snacks", "Acompañamientos",
                 "Compartir"));
     }//GEN-LAST:event_btnAntojosActionPerformed
 

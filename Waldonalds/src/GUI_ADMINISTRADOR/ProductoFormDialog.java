@@ -487,17 +487,17 @@ public class ProductoFormDialog
 
         fila++;
 
-        // TIPO / TAMAÑO
+        // INVENTARIO / PERSONALIZACIÓN
         agregarEtiqueta(
                 formulario,
-                "Tipo",
+                "Control de inventario",
                 0,
                 fila
         );
 
         agregarEtiqueta(
                 formulario,
-                "Tamaño de bebida",
+                "Personalización",
                 1,
                 fila
         );
@@ -507,8 +507,9 @@ public class ProductoFormDialog
         comboTipo =
                 new JComboBox<>(
                         new String[]{
-                            "PRODUCTO",
-                            "COMBO"
+                            "RECETA",
+                            "DIRECTO",
+                            "NINGUNO"
                         }
                 );
 
@@ -519,10 +520,8 @@ public class ProductoFormDialog
         comboTamano =
                 new JComboBox<>(
                         new String[]{
-                            "NO_APLICA",
-                            "PEQUENA",
-                            "MEDIANA",
-                            "GRANDE"
+                            "PERMITIDA",
+                            "NO_PERMITIDA"
                         }
                 );
 
@@ -855,10 +854,6 @@ public class ProductoFormDialog
                                 quitarImagen()
                 );
 
-        comboTipo.addActionListener(
-                evento ->
-                        actualizarTipoProducto()
-        );
     }
 
     // ============================================================
@@ -880,11 +875,11 @@ public class ProductoFormDialog
         );
 
         comboTipo.setSelectedItem(
-                "PRODUCTO"
+                "DIRECTO"
         );
 
         comboTamano.setSelectedItem(
-                "NO_APLICA"
+                "PERMITIDA"
         );
 
         comboEstado.setSelectedItem(
@@ -894,7 +889,6 @@ public class ProductoFormDialog
         rutaImagenActual =
                 null;
 
-        actualizarTipoProducto();
         actualizarVistaPrevia();
     }
 
@@ -951,28 +945,9 @@ public class ProductoFormDialog
                                 .getDisponibilidadMenu()
                 );
 
-        comboTipo.setSelectedItem(
-                productoOriginal
-                        .isCombo()
-                                ? "COMBO"
-                                : "PRODUCTO"
-        );
-
-        if (productoOriginal
-                .getTamanoBebida()
-                == null) {
-
-            comboTamano.setSelectedItem(
-                    "NO_APLICA"
-            );
-
-        } else {
-
-            comboTamano.setSelectedItem(
-                    productoOriginal
-                            .getTamanoBebida()
-            );
-        }
+        comboTipo.setSelectedItem(productoOriginal.getTipoStock());
+        comboTamano.setSelectedItem(productoOriginal.isPersonalizable()
+                ? "PERMITIDA" : "NO_PERMITIDA");
 
         comboEstado.setSelectedItem(
                 productoOriginal
@@ -1238,31 +1213,12 @@ public class ProductoFormDialog
     }
 
     // ============================================================
-    // TIPO
+    // CONTROL DE INVENTARIO
     // ============================================================
 
     private void actualizarTipoProducto() {
 
-        boolean combo =
-                "COMBO".equals(
-                        comboTipo
-                                .getSelectedItem()
-                );
-
-        /*
-         * Los combos no utilizan tamaño de bebida
-         * en la tabla producto.
-         */
-        comboTamano.setEnabled(
-                !combo
-        );
-
-        if (combo) {
-
-            comboTamano.setSelectedItem(
-                    "NO_APLICA"
-            );
-        }
+        comboTamano.setEnabled(true);
     }
 
     // ============================================================
@@ -1394,82 +1350,20 @@ public class ProductoFormDialog
                 comboCategoria
                         .getSelectedItem();
 
-        String tamano =
-                (String)
-                comboTamano
-                        .getSelectedItem();
-
-        if ("NO_APLICA".equals(
-                tamano
-        )) {
-
-            tamano =
-                    null;
-        }
-
-        boolean combo =
-                "COMBO".equals(
-                        comboTipo
-                                .getSelectedItem()
-                );
-
-        if (combo) {
-
-            tamano =
-                    null;
-        }
-
-        return new Producto(
-                productoOriginal == null
-                        ? 0
-                        : productoOriginal
-                                .getIdProducto(),
-
-                categoria.id(),
-
-                categoria.nombre(),
-
-                campoNombre
-                        .getText()
-                        .trim(),
-
-                campoDescripcion
-                        .getText()
-                        .trim(),
-
-                new BigDecimal(
-                        campoPrecio
-                                .getText()
-                                .trim()
-                ),
-
-                imagen,
-
-                (String)
-                comboDisponibilidad
-                        .getSelectedItem(),
-
-                tamano,
-
-                combo,
-
-                Integer.parseInt(
-                        campoStockActual
-                                .getText()
-                                .trim()
-                ),
-
-                Integer.parseInt(
-                        campoStockMinimo
-                                .getText()
-                                .trim()
-                ),
-
-                "ACTIVO".equals(
-                        comboEstado
-                                .getSelectedItem()
-                )
-        );
+        Producto resultado = productoOriginal == null ? new Producto() : productoOriginal;
+        resultado.setIdCategoria(categoria.id());
+        resultado.setCategoria(categoria.nombre());
+        resultado.setNombre(campoNombre.getText().trim());
+        resultado.setDescripcion(campoDescripcion.getText().trim());
+        resultado.setPrecioBase(new BigDecimal(campoPrecio.getText().trim()));
+        resultado.setImagen(imagen);
+        resultado.setDisponibilidadMenu((String) comboDisponibilidad.getSelectedItem());
+        resultado.setTipoStock((String) comboTipo.getSelectedItem());
+        resultado.setPersonalizable("PERMITIDA".equals(comboTamano.getSelectedItem()));
+        resultado.setStockActual(Integer.parseInt(campoStockActual.getText().trim()));
+        resultado.setStockMinimo(Integer.parseInt(campoStockMinimo.getText().trim()));
+        resultado.setActivo("ACTIVO".equals(comboEstado.getSelectedItem()));
+        return resultado;
     }
 
     // ============================================================

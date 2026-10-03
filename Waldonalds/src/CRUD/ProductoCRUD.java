@@ -16,13 +16,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.math.BigDecimal;
 
 public class ProductoCRUD {
-
-    public record OpcionCombo(int idProducto, String nombre, String grupo,
-            BigDecimal precioAdicional, boolean predeterminado) { }
 
     private Connection conectar() throws SQLException {
 
@@ -51,6 +46,7 @@ public class ProductoCRUD {
                     SUM(
                         CASE
                             WHEN estado = TRUE
+                            AND tipo_stock = 'DIRECTO'
                             AND stock_minimo > 0
                             AND stock_actual <= stock_minimo
                             THEN 1
@@ -194,8 +190,8 @@ public class ProductoCRUD {
                     p.precio_base,
                     p.imagen,
                     p.disponibilidad_menu,
-                    p.tamano_bebida,
-                    p.es_combo,
+                    p.tipo_stock,
+                    p.personalizable,
                     p.stock_actual,
                     p.stock_minimo,
                     p.estado
@@ -305,8 +301,8 @@ public class ProductoCRUD {
                     precio_base,
                     imagen,
                     disponibilidad_menu,
-                    tamano_bebida,
-                    es_combo,
+                    tipo_stock,
+                    personalizable,
                     stock_actual,
                     stock_minimo,
                     estado,
@@ -315,37 +311,43 @@ public class ProductoCRUD {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (
-                Connection conexion = conectar();
-                PreparedStatement ps =
-                        conexion.prepareStatement(
-                                sql,
-                                Statement.RETURN_GENERATED_KEYS
-                        )) {
-
-            completarParametrosProducto(
-                    ps,
-                    producto
-            );
-
-            ps.executeUpdate();
-
-            try (ResultSet rs =
-                    ps.getGeneratedKeys()) {
-
-                if (rs.next()) {
-
-                    int id =
-                            rs.getInt(1);
-
-                    producto.setIdProducto(id);
-
-                    return id;
+        try (Connection conexion = conectar()) {
+            conexion.setAutoCommit(false);
+            try {
+                int id;
+                try (PreparedStatement ps = conexion.prepareStatement(
+                        sql, Statement.RETURN_GENERATED_KEYS)) {
+                    completarParametrosProducto(ps, producto);
+                    ps.executeUpdate();
+                    try (ResultSet rs = ps.getGeneratedKeys()) {
+                        if (!rs.next()) throw new SQLException(
+                                "No se obtuvo el identificador del producto.");
+                        id = rs.getInt(1);
+                    }
                 }
+                int presentacion = insertarId(conexion,
+                        "INSERT INTO presentacion_menu(id_producto_principal,nombre,tipo,precio,predeterminada,estado) VALUES(?,'Individual','INDIVIDUAL',?,TRUE,TRUE)",
+                        id, producto.getPrecioBase());
+                int grupo = insertarId(conexion,
+                        "INSERT INTO grupo_presentacion(id_presentacion,nombre,minimo,maximo,permite_repetir,visible,permite_personalizar,estado) VALUES(?,'__Producto principal',1,1,FALSE,FALSE,TRUE,TRUE)",
+                        presentacion);
+                int opcion = insertarId(conexion,
+                        "INSERT INTO opcion_grupo(id_grupo,nombre,incremento_precio,predeterminada,estado) VALUES(?,?,0,TRUE,TRUE)",
+                        grupo, producto.getNombre());
+                try (PreparedStatement componente = conexion.prepareStatement(
+                        "INSERT INTO opcion_componente(id_opcion,id_producto,cantidad) VALUES(?,?,1)")) {
+                    componente.setInt(1, opcion);
+                    componente.setInt(2, id);
+                    componente.executeUpdate();
+                }
+                conexion.commit();
+                producto.setIdProducto(id);
+                return id;
+            } catch (SQLException | RuntimeException ex) {
+                conexion.rollback();
+                throw ex;
             }
         }
-
-        return 0;
     }
 
     // ============================================================
@@ -365,8 +367,8 @@ public class ProductoCRUD {
                     precio_base = ?,
                     imagen = ?,
                     disponibilidad_menu = ?,
-                    tamano_bebida = ?,
-                    es_combo = ?,
+                    tipo_stock = ?,
+                    personalizable = ?,
                     stock_actual = ?,
                     stock_minimo = ?,
                     estado = ?,
@@ -397,6 +399,13 @@ public class ProductoCRUD {
                 throw new SQLException(
                         "No se encontró el producto que se desea actualizar."
                 );
+            }
+
+            try (PreparedStatement precioIndividual = conexion.prepareStatement(
+                    "UPDATE presentacion_menu SET precio=? WHERE id_producto_principal=? AND tipo='INDIVIDUAL' AND nombre='Individual'")) {
+                precioIndividual.setBigDecimal(1, producto.getPrecioBase());
+                precioIndividual.setInt(2, producto.getIdProducto());
+                precioIndividual.executeUpdate();
             }
         }
     }
@@ -474,8 +483,8 @@ public class ProductoCRUD {
                     p.precio_base,
                     p.imagen,
                     p.disponibilidad_menu,
-                    p.tamano_bebida,
-                    p.es_combo,
+                    p.tipo_stock,
+                    p.personalizable,
                     p.stock_actual,
                     p.stock_minimo,
                     p.estado
@@ -631,47 +640,20 @@ public class ProductoCRUD {
             ResultSet rs)
             throws SQLException {
 
-        Producto producto = new Producto(
-                rs.getInt(
-                        "id_producto"
-                ),
-                rs.getInt(
-                        "id_categoria"
-                ),
-                rs.getString(
-                        "categoria"
-                ),
-                rs.getString(
-                        "nombre"
-                ),
-                rs.getString(
-                        "descripcion"
-                ),
-                rs.getBigDecimal(
-                        "precio_base"
-                ),
-                rs.getString(
-                        "imagen"
-                ),
-                rs.getString(
-                        "disponibilidad_menu"
-                ),
-                rs.getString(
-                        "tamano_bebida"
-                ),
-                rs.getBoolean(
-                        "es_combo"
-                ),
-                rs.getInt(
-                        "stock_actual"
-                ),
-                rs.getInt(
-                        "stock_minimo"
-                ),
-                rs.getBoolean(
-                        "estado"
-                )
-        );
+        Producto producto = new Producto();
+        producto.setIdProducto(rs.getInt("id_producto"));
+        producto.setIdCategoria(rs.getInt("id_categoria"));
+        producto.setCategoria(rs.getString("categoria"));
+        producto.setNombre(rs.getString("nombre"));
+        producto.setDescripcion(rs.getString("descripcion"));
+        producto.setPrecioBase(rs.getBigDecimal("precio_base"));
+        producto.setImagen(rs.getString("imagen"));
+        producto.setDisponibilidadMenu(rs.getString("disponibilidad_menu"));
+        producto.setTipoStock(rs.getString("tipo_stock"));
+        producto.setPersonalizable(rs.getBoolean("personalizable"));
+        producto.setStockActual(rs.getInt("stock_actual"));
+        producto.setStockMinimo(rs.getInt("stock_minimo"));
+        producto.setActivo(rs.getBoolean("estado"));
         producto.setSubCategoria(rs.getString("subCategoria"));
         return producto;
     }
@@ -693,6 +675,19 @@ public class ProductoCRUD {
         }
 
         return indice;
+    }
+
+    private int insertarId(Connection conexion, String sql, Object... valores)
+            throws SQLException {
+        try (PreparedStatement ps = conexion.prepareStatement(
+                sql, Statement.RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < valores.length; i++) ps.setObject(i + 1, valores[i]);
+            ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (!rs.next()) throw new SQLException("No se obtuvo el registro creado.");
+                return rs.getInt(1);
+            }
+        }
     }
 
     private void completarParametrosProducto(
@@ -741,25 +736,11 @@ public class ProductoCRUD {
                 producto.getDisponibilidadMenu()
         );
 
-        if (producto.getTamanoBebida() == null
-                || producto.getTamanoBebida().isBlank()) {
-
-            ps.setNull(
-                    7,
-                    Types.VARCHAR
-            );
-
-        } else {
-
-            ps.setString(
-                    7,
-                    producto.getTamanoBebida()
-            );
-        }
+        ps.setString(7, producto.getTipoStock());
 
         ps.setBoolean(
                 8,
-                producto.isCombo()
+                producto.isPersonalizable()
         );
 
         ps.setInt(
@@ -783,60 +764,5 @@ public class ProductoCRUD {
         } else {
             ps.setString(12, subCategoria.trim());
         }
-    }
-
-    /** Suma el precio de los extras configurados para un producto. */
-    public BigDecimal calcularPrecioExtras(int idProducto, Set<String> ingredientes)
-            throws SQLException {
-        if (ingredientes == null || ingredientes.isEmpty()) return BigDecimal.ZERO;
-        StringBuilder placeholders = new StringBuilder();
-        for (int i = 0; i < ingredientes.size(); i++) {
-            if (i > 0) placeholders.append(',');
-            placeholders.append('?');
-        }
-        String sql = "SELECT COALESCE(SUM(rp.precio_extra),0) "
-                + "FROM receta_producto rp JOIN ingrediente i "
-                + "ON i.id_ingrediente=rp.id_ingrediente "
-                + "WHERE rp.id_producto=? AND i.nombre IN (" + placeholders + ")";
-        try (Connection conexion = conectar();
-                PreparedStatement ps = conexion.prepareStatement(sql)) {
-            int indice = 1;
-            ps.setInt(indice++, idProducto);
-            for (String ingrediente : ingredientes) ps.setString(indice++, ingrediente);
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getBigDecimal(1);
-            }
-        }
-    }
-
-    public List<OpcionCombo> listarOpcionesCombo(int idCombo) throws SQLException {
-        String sql = "SELECT co.id_producto_opcion,p.nombre,co.grupo,"
-                + "co.precio_adicional,co.es_predeterminado "
-                + "FROM combo_opcion co JOIN producto p "
-                + "ON p.id_producto=co.id_producto_opcion "
-                + "WHERE co.id_combo=? AND co.estado=TRUE AND p.estado=TRUE "
-                + "ORDER BY FIELD(co.grupo,'PRINCIPAL','ACOMPANAMIENTO','BEBIDA','POSTRE','OTRO'),p.nombre";
-        List<OpcionCombo> opciones = new ArrayList<>();
-        try (Connection conexion = conectar(); PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setInt(1, idCombo);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) opciones.add(new OpcionCombo(rs.getInt(1), rs.getString(2),
-                        rs.getString(3), rs.getBigDecimal(4), rs.getBoolean(5)));
-            }
-        }
-        return opciones;
-    }
-
-    public BigDecimal calcularPrecioOpcionesCombo(int idCombo, Set<String> nombres)
-            throws SQLException {
-        if (nombres == null || nombres.isEmpty()) return BigDecimal.ZERO;
-        BigDecimal total = BigDecimal.ZERO;
-        for (OpcionCombo opcion : listarOpcionesCombo(idCombo)) {
-            if (nombres.stream().anyMatch(n -> n.equalsIgnoreCase(opcion.nombre()))) {
-                total = total.add(opcion.precioAdicional());
-            }
-        }
-        return total;
     }
 }

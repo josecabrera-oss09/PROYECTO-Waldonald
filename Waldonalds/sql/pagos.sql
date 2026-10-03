@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS pago_operacion (
     id_pedido INT NULL UNIQUE,
     comprobante TEXT NULL,
     referencia VARCHAR(100) NOT NULL DEFAULT '',
-    CONSTRAINT fk_pago_operacion_pedido FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

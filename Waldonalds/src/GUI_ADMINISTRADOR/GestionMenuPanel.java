@@ -91,6 +91,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
     private final Map<Integer, String> categorias = new LinkedHashMap<>();
     private final Map<String, ImageIcon> cacheImagenes = new HashMap<>();
     private final Timer temporizadorBusqueda;
+    private final BotonRedondeado botonConfigurar = new BotonRedondeado();
 
     private int paginaActual = 1;
     private int totalPaginas = 1;
@@ -101,6 +102,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
 
     public GestionMenuPanel() {
         initComponents();
+        agregarBotonConfiguracion();
         temporizadorBusqueda = new Timer(300, evento -> {
             paginaActual = 1;
             cargarDatos();
@@ -116,6 +118,30 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         scrollUsuarios.setVerticalScrollBarPolicy(
     javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
 );
+    }
+
+    private void agregarBotonConfiguracion() {
+        botonConfigurar.setText("Opciones y receta");
+        botonConfigurar.setFont(tema.negrita(14f));
+        botonConfigurar.setForeground(AZUL);
+        botonConfigurar.setDegradado(false);
+        botonConfigurar.setColorInicio(Color.WHITE);
+        botonConfigurar.setColorFinal(Color.WHITE);
+        botonConfigurar.setColorBorde(AMARILLO);
+        botonConfigurar.setGrosorBorde(1.5f);
+        botonConfigurar.setRadio(18);
+        add(botonConfigurar, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 75, 225, 54));
+        botonConfigurar.addActionListener(e -> {
+            int fila = tablaProductos.getSelectedRow();
+            if (fila < 0) {
+                JOptionPane.showMessageDialog(this, "Selecciona primero un producto de la tabla.",
+                        "Configurar menú", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            Producto producto = modeloTabla.productoEn(tablaProductos.convertRowIndexToModel(fila));
+            new ConfiguracionMenuAdminDialog(SwingUtilities.getWindowAncestor(this), producto).setVisible(true);
+            cargarDatos();
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -758,6 +784,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         };
         private List<Producto> productos = List.of();
 
+        private Producto productoEn(int fila) { return productos.get(fila); }
+
         private void setProductos(List<Producto> nuevos) {
             productos = List.copyOf(nuevos);
             fireTableDataChanged();
@@ -851,7 +879,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
             JLabel nombre = new JLabel(producto.getNombre());
             nombre.setFont(tema.media(13f));
             nombre.setForeground(AZUL);
-            String subtipo = producto.isCombo() ? "Combo" : "Producto";
+            String subtipo = producto.getTipo();
             if (producto.getSubCategoria() != null
                     && !producto.getSubCategoria().isBlank()) {
                 subtipo += " · " + producto.getSubCategoria();
@@ -1075,8 +1103,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         try (BufferedWriter escritor = Files.newBufferedWriter(
                 archivo, StandardCharsets.UTF_8)) {
             escritor.write('\ufeff');
-            escritor.write("ID,Nombre,Categoría,Subcategoría,Descripción,Precio,Disponibilidad,"
-                    + "Tamaño bebida,Combo,Stock,Stock mínimo,Estado,Imagen");
+            escritor.write("ID,Nombre,Categoría,Subcategoría,Descripción,Precio base,Disponibilidad,"
+                    + "Tipo stock,Personalizable,Stock,Stock mínimo,Estado,Imagen");
             escritor.newLine();
             for (Producto producto : productos) {
                 escritor.write(String.join(",",
@@ -1087,8 +1115,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                         csv(producto.getPrecioBase() == null ? ""
                                 : producto.getPrecioBase().toPlainString()),
                         csv(producto.getDisponibilidadMenu()),
-                        csv(producto.getTamanoBebida()),
-                        csv(producto.isCombo() ? "Sí" : "No"),
+                        csv(producto.getTipoStock()),
+                        csv(producto.isPersonalizable() ? "Sí" : "No"),
                         csv(String.valueOf(producto.getStockActual())),
                         csv(String.valueOf(producto.getStockMinimo())),
                         csv(producto.isActivo() ? "Activo" : "Inactivo"),
@@ -1298,13 +1326,13 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                 String.join(";", categoriasDisponibles.values()));
         BotonDesplegable disponibilidad = nuevoSelector("Todo el día",
                 "Desayuno;Almuerzo;Todo el día");
-        BotonDesplegable tamano = nuevoSelector("Sin tamaño",
-                "Sin tamaño;Pequeña;Mediana;Grande");
+        BotonDesplegable tamano = nuevoSelector("Stock directo",
+                "Por receta;Stock directo;Sin control de stock");
         BotonDesplegable estado = nuevoSelector("Activo", "Activo;Inactivo");
         if (editando) {
             categoria.setText(original.getCategoria());
             disponibilidad.setText(nombreDisponibilidad(original.getDisponibilidadMenu()));
-            tamano.setText(nombreTamano(original.getTamanoBebida()));
+            tamano.setText(nombreTipoStock(original.getTipoStock()));
             estado.setText(original.isActivo() ? "Activo" : "Inactivo");
         }
 
@@ -1314,8 +1342,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                 editando ? original.getStockMinimo() : 0, 0, 999999999, 1));
         estilizarSpinner(stock);
         estilizarSpinner(stockMinimo);
-        JCheckBox esCombo = new JCheckBox("Es combo",
-                editando && original.isCombo());
+        JCheckBox esCombo = new JCheckBox("Permitir personalización",
+                !editando || original.isPersonalizable());
         esCombo.setFont(tema.media(14f));
         esCombo.setForeground(AZUL);
         esCombo.setOpaque(false);
@@ -1326,13 +1354,13 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         agregarFila(campos, 0, crearCampo("Nombre", nombre),
                 crearCampo("Categoría", categoria));
         agregarFila(campos, 1, crearCampo("Subcategoría (opcional)", subCategoria),
-                crearCampo("Precio (Q)", precio));
+                crearCampo("Precio individual (Q)", precio));
         agregarFila(campos, 2, crearCampo("Disponibilidad", disponibilidad),
-                crearCampo("Tamaño de bebida", tamano));
+                crearCampo("Control de inventario", tamano));
         agregarFila(campos, 3, crearCampo("Stock actual", stock),
                 crearCampo("Stock mínimo", stockMinimo));
         agregarFila(campos, 4, crearCampo("Estado", estado),
-                crearCampo("Tipo", esCombo));
+                crearCampo("Preparación", esCombo));
         agregarFilaCompleta(campos, 5, crearCampo("Descripción", scrollDescripcion));
 
         final String[] rutaImagen = {editando ? original.getImagen() : null};
@@ -1560,19 +1588,15 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         }
     }
 
-    private String nombreTamano(String codigo) {
+    private String nombreTipoStock(String codigo) {
         if (codigo == null) {
-            return "Sin tamaño";
+            return "Stock directo";
         }
         return switch (codigo) {
-            case "PEQUENA" ->
-                "Pequeña";
-            case "MEDIANA" ->
-                "Mediana";
-            case "GRANDE" ->
-                "Grande";
+            case "RECETA" -> "Por receta";
+            case "NINGUNO" -> "Sin control de stock";
             default ->
-                "Sin tamaño";
+                "Stock directo";
         };
     }
 
@@ -1634,14 +1658,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                 "TODO_DIA";
         };
         String codigoTamano = switch (tamano.getText()) {
-            case "Pequeña" ->
-                "PEQUENA";
-            case "Mediana" ->
-                "MEDIANA";
-            case "Grande" ->
-                "GRANDE";
-            default ->
-                null;
+            case "Por receta" -> "RECETA";
+            case "Sin control de stock" -> "NINGUNO";
+            default -> "DIRECTO";
         };
         String imagenCopiada = null;
         guardar.setEnabled(false);
@@ -1660,8 +1679,8 @@ public class GestionMenuPanel extends javax.swing.JPanel {
                     ? null : descripcionValor);
             producto.setPrecioBase(precioValor);
             producto.setDisponibilidadMenu(codigoDisponibilidad);
-            producto.setTamanoBebida(codigoTamano);
-            producto.setCombo(esCombo.isSelected());
+            producto.setTipoStock(codigoTamano);
+            producto.setPersonalizable(esCombo.isSelected());
             producto.setStockActual(((Number) stock.getValue()).intValue());
             producto.setStockMinimo(((Number) stockMinimo.getValue()).intValue());
             producto.setActivo("Activo".equals(estado.getText()));
