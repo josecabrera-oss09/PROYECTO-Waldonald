@@ -67,7 +67,7 @@ public class SubCatDesayunos extends javax.swing.JPanel {
         jScrollPane1.setHorizontalScrollBarPolicy(
                 javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setVerticalScrollBarPolicy(
-                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         jScrollPane1.getHorizontalScrollBar().setEnabled(false);
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         java.awt.event.MouseWheelListener rueda = evento -> {

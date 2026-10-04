@@ -621,6 +621,7 @@ public class ProductoFormDialog
                 new JScrollPane(
                         campoDescripcion
                 );
+        Componentes.DesplazamientoSuave.ocultarBarras(scrollDescripcion);
 
         scrollDescripcion.setBorder(
                 BorderFactory.createLineBorder(

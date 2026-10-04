@@ -36,9 +36,9 @@ public class Scroll_Vertical extends JScrollPane {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
         );
 
-        // Scroll vertical siempre visible
+        // El contenido conserva el desplazamiento, pero sin mostrar la barra.
         setVerticalScrollBarPolicy(
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER
         );
 
         // Quitar bordes

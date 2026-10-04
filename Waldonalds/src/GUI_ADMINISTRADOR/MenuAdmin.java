@@ -8,6 +8,7 @@ import Login.Login;
 import Utilidades.TemaAdmin;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 import GUI_ADMINISTRADOR.InicioAdminForm;
 import java.awt.Cursor;
@@ -16,9 +17,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
-import java.awt.Component;
-import java.util.HashMap;
-import java.util.Map;
+import Componentes.BarraTituloForm;
+
 
 /**
  * Pantalla contenedora del modulo administrativo.
@@ -29,13 +29,12 @@ public class MenuAdmin extends javax.swing.JFrame {
     private static final String DASHBOARD = "dashboard";
     private static final String USUARIOS = "usuarios";
     private static final String GESTION_MENU = "gestionMenu";
-    private static final String INGREDIENTES = "ingredientes";
+    private static final String INVENTARIO = "inventario";
     private static final String REPORTES = "reportes";
-    private final Map<Component, Rectangle> posicionesContenidoOriginales
-        = new HashMap<>();
     private final TemaAdmin tema;
     private CardLayout navegador;
     private BotonMenuLateral botonActivo;
+    private BarraTituloForm barraTitulo;
     // ==========================================
 // MENÚ LATERAL DESPLEGABLE
 // ==========================================
@@ -52,12 +51,10 @@ private double aperturaObjetivo;
 private Timer timerMenu;
 private long tiempoInicioAnimacionNanos;
 private long duracionAnimacionNanos;
-private boolean ajusteMenuPendiente;
-
 // Duración de la animación (300 ms).
 private static final long DURACION_MENU_NANOS = 300_000_000L;
 
-// Medidas después de aplicar el Escalador
+// Medidas originales del menú lateral.
 private int anchoLateralAbierto;
 private int anchoLateralCerrado;
 
@@ -67,7 +64,7 @@ private Rectangle boundsLogoAbierto;
 private Rectangle boundsBotonDashboard;
 private Rectangle boundsBotonUsuarios;
 private Rectangle boundsBotonGestionMenu;
-private Rectangle boundsBotonIngredientes;
+private Rectangle boundsBotonInventario;
 private Rectangle boundsBotonReportes;
 private Rectangle boundsBotonCerrarSesion;
 
@@ -82,7 +79,14 @@ private Rectangle boundsUsuario;
    public MenuAdmin() {
     tema = new TemaAdmin();
 
+    setUndecorated(true);
+
     initComponents();
+
+    barraTitulo = BarraTituloForm.instalar(this, "Inicio de Administrador");
+    // La barra personalizada ocupa 48 px dentro de una ventana de 1080 px.
+    // El contenido administrativo dispone de los 1032 px restantes.
+    setSize(1920, 1080);
 
     aplicarTipografia();
     configurarSecciones();
@@ -90,10 +94,7 @@ private Rectangle boundsUsuario;
 
     setLocationRelativeTo(null);
 
-    // Tu escalador permanece exactamente igual
-    Utilidades.Escalador.aplicar(this);
-
-    // Configuramos el menú DESPUÉS de escalar
+    // Conserva la animación del menú con las medidas del formulario.
     configurarMenuDesplegable();
 }
    private void configurarMenuDesplegable() {
@@ -101,9 +102,7 @@ private Rectangle boundsUsuario;
     /*
      * Guardamos las dimensiones actuales.
      *
-     * En este punto Escalador.aplicar(this) ya se ejecutó,
-     * así que estas dimensiones ya están adaptadas
-     * a la resolución de la computadora.
+     * Se usan directamente las dimensiones diseñadas en el formulario.
      */
 
     guardarGeometriaMenu();
@@ -127,20 +126,6 @@ private Rectangle boundsUsuario;
             alternarMenuLateral();
         }
     });
-    guardarPosicionesContenido();
-    addComponentListener(new java.awt.event.ComponentAdapter() {
-        @Override public void componentResized(java.awt.event.ComponentEvent e) {
-            // Escalador restaura primero las coordenadas base para esta resolución.
-            if (ajusteMenuPendiente) return;
-            ajusteMenuPendiente = true;
-            javax.swing.SwingUtilities.invokeLater(() -> {
-                ajusteMenuPendiente = false;
-                guardarGeometriaMenu();
-                guardarPosicionesContenido();
-                aplicarAperturaMenu(aperturaMenu);
-            });
-        }
-    });
     labelHamburguesa.setFocusable(true);
     labelHamburguesa.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(
             javax.swing.KeyStroke.getKeyStroke("SPACE"), "alternarMenu");
@@ -150,7 +135,8 @@ private Rectangle boundsUsuario;
         @Override public void actionPerformed(java.awt.event.ActionEvent e) { alternarMenuLateral(); }
     });
     for (BotonMenuLateral boton : new BotonMenuLateral[]{botonDashboard, botonUsuarios,
-            botonGestionMenu, botonIngredientes, botonReportes, botonCerrarSesion}) {
+            botonGestionMenu, botonInventario,
+            botonReportes, botonCerrarSesion}) {
         boton.setToolTipText(boton.getText());
     }
 }
@@ -161,8 +147,7 @@ private Rectangle boundsUsuario;
      * Tu menú original mide 340.
      * Cerrado queremos que sea aproximadamente 90.
      *
-     * Usamos una proporción para NO interferir
-     * con tu Escalador.
+     * El ancho cerrado conserva la proporción del diseño original.
      */
     anchoLateralCerrado =
             (int) Math.round(anchoLateralAbierto * (90.0 / 340.0));
@@ -179,8 +164,8 @@ private Rectangle boundsUsuario;
     boundsBotonGestionMenu =
             new Rectangle(botonGestionMenu.getBounds());
 
-    boundsBotonIngredientes =
-            new Rectangle(botonIngredientes.getBounds());
+    boundsBotonInventario =
+            new Rectangle(botonInventario.getBounds());
 
     boundsBotonReportes =
             new Rectangle(botonReportes.getBounds());
@@ -210,74 +195,6 @@ private Rectangle boundsUsuario;
 
 
     }
-   private void guardarPosicionesContenido() {
-
-    posicionesContenidoOriginales.clear();
-
-    for (Component tarjeta : panelContenido.getComponents()) {
-
-        if (tarjeta instanceof JPanel panelSeccion) {
-
-            for (Component componente : panelSeccion.getComponents()) {
-
-                posicionesContenidoOriginales.put(
-                        componente,
-                        new Rectangle(componente.getBounds())
-                );
-            }
-        }
-    }
-}
-   private void centrarContenido(double apertura) {
-
-    /*
-     * Cuando está abierto:
-     * apertura = 1
-     * desplazamiento = 0
-     *
-     * Cuando está cerrado:
-     * apertura = 0
-     * desplazamiento = la mitad del espacio liberado
-     */
-
-    int espacioLiberado =
-            anchoLateralAbierto - anchoLateralCerrado;
-
-    int desplazamientoMaximo =
-            espacioLiberado / 2;
-
-    int desplazamientoActual =
-            (int) Math.round(
-                    desplazamientoMaximo * (1.0 - apertura)
-            );
-
-
-    for (Component seccion : panelContenido.getComponents()) {
-
-        if (!(seccion instanceof JPanel panelSeccion)) {
-            continue;
-        }
-
-        for (Component componente : panelSeccion.getComponents()) {
-
-            Rectangle original =
-                    posicionesContenidoOriginales.get(componente);
-
-            if (original == null) {
-                continue;
-            }
-
-            componente.setBounds(
-                    original.x + desplazamientoActual,
-                    original.y,
-                    original.width,
-                    original.height
-            );
-        }
-
-
-    }
-}
    private void alternarMenuLateral() {
 
     // Cambiamos el estado deseado
@@ -472,8 +389,8 @@ private Rectangle boundsUsuario;
     );
 
     actualizarBotonCompacto(
-            botonIngredientes,
-            boundsBotonIngredientes,
+            botonInventario,
+            boundsBotonInventario,
             apertura
     );
 
@@ -492,8 +409,6 @@ private Rectangle boundsUsuario;
     int alpha = (int) Math.round(255 * Math.max(0.0, Math.min(1.0, (apertura - 0.35) / 0.65)));
     labelMarca.setForeground(new Color(255, 255, 255, alpha));
     labelRol.setForeground(new Color(255, 190, 0, alpha));
-    centrarContenido(apertura);
-    // Evita recalcular todos los AbsoluteLayout en cada fotograma.
     panelContenido.doLayout();
     panelRaiz.repaint();
 }
@@ -502,10 +417,7 @@ private Rectangle boundsUsuario;
         Rectangle abierto,
         double apertura) {
 
-    /*
-     * Margen proporcional al tamaño que dejó
-     * el Escalador.
-     */
+    // Margen proporcional al ancho original del menú.
     int margenCerrado =
             Math.max(
                     5,
@@ -566,7 +478,7 @@ private Rectangle boundsUsuario;
         botonDashboard.setFont(tema.negrita(17f));
         botonUsuarios.setFont(tema.media(17f));
         botonGestionMenu.setFont(tema.media(17f));
-        botonIngredientes.setFont(tema.media(17f));
+        botonInventario.setFont(tema.media(17f));
         botonReportes.setFont(tema.media(17f));
         botonCerrarSesion.setFont(tema.negrita(17f));
     }
@@ -578,13 +490,16 @@ private Rectangle boundsUsuario;
         agregarSeccion(new DashboardPanel(), DASHBOARD);
         agregarSeccion(new UsuariosPanel(), USUARIOS);
         agregarSeccion(new GestionMenuPanel(), GESTION_MENU);
-        agregarSeccion(new IngredientesPanel(), INGREDIENTES);
+        agregarSeccion(new InventarioPanel(), INVENTARIO);
         agregarSeccion(new ReportesPanel(), REPORTES);
     }
 
     private void agregarSeccion(JPanel seccion, String nombre) {
         seccion.setBackground(new Color(248, 249, 251));
-        panelContenido.add(seccion, nombre);
+        JPanel contenedor = new JPanel(new GridBagLayout());
+        contenedor.setBackground(new Color(248, 249, 251));
+        contenedor.add(seccion);
+        panelContenido.add(contenedor, nombre);
     }
 
     private void mostrarSeccion(String nombre, BotonMenuLateral botonSeleccionado) {
@@ -596,6 +511,20 @@ private Rectangle boundsUsuario;
         navegador.show(panelContenido, nombre);
         panelContenido.revalidate();
         panelContenido.repaint();
+        if (barraTitulo != null) {
+            barraTitulo.setSeccion(nombreSeccion(nombre));
+        }
+    }
+
+    private String nombreSeccion(String seccion) {
+        return switch (seccion) {
+            case DASHBOARD -> "Inicio de Administrador";
+            case USUARIOS -> "Gestión de Usuarios";
+            case GESTION_MENU -> "Gestión de Productos";
+            case INVENTARIO -> "Inventario";
+            case REPORTES -> "Reportes";
+            default -> "Administración";
+        };
     }
 
     private void cerrarSesion() {
@@ -617,7 +546,7 @@ private Rectangle boundsUsuario;
         botonDashboard = new Componentes.BotonMenuLateral();
         botonUsuarios = new Componentes.BotonMenuLateral();
         botonGestionMenu = new Componentes.BotonMenuLateral();
-        botonIngredientes = new Componentes.BotonMenuLateral();
+        botonInventario = new Componentes.BotonMenuLateral();
         botonReportes = new Componentes.BotonMenuLateral();
         botonCerrarSesion = new Componentes.BotonMenuLateral();
         panelCabecera = new javax.swing.JPanel();
@@ -636,7 +565,7 @@ private Rectangle boundsUsuario;
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelRaiz.setBackground(new java.awt.Color(248, 249, 251));
-        panelRaiz.setPreferredSize(new java.awt.Dimension(1920, 1080));
+        panelRaiz.setPreferredSize(new java.awt.Dimension(1920, 1032));
         panelRaiz.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelLateral.setBackground(new java.awt.Color(1, 15, 30));
@@ -683,14 +612,14 @@ private Rectangle boundsUsuario;
         });
         panelLateral.add(botonGestionMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 315, 296, 64));
 
-        botonIngredientes.setText("Ingredientes");
-        botonIngredientes.setTipoIcono("INGREDIENTES");
-        botonIngredientes.addActionListener(new java.awt.event.ActionListener() {
+        botonInventario.setText("Inventario");
+        botonInventario.setTipoIcono("INVENTARIO");
+        botonInventario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonIngredientesActionPerformed(evt);
+                botonInventarioActionPerformed(evt);
             }
         });
-        panelLateral.add(botonIngredientes, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 400, 296, 64));
+        panelLateral.add(botonInventario, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 400, 296, 64));
 
         botonReportes.setText("Reportes");
         botonReportes.setTipoIcono("REPORTES");
@@ -709,9 +638,9 @@ private Rectangle boundsUsuario;
                 botonCerrarSesionActionPerformed(evt);
             }
         });
-        panelLateral.add(botonCerrarSesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 985, 296, 62));
+        panelLateral.add(botonCerrarSesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 955, 296, 62));
 
-        panelRaiz.add(panelLateral, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 340, 1080));
+        panelRaiz.add(panelLateral, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 340, 1032));
 
         panelCabecera.setBackground(new java.awt.Color(255, 255, 255));
         panelCabecera.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
@@ -751,9 +680,9 @@ private Rectangle boundsUsuario;
 
         panelContenido.setBackground(new java.awt.Color(248, 249, 251));
         panelContenido.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        panelRaiz.add(panelContenido, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 100, 1580, 980));
+        panelRaiz.add(panelContenido, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 100, 1580, 932));
 
-        getContentPane().add(panelRaiz, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1080));
+        getContentPane().add(panelRaiz, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1920, 1032));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -770,9 +699,9 @@ private Rectangle boundsUsuario;
         mostrarSeccion(GESTION_MENU, botonGestionMenu);
     }//GEN-LAST:event_botonGestionMenuActionPerformed
 
-    private void botonIngredientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonIngredientesActionPerformed
-        mostrarSeccion(INGREDIENTES, botonIngredientes);
-    }//GEN-LAST:event_botonIngredientesActionPerformed
+    private void botonInventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonInventarioActionPerformed
+        mostrarSeccion(INVENTARIO, botonInventario);
+    }//GEN-LAST:event_botonInventarioActionPerformed
 
     private void botonReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonReportesActionPerformed
         mostrarSeccion(REPORTES, botonReportes);
@@ -801,7 +730,7 @@ private Rectangle boundsUsuario;
     private Componentes.BotonMenuLateral botonCerrarSesion;
     private Componentes.BotonMenuLateral botonDashboard;
     private Componentes.BotonMenuLateral botonGestionMenu;
-    private Componentes.BotonMenuLateral botonIngredientes;
+    private Componentes.BotonMenuLateral botonInventario;
     private Componentes.BotonMenuLateral botonReportes;
     private Componentes.BotonMenuLateral botonUsuarios;
     private javax.swing.JLabel labelBienvenido;

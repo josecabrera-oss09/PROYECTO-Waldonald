@@ -18,11 +18,19 @@ public final class DesplazamientoSuave {
     private DesplazamientoSuave() {
     }
 
+    /** Oculta las barras sin desactivar el desplazamiento del contenido. */
+    public static void ocultarBarras(JScrollPane scroll) {
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    }
+
     public static void instalarVertical(JScrollPane scroll) {
+        ocultarBarras(scroll);
         instalar(scroll, scroll.getVerticalScrollBar(), false);
     }
 
     public static void instalarHorizontal(JScrollPane scroll) {
+        ocultarBarras(scroll);
         instalar(scroll, scroll.getHorizontalScrollBar(), true);
     }
 

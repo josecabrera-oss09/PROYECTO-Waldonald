@@ -109,7 +109,9 @@ public final class ConfiguracionMenuAdminDialog extends JDialog {
                 value.nombre()+" · base "+value.cantidadDefault()+
                 (value.permiteQuitar()?" · se puede quitar":"")+
                 (value.permiteExtra()?" · extra Q"+value.precioExtra():""),selected));
-        panel.add(new JScrollPane(ingredientes),BorderLayout.CENTER);
+        JScrollPane scrollIngredientes = new JScrollPane(ingredientes);
+        Componentes.DesplazamientoSuave.ocultarBarras(scrollIngredientes);
+        panel.add(scrollIngredientes,BorderLayout.CENTER);
         JPanel acciones = new JPanel(new FlowLayout(FlowLayout.RIGHT,8,0)); acciones.setOpaque(false);
         acciones.add(botonAccion("Agregar ingrediente",e->editarIngrediente(null)));
         acciones.add(botonAccion("Editar",e->editarIngrediente(ingredientes.getSelectedValue())));
@@ -124,7 +126,9 @@ public final class ConfiguracionMenuAdminDialog extends JDialog {
         panel.add(etiqueta,BorderLayout.NORTH);
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lista.setFixedCellHeight(44); lista.setFont(new Font("SansSerif",Font.PLAIN,13));
-        JScrollPane scroll = new JScrollPane(lista); scroll.setBorder(BorderFactory.createLineBorder(BORDE));
+        JScrollPane scroll = new JScrollPane(lista);
+        Componentes.DesplazamientoSuave.ocultarBarras(scroll);
+        scroll.setBorder(BorderFactory.createLineBorder(BORDE));
         panel.add(scroll,BorderLayout.CENTER);
         JPanel acciones = new JPanel(new GridLayout(0,1,0,5)); acciones.setOpaque(false);
         for(JButton boton:botones) acciones.add(boton);

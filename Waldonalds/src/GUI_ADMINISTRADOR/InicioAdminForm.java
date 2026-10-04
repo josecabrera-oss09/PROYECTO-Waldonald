@@ -9,31 +9,32 @@ import Utilidades.TemaAdmin;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import javax.swing.JOptionPane;
+import Componentes.BarraTituloForm;
 
-/** Pantalla administrativa construida como JFrame Form de NetBeans. */
+/**
+ * Pantalla administrativa construida como JFrame Form de NetBeans.
+ */
 @SuppressWarnings({"serial", "this-escape"})
 public class InicioAdminForm extends javax.swing.JFrame {
 
     private final TemaAdmin tema;
     private Runnable accionMenuAdmin;
 
-
     public InicioAdminForm() {
-         
-        
-    setLocationRelativeTo(null);
+
+        setLocationRelativeTo(null);
         tema = new TemaAdmin();
         accionMenuAdmin = this::abrirMenuAdmin;
+        setUndecorated(true);
+
         initComponents();
-        
+
+        BarraTituloForm.instalar(this, "Inicio de Administrador");
+
         aplicarTipografia();
         botonUsuario.addMenuOpcionListener(this::procesarOpcionUsuario);
-        botonMenu.putClientProperty("noEscalarIcono", true);
-        botonAdmin.putClientProperty("noEscalarIcono", true);
         setLocationRelativeTo(null);
-        Utilidades.Escalador.aplicar(this);
     }
-
 
     private void aplicarTipografia() {
         labelMarca.setFont(tema.negrita(34f));
@@ -59,8 +60,9 @@ public class InicioAdminForm extends javax.swing.JFrame {
 
     private void procesarOpcionUsuario(ActionEvent evento) {
         switch (botonUsuario.getIndiceOpcionSeleccionada()) {
-          
-            case 0 -> cerrarSesion();
+
+            case 0 ->
+                cerrarSesion();
             default -> {
             }
         }
@@ -79,8 +81,6 @@ public class InicioAdminForm extends javax.swing.JFrame {
         menuAdmin.setVisible(true);
         dispose();
     }
-
-   
 
     private void cerrarSesion() {
         Login login = new Login();

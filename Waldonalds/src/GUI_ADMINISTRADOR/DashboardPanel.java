@@ -58,7 +58,7 @@ public class DashboardPanel extends javax.swing.JPanel {
         labelTitulo.setText("Inicio de Administrador");
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setPreferredSize(new java.awt.Dimension(1580, 980));
+        setPreferredSize(new java.awt.Dimension(1580, 932));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelFlotante1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());

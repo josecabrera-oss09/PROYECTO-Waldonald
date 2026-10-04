@@ -819,6 +819,7 @@ public class UsuariosPanel extends javax.swing.JPanel {
 
         scrollUsuarios.setBorder(null);
         scrollUsuarios.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollUsuarios.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollUsuarios.setAutoscrolls(true);
 
         tablaUsuarios.setModel(new javax.swing.table.DefaultTableModel(
@@ -850,11 +851,11 @@ public class UsuariosPanel extends javax.swing.JPanel {
         tablaUsuarios.setColumnasCentradas("5,7");
         scrollUsuarios.setViewportView(tablaUsuarios);
 
-        panelTabla.add(scrollUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 458));
+        panelTabla.add(scrollUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 428));
 
         etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
         etiquetaRango.setText("Mostrando 1–10 de 10 usuarios");
-        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 482, 330, 42));
+        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 452, 330, 42));
 
         panelPaginacion.setOpaque(false);
         panelPaginacion.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -884,9 +885,9 @@ public class UsuariosPanel extends javax.swing.JPanel {
         botonSiguiente.setText("›");
         panelPaginacion.add(botonSiguiente, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 2, 40, 38));
 
-        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 482, 270, 42));
+        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 452, 270, 42));
 
-        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 420, 1470, 540));
+        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 420, 1470, 510));
     }// </editor-fold>//GEN-END:initComponents
 
     private void filtroRolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtroRolActionPerformed

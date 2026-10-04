@@ -2,8 +2,6 @@ package GUI_CAJERO;
 
 public class MenuCajeroPanel extends javax.swing.JPanel {
 
-    private Componentes.EscaladorPanel escalador;
-
     public MenuCajeroPanel() {
 
         initComponents();
@@ -13,18 +11,6 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
 
         panelCategoria.setPanelCategorias(
                 categoriasPanel
-        );
-
-        // TAMAÑO BASE DEL DISEÑO
-        setSize(1920, 1080);
-
-        doLayout();
-        setLayout(null);
-
-        escalador = new Componentes.EscaladorPanel(
-                this,
-                1920,
-                1080
         );
 
     }

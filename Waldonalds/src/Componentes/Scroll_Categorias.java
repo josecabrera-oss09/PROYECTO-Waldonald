@@ -52,7 +52,7 @@ public class Scroll_Categorias extends JScrollPane {
         // =====================================================
 
         setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
         );
 
 

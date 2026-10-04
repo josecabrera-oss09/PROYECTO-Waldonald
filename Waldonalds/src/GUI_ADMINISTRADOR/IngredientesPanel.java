@@ -323,6 +323,7 @@ public class IngredientesPanel extends javax.swing.JPanel {
 
         scrollUsuarios.setBorder(null);
         scrollUsuarios.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollUsuarios.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollUsuarios.setAutoscrolls(true);
 
         tablaProductos.setModel(new javax.swing.table.DefaultTableModel(

@@ -8,6 +8,10 @@ USE waldonalds;
 
 START TRANSACTION;
 
+-- Recargo por cambiar una porción de Papas por WlPatatas.
+-- Modifica únicamente este valor si cambia el precio del reemplazo.
+SET @precio_extra_wlpatatas = 5.00;
+
 -- ============================================================
 -- 1. CATEGORÍAS
 -- ============================================================
@@ -1070,6 +1074,21 @@ JOIN producto principal ON principal.id_producto=pm.id_producto_principal
 WHERE pm.tipo='MENU' AND gp.nombre='Elige el complemento'
   AND NOT EXISTS (SELECT 1 FROM opcion_grupo og WHERE og.id_grupo=gp.id_grupo);
 
+-- En los menús que incluyen Papas también se permite cambiarlas por
+-- WlPatatas. El precio adicional corresponde a una porción.
+INSERT INTO opcion_grupo
+(id_grupo,nombre,incremento_precio,predeterminada,estado)
+SELECT gp.id_grupo,'WlPatatas',@precio_extra_wlpatatas,FALSE,TRUE
+FROM grupo_presentacion gp
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+WHERE pm.tipo='MENU' AND gp.nombre='Elige el complemento'
+  AND EXISTS (SELECT 1 FROM opcion_grupo papas
+              WHERE papas.id_grupo=gp.id_grupo
+                AND papas.nombre='Papas')
+  AND NOT EXISTS (SELECT 1 FROM opcion_grupo existente
+                  WHERE existente.id_grupo=gp.id_grupo
+                    AND existente.nombre='WlPatatas');
+
 INSERT INTO opcion_componente (id_opcion,id_producto,cantidad)
 SELECT og.id_opcion,componente.id_producto,1
 FROM opcion_grupo og
@@ -1210,6 +1229,20 @@ WHERE pm.tipo='INFANTIL' AND gp.nombre='Elige el complemento'
   AND NOT EXISTS (SELECT 1 FROM opcion_grupo og
                   WHERE og.id_grupo=gp.id_grupo AND og.nombre=componente.nombre);
 
+-- Cambio opcional de Papas Kids por una porción de WlPatatas.
+INSERT INTO opcion_grupo
+(id_grupo,nombre,incremento_precio,predeterminada,estado)
+SELECT gp.id_grupo,'WlPatatas',@precio_extra_wlpatatas,FALSE,TRUE
+FROM grupo_presentacion gp
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+WHERE pm.tipo='INFANTIL' AND gp.nombre='Elige el complemento'
+  AND EXISTS (SELECT 1 FROM opcion_grupo papas
+              WHERE papas.id_grupo=gp.id_grupo
+                AND papas.nombre='Papas Kids')
+  AND NOT EXISTS (SELECT 1 FROM opcion_grupo existente
+                  WHERE existente.id_grupo=gp.id_grupo
+                    AND existente.nombre='WlPatatas');
+
 -- Bebidas infantiles.
 INSERT INTO opcion_grupo
 (id_grupo,nombre,incremento_precio,predeterminada,estado)
@@ -1287,7 +1320,8 @@ WHERE pm.tipo='COMBO' AND gp.nombre='Elige tus productos'
                   WHERE oc.id_opcion=og.id_opcion
                     AND oc.id_producto=componente.id_producto);
 
--- Contenido fijo de cajas grandes: cuatro papas y bebida familiar.
+-- Contenido fijo de cajas grandes. Las papas se crean más adelante como
+-- una elección visible, por lo que aquí solo queda la bebida familiar.
 INSERT INTO grupo_presentacion
 (id_presentacion,nombre,minimo,maximo,permite_repetir,visible,permite_personalizar,estado)
 SELECT pm.id_presentacion,'Incluye',1,1,FALSE,FALSE,FALSE,TRUE
@@ -1298,17 +1332,16 @@ WHERE pm.tipo='COMBO' AND p.nombre IN ('Caja Grande','Caja Grande con Postre')
 
 INSERT INTO opcion_grupo
 (id_grupo,nombre,incremento_precio,predeterminada,estado)
-SELECT gp.id_grupo,'Papas y bebida familiar',0,TRUE,TRUE
+SELECT gp.id_grupo,'Bebida familiar',0,TRUE,TRUE
 FROM grupo_presentacion gp
 WHERE gp.nombre='Incluye'
   AND NOT EXISTS (SELECT 1 FROM opcion_grupo og WHERE og.id_grupo=gp.id_grupo);
 
 INSERT INTO opcion_componente (id_opcion,id_producto,cantidad)
-SELECT og.id_opcion,p.id_producto,
-       CASE WHEN p.nombre='Papas' THEN 4 ELSE 1 END
+SELECT og.id_opcion,p.id_producto,1
 FROM opcion_grupo og
 JOIN grupo_presentacion gp ON gp.id_grupo=og.id_grupo
-JOIN producto p ON p.nombre IN ('Papas','Coca-Cola 1.5 L')
+JOIN producto p ON p.nombre='Coca-Cola 1.5 L'
 WHERE gp.nombre='Incluye'
   AND NOT EXISTS (SELECT 1 FROM opcion_componente oc
                   WHERE oc.id_opcion=og.id_opcion AND oc.id_producto=p.id_producto);
@@ -1368,8 +1401,6 @@ SELECT og.id_opcion,componente.id_producto,
          WHEN raiz.nombre='Caja de 24 WlNuggets'
               AND componente.nombre='10 WlNuggets de Pollo' THEN 2
          WHEN raiz.nombre='Caja Grande Snack' AND componente.nombre='Quesoburguesa' THEN 2
-         WHEN raiz.nombre='Caja Grande Snack' AND componente.nombre='Papas' THEN 2
-         WHEN raiz.nombre LIKE 'Bucket%' AND componente.nombre='Papas' THEN 3
          WHEN raiz.nombre LIKE 'Caja Grande D%' AND componente.nombre='Hash Brown' THEN 4
          WHEN raiz.nombre LIKE 'Caja Grande D%' AND componente.nombre='Café' THEN 2
          WHEN raiz.nombre='Caja Grande Deluxe' AND componente.nombre='Hot Cakes' THEN 2
@@ -1383,17 +1414,17 @@ JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
 JOIN producto raiz ON raiz.id_producto=pm.id_producto_principal
 JOIN producto componente ON
     (raiz.nombre='Bucket para Todos' AND componente.nombre IN
-        ('Pollo WlCrispy 10 Piezas','Papas','Coca-Cola 1.5 L'))
+        ('Pollo WlCrispy 10 Piezas','Coca-Cola 1.5 L'))
  OR (raiz.nombre='Bucket Pollo WlCrispy' AND componente.nombre IN
-        ('Pollo WlCrispy 10 Piezas','Papas'))
+        ('Pollo WlCrispy 10 Piezas'))
  OR (raiz.nombre='Bucket Pollo WlCrispy Para Tres' AND componente.nombre IN
-        ('Pollo WlCrispy 10 Piezas','Papas','Coca-Cola 1.5 L'))
+        ('Pollo WlCrispy 10 Piezas','Coca-Cola 1.5 L'))
  OR (raiz.nombre='Bucket Pollo WlCrispy Snack' AND componente.nombre IN
-        ('Pollo WlCrispy Dos Piezas','WlNuggets 4 pz','Papas'))
+        ('Pollo WlCrispy Dos Piezas','WlNuggets 4 pz'))
  OR (raiz.nombre='Caja de 24 WlNuggets' AND componente.nombre IN
         ('10 WlNuggets de Pollo','WlNuggets 4 pz'))
  OR (raiz.nombre='Caja Grande Snack' AND componente.nombre IN
-        ('Quesoburguesa','WlNuggets 4 pz','Papas','Coca-Cola 1.5 L'))
+        ('Quesoburguesa','WlNuggets 4 pz','Coca-Cola 1.5 L'))
  OR (raiz.nombre='Caja Grande Deluxe' AND componente.nombre IN
         ('Hot Cakes','WlMuffin de Huevo','Hash Brown','Café'))
  OR (raiz.nombre='Caja Grande Desayuno' AND componente.nombre IN
@@ -1402,6 +1433,66 @@ WHERE pm.tipo='COMBO' AND gp.nombre='Contenido del combo'
   AND NOT EXISTS (SELECT 1 FROM opcion_componente oc
                   WHERE oc.id_opcion=og.id_opcion
                     AND oc.id_producto=componente.id_producto);
+
+-- Elección de papas de los combos que originalmente incluyen Papas.
+-- Caja Grande lleva 4 porciones, los buckets 3 y Caja Grande Snack 2.
+INSERT INTO grupo_presentacion
+(id_presentacion,nombre,minimo,maximo,permite_repetir,visible,permite_personalizar,estado)
+SELECT pm.id_presentacion,'Elige tus papas',1,1,FALSE,TRUE,FALSE,TRUE
+FROM presentacion_menu pm
+JOIN producto principal ON principal.id_producto=pm.id_producto_principal
+WHERE pm.tipo='COMBO'
+  AND principal.nombre IN (
+      'Bucket para Todos',
+      'Bucket Pollo WlCrispy',
+      'Bucket Pollo WlCrispy Para Tres',
+      'Bucket Pollo WlCrispy Snack',
+      'Caja Grande',
+      'Caja Grande con Postre',
+      'Caja Grande Snack'
+  )
+  AND NOT EXISTS (SELECT 1 FROM grupo_presentacion existente
+                  WHERE existente.id_presentacion=pm.id_presentacion
+                    AND existente.nombre='Elige tus papas');
+
+INSERT INTO opcion_grupo
+(id_grupo,nombre,incremento_precio,predeterminada,estado)
+SELECT gp.id_grupo,acompanamiento.nombre,
+       CASE
+         WHEN acompanamiento.nombre='Papas' THEN 0
+         WHEN principal.nombre IN ('Caja Grande','Caja Grande con Postre')
+              THEN @precio_extra_wlpatatas * 4
+         WHEN principal.nombre='Caja Grande Snack'
+              THEN @precio_extra_wlpatatas * 2
+         ELSE @precio_extra_wlpatatas * 3
+       END,
+       acompanamiento.nombre='Papas',TRUE
+FROM grupo_presentacion gp
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+JOIN producto principal ON principal.id_producto=pm.id_producto_principal
+JOIN producto acompanamiento ON acompanamiento.nombre IN ('Papas','WlPatatas')
+WHERE pm.tipo='COMBO' AND gp.nombre='Elige tus papas'
+  AND NOT EXISTS (SELECT 1 FROM opcion_grupo existente
+                  WHERE existente.id_grupo=gp.id_grupo
+                    AND existente.nombre=acompanamiento.nombre);
+
+INSERT INTO opcion_componente (id_opcion,id_producto,cantidad)
+SELECT og.id_opcion,acompanamiento.id_producto,
+       CASE
+         WHEN principal.nombre IN ('Caja Grande','Caja Grande con Postre') THEN 4
+         WHEN principal.nombre='Caja Grande Snack' THEN 2
+         ELSE 3
+       END
+FROM opcion_grupo og
+JOIN grupo_presentacion gp ON gp.id_grupo=og.id_grupo
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+JOIN producto principal ON principal.id_producto=pm.id_producto_principal
+JOIN producto acompanamiento ON acompanamiento.nombre=og.nombre
+WHERE pm.tipo='COMBO' AND gp.nombre='Elige tus papas'
+  AND og.nombre IN ('Papas','WlPatatas')
+  AND NOT EXISTS (SELECT 1 FROM opcion_componente existente
+                  WHERE existente.id_opcion=og.id_opcion
+                    AND existente.id_producto=acompanamiento.id_producto);
 
 COMMIT;
 

@@ -155,6 +155,7 @@ public final class ConfiguradorProductoDialog extends JDialog {
                 }
             }
             JScrollPane scroll = new JScrollPane(contenido);
+            Componentes.DesplazamientoSuave.ocultarBarras(scroll);
             scroll.setBorder(BorderFactory.createEmptyBorder());
             scroll.getVerticalScrollBar().setUnitIncrement(22);
             scroll.getViewport().setBackground(Color.WHITE);

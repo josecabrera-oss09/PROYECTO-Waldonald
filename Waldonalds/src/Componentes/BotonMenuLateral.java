@@ -17,8 +17,7 @@ import javax.swing.JButton;
 
 /**
  * Boton reutilizable para la navegacion lateral del modulo administrativo.
- * El fondo, el hover, la seleccion y los iconos se pintan como vectores para
- * conservar nitidez con cualquier tamano de ventana.
+ * El fondo, el hover, la seleccion y los iconos se pintan como vectores.
  */
 public class BotonMenuLateral extends JButton {
 
@@ -85,9 +84,8 @@ public class BotonMenuLateral extends JButton {
         }
 
         int centroY = getHeight() / 2;
-        double escala = Math.min(1.0, getHeight() / 64.0);
         int centroIcono = (int) Math.round((getWidth() / 2.0) * (1.0 - aperturaMenu)
-                + 31 * escala * aperturaMenu);
+                + 31 * aperturaMenu);
         pintarIcono(g2, centroIcono, centroY, colorContenido);
         float opacidadTexto = (float) Math.max(0.0, Math.min(1.0, (aperturaMenu - 0.35) / 0.65));
         g2.setComposite(java.awt.AlphaComposite.SrcOver.derive(opacidadTexto));
@@ -96,7 +94,7 @@ public class BotonMenuLateral extends JButton {
         g2.setFont(getFont());
         FontMetrics metricas = g2.getFontMetrics();
         int textoY = centroY + (metricas.getAscent() - metricas.getDescent()) / 2;
-        g2.drawString(getText() == null ? "" : getText(), (int) Math.round(66 * escala), textoY);
+        g2.drawString(getText() == null ? "" : getText(), 66, textoY);
         g2.dispose();
     }
 
@@ -128,6 +126,20 @@ public class BotonMenuLateral extends JButton {
                 icono.draw(hoja);
                 icono.draw(new Line2D.Float(4, 24, 18, 8));
                 icono.draw(new Line2D.Float(10, 17, 10, 11));
+                break;
+            case "INVENTARIO":
+                Path2D caja = new Path2D.Float();
+                caja.moveTo(3, 8);
+                caja.lineTo(13, 3);
+                caja.lineTo(23, 8);
+                caja.lineTo(13, 13);
+                caja.closePath();
+                icono.draw(caja);
+                icono.draw(new Line2D.Float(3, 8, 3, 19));
+                icono.draw(new Line2D.Float(3, 19, 13, 24));
+                icono.draw(new Line2D.Float(13, 13, 13, 24));
+                icono.draw(new Line2D.Float(23, 8, 23, 19));
+                icono.draw(new Line2D.Float(23, 19, 13, 24));
                 break;
             case "REPORTES":
                 icono.draw(new RoundRectangle2D.Float(2, 15, 4, 9, 1, 1));

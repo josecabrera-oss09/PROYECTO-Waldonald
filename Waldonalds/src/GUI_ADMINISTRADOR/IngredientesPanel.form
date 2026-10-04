@@ -572,6 +572,7 @@
               <Border info="null"/>
             </Property>
             <Property name="verticalScrollBarPolicy" type="int" value="21"/>
+            <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
             <Property name="autoscrolls" type="boolean" value="true"/>
           </Properties>
           <Constraints>

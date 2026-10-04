@@ -118,6 +118,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         scrollUsuarios.setVerticalScrollBarPolicy(
     javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
 );
+        scrollUsuarios.setHorizontalScrollBarPolicy(
+    javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+);
     }
 
     private void agregarBotonConfiguracion() {
@@ -426,11 +429,11 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         tablaProductos.setColumnasCentradas("5,7");
         scrollUsuarios.setViewportView(tablaProductos);
 
-        panelTabla.add(scrollUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 458));
+        panelTabla.add(scrollUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 428));
 
         etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
         etiquetaRango.setText("Mostrando 1–10 de 10 productos");
-        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 482, 330, 42));
+        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 452, 330, 42));
 
         panelPaginacion.setOpaque(false);
         panelPaginacion.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -460,9 +463,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         botonSiguiente.setText("›");
         panelPaginacion.add(botonSiguiente, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 2, 40, 38));
 
-        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 482, 270, 42));
+        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 452, 270, 42));
 
-        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 420, 1470, 540));
+        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 420, 1470, 510));
     }// </editor-fold>//GEN-END:initComponents
 
     private void filtroCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtroCategoriaActionPerformed
@@ -574,7 +577,9 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         scrollUsuarios.setBorder(BorderFactory.createEmptyBorder());
         scrollUsuarios.getViewport().setBackground(Color.WHITE);
         scrollUsuarios.setVerticalScrollBarPolicy(
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scrollUsuarios.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         etiquetaRango.setFont(tema.regular(12f));
         etiquetaRango.setForeground(SECUNDARIO);
 
@@ -1315,6 +1320,7 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         descripcion.setForeground(AZUL);
         descripcion.setBorder(new EmptyBorder(8, 12, 8, 12));
         JScrollPane scrollDescripcion = new JScrollPane(descripcion);
+        Componentes.DesplazamientoSuave.ocultarBarras(scrollDescripcion);
         scrollDescripcion.setBorder(BorderFactory.createLineBorder(BORDE, 1, true));
         scrollDescripcion.setPreferredSize(new Dimension(330, 78));
         scrollDescripcion.setWheelScrollingEnabled(false);
@@ -1411,11 +1417,10 @@ public class GestionMenuPanel extends javax.swing.JPanel {
         });
 
         JScrollPane desplazamiento = new JScrollPane(campos);
+        Componentes.DesplazamientoSuave.ocultarBarras(desplazamiento);
         desplazamiento.setBorder(BorderFactory.createEmptyBorder());
         desplazamiento.setOpaque(false);
         desplazamiento.getViewport().setOpaque(false);
-        desplazamiento.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         // La rueda se dirige aquí desde todo el formulario.
         desplazamiento.setWheelScrollingEnabled(false);
         javax.swing.JScrollBar barraVertical

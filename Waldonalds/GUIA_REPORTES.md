@@ -22,7 +22,10 @@ Los componentes están en el mismo panel. Puedes moverlos, redimensionarlos y ca
 | Encabezados | `tituloPedidos`, `tituloProductos`, `tituloAlertas` | Fuente, color y posición |
 | Estado de la consulta | `estadoCarga` | Fuente, color y posición |
 
-El escalador existente toma como base 1920 × 1080 para la ventana. El panel ocupa 1580 × 980 en ese diseño. Al contraer el menú, su contenido se centra dentro del espacio disponible.
+La interfaz utiliza directamente las medidas guardadas en los formularios de
+NetBeans. El panel de reportes ocupa 1580 × 980 dentro del diseño administrativo
+de 1920 × 1080. No existe una transformación automática de posiciones, tamaños
+o fuentes.
 
 ## Qué muestra y cómo se calcula
 
@@ -52,7 +55,12 @@ La carga utiliza `SwingWorker`: MySQL se consulta fuera del hilo que dibuja Swin
 
 En `MenuAdmin.java` se mantiene un temporizador Swing de aproximadamente 60 actualizaciones por segundo. La transición usa una curva suave de aceleración y frenado, con duración máxima de 300 ms. Si pulsas otra vez durante la transición, se invierte desde la posición actual y la duración se adapta al recorrido pendiente.
 
-En `BotonMenuLateral.java`, `aperturaMenu` controla la opacidad del texto y la posición horizontal del icono. El texto deja de borrarse y permanece disponible para accesibilidad y ayudas emergentes. El nombre y rol de la marca también se atenúan. Al redimensionar, se recapturan las posiciones después del escalador y se conserva el estado abierto/cerrado. El control del menú admite Espacio y Enter cuando tiene el foco. El temporizador se detiene al cerrar la ventana.
+En `BotonMenuLateral.java`, `aperturaMenu` controla la opacidad del texto y la
+posición horizontal del icono. El texto permanece disponible para accesibilidad
+y ayudas emergentes. El nombre y rol de la marca también se atenúan. Esta
+animación modifica únicamente el ancho del menú lateral; no escala la interfaz.
+El control admite Espacio y Enter cuando tiene el foco y el temporizador se
+detiene al cerrar la ventana.
 
 ## Iconos
 
@@ -77,7 +85,8 @@ PNG transparente de 64 × 64 o 96 × 96 px, con el mismo grosor de trazo y marge
 - Consultas a tu MySQL en modo de lectura: correctas. En la comprobación del 27/09/2026 no había pedidos de ese día.
 - Pruebas SQL con tablas TEMPORARY exclusivas de la conexión de prueba: pagos, pendientes, cancelaciones, medianoche, combos, mínimos inclusivos, registros inactivos y día vacío. Se destruyen al cerrar la conexión; no alteran las tablas reales.
 - Validación de fecha imposible, constructor sin conexión obligatoria, tablas de solo lectura y escape de CSV.
-- Prueba de apertura/cierre, inversión durante animación y redimensionamiento con menú cerrado; capturas a 1920 × 1080 y 1366 × 768.
+- Prueba de apertura/cierre e inversión durante la animación con las medidas
+  fijas del formulario de 1920 × 1080.
 - Lectura del modelo de fecha y los tres modelos de tabla mediante los editores reales de NetBeans 24.
 
 Los programas de comprobación están en `test/ReportesTest.java`, `test/ReporteDAOTest.java`, `test/MenuAnimacionTest.java` y `test/FormReportesTest.java`. Las capturas de verificación están en `build/reportes-check/`. La prueba de formulario necesita las bibliotecas del NetBeans instalado; las otras usan las dependencias normales del proyecto.

@@ -705,7 +705,7 @@ public class ReportesPanel extends javax.swing.JPanel {
         estadoCarga = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(248, 249, 251));
-        setPreferredSize(new java.awt.Dimension(1580, 980));
+        setPreferredSize(new java.awt.Dimension(1580, 932));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         labelTitulo.setFont(new java.awt.Font("Dialog", 1, 42)); // NOI18N
@@ -850,6 +850,7 @@ public class ReportesPanel extends javax.swing.JPanel {
 
         scrollPedidos.setBorder(null);
         scrollPedidos.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollPedidos.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         tablaPedidos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -869,11 +870,11 @@ public class ReportesPanel extends javax.swing.JPanel {
         });
         scrollPedidos.setViewportView(tablaPedidos);
 
-        panelTabla.add(scrollPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 300));
+        panelTabla.add(scrollPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 250));
 
         etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
         etiquetaRango.setText("No se encontraron ventas");
-        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 328, 420, 42));
+        panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 278, 420, 42));
 
         panelPaginacion.setOpaque(false);
         panelPaginacion.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -893,9 +894,9 @@ public class ReportesPanel extends javax.swing.JPanel {
         botonSiguiente.setText("›");
         panelPaginacion.add(botonSiguiente, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 2, 40, 38));
 
-        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 328, 270, 42));
+        panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 278, 270, 42));
 
-        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 435, 1470, 390));
+        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 435, 1470, 340));
 
         panelResumen.setRadio(18);
         panelResumen.setSombra(false);
@@ -955,11 +956,11 @@ public class ReportesPanel extends javax.swing.JPanel {
         cancelacionDetalle.setText("Pedidos cancelados");
         panelResumen.add(cancelacionDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 73, 250, 22));
 
-        add(panelResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 840, 1470, 110));
+        add(panelResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 790, 1470, 110));
 
         estadoCarga.setForeground(new java.awt.Color(92, 103, 124));
         estadoCarga.setText("Selecciona una fecha y actualiza el reporte.");
-        add(estadoCarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 952, 1450, 24));
+        add(estadoCarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 904, 1450, 24));
     }// </editor-fold>//GEN-END:initComponents
 
     private org.netbeans.lib.awtextra.AbsoluteConstraints posicion(

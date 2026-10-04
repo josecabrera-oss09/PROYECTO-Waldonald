@@ -4,6 +4,7 @@
  */
 package Login;
 
+import Componentes.BarraTituloForm;
 import Conexion.Conexion;
 
 import GUI_ADMINISTRADOR.InicioAdminForm;
@@ -35,7 +36,11 @@ public class Login extends javax.swing.JFrame {
      * Creates new form Login
      */
     public Login() {
-        initComponents();
+         setUndecorated(true);
+
+    initComponents();
+
+    BarraTituloForm.instalar(this, "Inicio de sesión");
 
         jLabel1.setFont(
                 cargarFuente(
@@ -43,8 +48,6 @@ public class Login extends javax.swing.JFrame {
                         28f
                 )
         );
-
-        Utilidades.Escalador.aplicar(this);
 
         // Placeholders
         textBox_Login2.setPlaceholder("Ingresa tu usuario");

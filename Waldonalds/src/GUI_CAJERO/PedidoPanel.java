@@ -205,6 +205,7 @@ public class PedidoPanel extends JPanel {
         tabla.getColumnModel().getColumn(2).setPreferredWidth(110);
         tabla.getColumnModel().getColumn(2).setMinWidth(95);
         JScrollPane scroll = new JScrollPane(tabla);
+        Componentes.DesplazamientoSuave.ocultarBarras(scroll);
         scroll.setColumnHeaderView(tabla.getTableHeader());
         scroll.setPreferredSize(new Dimension(320, 180));
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -599,14 +600,18 @@ public class PedidoPanel extends JPanel {
         if (comprobante == null) return;
         JTextArea texto = new JTextArea(comprobante, 20, 38); texto.setEditable(false); texto.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         Object[] opciones = {"Cerrar", "Imprimir comprobante", "Ver / imprimir cocina"};
-        int eleccion = JOptionPane.showOptionDialog(this, new JScrollPane(texto), "Comprobante",
+        JScrollPane scrollComprobante = new JScrollPane(texto);
+        Componentes.DesplazamientoSuave.ocultarBarras(scrollComprobante);
+        int eleccion = JOptionPane.showOptionDialog(this, scrollComprobante, "Comprobante",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
         if (eleccion == 1) imprimir(texto);
         if (eleccion == 2 && ticketCocina != null) {
             JTextArea cocina = new JTextArea(ticketCocina, 24, 42);
             cocina.setEditable(false); cocina.setFont(new Font(Font.MONOSPACED, Font.BOLD, 13));
             Object[] acciones = {"Cerrar", "Imprimir cocina"};
-            if (JOptionPane.showOptionDialog(this, new JScrollPane(cocina), "Ticket de cocina",
+            JScrollPane scrollCocina = new JScrollPane(cocina);
+            Componentes.DesplazamientoSuave.ocultarBarras(scrollCocina);
+            if (JOptionPane.showOptionDialog(this, scrollCocina, "Ticket de cocina",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, acciones, acciones[0]) == 1)
                 imprimir(cocina);
         }

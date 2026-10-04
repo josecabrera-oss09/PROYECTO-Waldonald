@@ -8,17 +8,12 @@ import javax.swing.SwingUtilities;
 
 public class promocionesPanel extends javax.swing.JPanel {
 
-    private Componentes.EscaladorPanel escalador;
-
     private Componentes.Scroll_Categorias
             scrollCategorias;
 
     public promocionesPanel() {
 
         initComponents();
-
-        // Tamaño base del diseño
-        setSize(1920, 1080);
 
         // NO usar setLayout(null)
         // NetBeans ya utiliza GroupLayout
@@ -86,12 +81,6 @@ public class promocionesPanel extends javax.swing.JPanel {
             scrollCategorias.revalidate();
             scrollCategorias.repaint();
         });
-
-        escalador = new Componentes.EscaladorPanel(
-                this,
-                1920,
-                1080
-        );
 
     }
 

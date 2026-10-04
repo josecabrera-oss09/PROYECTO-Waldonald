@@ -50,7 +50,7 @@ public class SubCategoriasPanel extends JPanel {
         scrollProductos.setBackground(Color.WHITE);
         scrollProductos.getViewport().setBackground(Color.WHITE);
         scrollProductos.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollProductos.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         scrollProductos.getVerticalScrollBar().setUnitIncrement(32);
         scrollProductos.getVerticalScrollBar().setBlockIncrement(180);

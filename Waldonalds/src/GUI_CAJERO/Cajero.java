@@ -4,6 +4,8 @@
  */
 package GUI_CAJERO;
 
+import Componentes.BarraTituloForm;
+
 /**
  *
  * @author Computacion
@@ -58,6 +60,7 @@ private javax.swing.JButton btnPromociones;
 private javax.swing.JButton btnOrdenar;
 
 private javax.swing.JButton botonActivo;
+private BarraTituloForm barraTitulo;
 
 
 // =====================================================
@@ -66,65 +69,17 @@ private javax.swing.JButton botonActivo;
 
 public Cajero() {
 
+     setUndecorated(true);
+
     initComponents();
 
     configurarInterfaz();
-
+    barraTitulo = BarraTituloForm.instalar(this, "Menú");
     setExtendedState(
             javax.swing.JFrame.MAXIMIZED_BOTH
     );
 
     setLocationRelativeTo(null);
-}
-
-
-// =====================================================
-// ESCALA
-// =====================================================
-
-private double obtenerEscala() {
-
-    java.awt.Dimension pantalla =
-            java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
-    double escalaX =
-            pantalla.getWidth() / 1360.0;
-
-    double escalaY =
-            pantalla.getHeight() / 720.0;
-
-    return Math.min(
-            escalaX,
-            escalaY
-    );
-}
-
-
-private int escalar(int valor) {
-
-    return Math.max(
-            1,
-            (int) Math.round(
-                    valor * obtenerEscala()
-            )
-    );
-}
-
-
-private int escalarFuente(int valor) {
-
-    double escala = obtenerEscala();
-
-    // Evitar letras exageradamente grandes
-    double escalaFuente =
-            Math.min(escala, 1.20);
-
-    return Math.max(
-            10,
-            (int) Math.round(
-                    valor * escalaFuente
-            )
-    );
 }
 
 
@@ -291,6 +246,12 @@ private void mostrarPanel(
 
     panelContenido.revalidate();
     panelContenido.repaint();
+
+    if (barraTitulo != null) {
+        barraTitulo.setSeccion(
+                "PROMOCIONES".equals(nombrePanel) ? "Promociones" : "Menú"
+        );
+    }
 }
 
 
@@ -309,7 +270,7 @@ private void configurarBarra() {
     jPanel2.setPreferredSize(
             new java.awt.Dimension(
                     0,
-                    escalar(80)
+                    80
             )
     );
 
@@ -326,8 +287,8 @@ private void configurarBarra() {
             new javax.swing.JPanel(
                     new java.awt.FlowLayout(
                             java.awt.FlowLayout.LEFT,
-                            escalar(18),
-                            escalar(10)
+                            18,
+                            10
                     )
             );
 
@@ -345,8 +306,8 @@ private void configurarBarra() {
 
     espacioLogo.setPreferredSize(
             new java.awt.Dimension(
-                    escalar(95),
-                    escalar(60)
+                    95,
+                    60
             )
     );
 
@@ -388,8 +349,8 @@ private void configurarBarra() {
 
     btnOrdenar.setPreferredSize(
             new java.awt.Dimension(
-                    escalar(180),
-                    escalar(60)
+                    180,
+                    60
             )
     );
 
@@ -398,7 +359,7 @@ private void configurarBarra() {
             new java.awt.Font(
                     "Arial",
                     java.awt.Font.BOLD,
-                    escalarFuente(16)
+                    16
             )
     );
 
@@ -426,9 +387,9 @@ private void configurarBarra() {
     btnOrdenar.setBorder(
             javax.swing.BorderFactory.createEmptyBorder(
                     0,
-                    escalar(45),
-                    escalar(14),
-                    escalar(20)
+                    45,
+                    14,
+                    20
             )
     );
 
@@ -448,8 +409,8 @@ private void configurarBarra() {
             new javax.swing.JPanel(
                     new java.awt.FlowLayout(
                             java.awt.FlowLayout.RIGHT,
-                            escalar(25),
-                            escalar(15)
+                            25,
+                            15
                     )
             );
 
@@ -558,12 +519,12 @@ private javax.swing.JButton crearBotonBarra(
                 );
 
                 int anchoLinea =
-                        escalar(35);
+                        35;
 
                 int altoLinea =
                         Math.max(
                                 3,
-                                escalar(3)
+                                3
                         );
 
                 int x =
@@ -574,7 +535,7 @@ private javax.swing.JButton crearBotonBarra(
 
                 int y =
                         getHeight()
-                                - escalar(6);
+                                - 6;
 
                 g2.fillRoundRect(
                         x,
@@ -599,7 +560,7 @@ private javax.swing.JButton crearBotonBarra(
             new java.awt.Font(
                     "Arial",
                     java.awt.Font.BOLD,
-                    escalarFuente(14)
+                    14
             );
 
     boton.setFont(
@@ -623,13 +584,13 @@ private javax.swing.JButton crearBotonBarra(
 
     int anchoBoton =
             anchoTexto
-                    + escalar(45);
+                    + 45;
 
 
     boton.setPreferredSize(
             new java.awt.Dimension(
                     anchoBoton,
-                    escalar(55)
+                    55
             )
     );
 
@@ -637,7 +598,7 @@ private javax.swing.JButton crearBotonBarra(
     boton.setMinimumSize(
             new java.awt.Dimension(
                     anchoBoton,
-                    escalar(55)
+                    55
             )
     );
 
@@ -779,7 +740,7 @@ private void cerrarPedido() {
 
 private void crearPanelPedido() {
     panelPedido = new PedidoPanel();
-    panelPedido.setPreferredSize(new java.awt.Dimension(Math.max(370, escalar(390)), 0));
+    panelPedido.setPreferredSize(new java.awt.Dimension(390, 0));
     panelPedido.setVisible(false);
 }
 
@@ -818,14 +779,14 @@ private void configurarHoverSutilCancelar(javax.swing.JButton boton) {
         public void mouseEntered(java.awt.event.MouseEvent evento) {
             boton.setForeground(new java.awt.Color(65, 65, 65));
             boton.setBorder(javax.swing.BorderFactory.createLineBorder(
-                    bordeHover, Math.max(1, escalar(1))));
+                    bordeHover, 1));
         }
 
         @Override
         public void mouseExited(java.awt.event.MouseEvent evento) {
             boton.setForeground(new java.awt.Color(80, 80, 80));
             boton.setBorder(javax.swing.BorderFactory.createLineBorder(
-                    bordeNormal, Math.max(1, escalar(1))));
+                    bordeNormal, 1));
         }
     });
 }

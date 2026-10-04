@@ -38,12 +38,12 @@
           <Color blue="fb" green="f9" red="f8" type="rgb"/>
         </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[1920, 1080]"/>
+          <Dimension value="[1920, 1032]"/>
         </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="0" y="0" width="1920" height="1080"/>
+          <AbsoluteConstraints x="0" y="0" width="1920" height="1032"/>
         </Constraint>
       </Constraints>
 
@@ -59,7 +59,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="0" y="0" width="340" height="1080"/>
+              <AbsoluteConstraints x="0" y="0" width="340" height="1032"/>
             </Constraint>
           </Constraints>
 
@@ -154,13 +154,13 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="Componentes.BotonMenuLateral" name="botonIngredientes">
+            <Component class="Componentes.BotonMenuLateral" name="botonInventario">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Ingredientes"/>
-                <Property name="tipoIcono" type="java.lang.String" value="INGREDIENTES"/>
+                <Property name="text" type="java.lang.String" value="Inventario"/>
+                <Property name="tipoIcono" type="java.lang.String" value="INVENTARIO"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonIngredientesActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonInventarioActionPerformed"/>
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
@@ -193,7 +193,7 @@
               </Events>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="22" y="985" width="296" height="62"/>
+                  <AbsoluteConstraints x="22" y="955" width="296" height="62"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -324,7 +324,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="340" y="100" width="1580" height="980"/>
+              <AbsoluteConstraints x="340" y="100" width="1580" height="932"/>
             </Constraint>
           </Constraints>
 

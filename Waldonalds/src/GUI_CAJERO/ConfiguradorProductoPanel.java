@@ -367,6 +367,7 @@ public final class ConfiguradorProductoPanel extends JPanel {
             contenido.add(Box.createVerticalGlue());
 
             JScrollPane scroll = new JScrollPane(contenido);
+            Componentes.DesplazamientoSuave.ocultarBarras(scroll);
             scroll.setBorder(BorderFactory.createEmptyBorder());
             scroll.setOpaque(false);
             scroll.getViewport().setBackground(Color.WHITE);
