@@ -31,22 +31,38 @@ public class ProductoDAO {
 
         List<Productos> productos = new ArrayList<>();
 
-        String sql = """
+        Connection conexion = Conexion.conectar();
+        if (conexion == null) {
+            return productos;
+        }
+
+        String sql;
+        try {
+            sql = tablaExiste(conexion, "presentacion_menu") ? """
                 SELECT
                     id_producto,
                     id_categoria,
                     nombre,
                     descripcion,
-                    precio_base,
+                    COALESCE((SELECT pm.precio FROM presentacion_menu pm
+                              WHERE pm.id_producto_principal=p.id_producto AND pm.estado=TRUE
+                              ORDER BY pm.predeterminada DESC,pm.id_presentacion LIMIT 1), precio_base) AS precio_base,
                     imagen,
                     disponibilidad_menu
+                FROM producto p
+                WHERE p.id_categoria = ?
+                AND p.estado = TRUE
+                AND EXISTS (SELECT 1 FROM presentacion_menu pm
+                            WHERE pm.id_producto_principal=p.id_producto AND pm.estado=TRUE)
+                """ : """
+                SELECT id_producto, id_categoria, nombre, descripcion,
+                       precio_base, imagen, disponibilidad_menu
                 FROM producto
                 WHERE id_categoria = ?
                 AND estado = TRUE
                 """;
-
-        Connection conexion = Conexion.conectar();
-        if (conexion == null) {
+        } catch (SQLException e) {
+            System.out.println("Error verificando presentaciones: " + e.getMessage());
             return productos;
         }
 
@@ -186,7 +202,10 @@ public class ProductoDAO {
                                 rs.getString("nombre"),
                                 rs.getString("descripcion"),
                                 rs.getDouble("precio_base"),
-                                rs.getString("imagen")
+                                rs.getString("imagen"),
+                                HorarioMenu.estaDisponible(
+                                        rs.getString("disponibilidad_menu"),
+                                        LocalTime.now())
                         ));
                     }
                 }
@@ -221,11 +240,23 @@ public class ProductoDAO {
 
     private String sqlSubcategorias(Connection conexion) throws SQLException {
         if (columnaExiste(conexion, "producto", "subcategoria")) {
+            if (!tablaExiste(conexion, "presentacion_menu")) {
+                return """
+                        SELECT DISTINCT subcategoria
+                        FROM producto
+                        WHERE id_categoria = ?
+                        AND estado = TRUE
+                        AND subcategoria IS NOT NULL
+                        ORDER BY subcategoria
+                        """;
+            }
             return """
                     SELECT DISTINCT subcategoria
                     FROM producto
                     WHERE id_categoria = ?
                     AND estado = TRUE
+                    AND EXISTS (SELECT 1 FROM presentacion_menu pm
+                                WHERE pm.id_producto_principal=producto.id_producto AND pm.estado=TRUE)
                     AND subcategoria IS NOT NULL
                     ORDER BY subcategoria
                     """;
@@ -246,20 +277,48 @@ public class ProductoDAO {
 
     private String sqlProductosSubcategoria(Connection conexion) throws SQLException {
         if (columnaExiste(conexion, "producto", "subcategoria")) {
+            if (!tablaExiste(conexion, "presentacion_menu")) {
+                return """
+                        SELECT id_producto, id_categoria, nombre, descripcion,
+                               precio_base, imagen, disponibilidad_menu
+                        FROM producto
+                        WHERE id_categoria = ? AND subcategoria = ? AND estado = TRUE
+                        """;
+            }
             return """
-                    SELECT id_producto, id_categoria, nombre, descripcion, precio_base, imagen
-                    FROM producto
-                    WHERE id_categoria = ? AND subcategoria = ? AND estado = TRUE
+                    SELECT p.id_producto, p.id_categoria, p.nombre, p.descripcion,
+                           COALESCE((SELECT pm.precio FROM presentacion_menu pm
+                                     WHERE pm.id_producto_principal=p.id_producto AND pm.estado=TRUE
+                                     ORDER BY pm.predeterminada DESC,pm.id_presentacion LIMIT 1),p.precio_base) AS precio_base,
+                           p.imagen, p.disponibilidad_menu
+                    FROM producto p
+                    WHERE p.id_categoria = ? AND p.subcategoria = ? AND p.estado = TRUE
+                    AND EXISTS (SELECT 1 FROM presentacion_menu pm
+                                WHERE pm.id_producto_principal=p.id_producto AND pm.estado=TRUE)
                     """;
         }
 
         if (tieneRelacionSubcategoria(conexion)) {
+            if (!tablaExiste(conexion, "presentacion_menu")) {
+                return """
+                        SELECT p.id_producto, p.id_categoria, p.nombre, p.descripcion,
+                               p.precio_base, p.imagen, p.disponibilidad_menu
+                        FROM producto p
+                        INNER JOIN subcategoria s ON s.id_subcategoria = p.id_subcategoria
+                        WHERE p.id_categoria = ? AND s.nombre = ? AND p.estado = TRUE
+                        """;
+            }
             return """
                     SELECT p.id_producto, p.id_categoria, p.nombre, p.descripcion,
-                           p.precio_base, p.imagen
+                           COALESCE((SELECT pm.precio FROM presentacion_menu pm
+                                     WHERE pm.id_producto_principal=p.id_producto AND pm.estado=TRUE
+                                     ORDER BY pm.predeterminada DESC,pm.id_presentacion LIMIT 1),p.precio_base) AS precio_base,
+                           p.imagen, p.disponibilidad_menu
                     FROM producto p
                     INNER JOIN subcategoria s ON s.id_subcategoria = p.id_subcategoria
                     WHERE p.id_categoria = ? AND s.nombre = ? AND p.estado = TRUE
+                    AND EXISTS (SELECT 1 FROM presentacion_menu pm
+                                WHERE pm.id_producto_principal=p.id_producto AND pm.estado=TRUE)
                     """;
         }
         return null;

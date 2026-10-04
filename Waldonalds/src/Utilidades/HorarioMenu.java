@@ -5,14 +5,16 @@ import java.time.LocalTime;
 /** Reglas de disponibilidad del menú según la hora local del restaurante. */
 public final class HorarioMenu {
 
-    public static final LocalTime INICIO_ALMUERZO = LocalTime.of(10, 30);
+    /** A las 11:00 termina el horario de desayuno. */
+    public static final LocalTime INICIO_ALMUERZO = LocalTime.of(11, 0);
 
     private HorarioMenu() {
     }
 
     /**
      * Devuelve el valor que utiliza producto.disponibilidad_menu para la hora
-     * indicada. El almuerzo empieza a las 10:30; antes de esa hora es desayuno.
+     * indicada. El almuerzo/cena empieza a las 11:00; antes de esa hora es
+     * desayuno.
      */
     public static String disponibilidadActual(LocalTime hora) {
         if (hora == null) {

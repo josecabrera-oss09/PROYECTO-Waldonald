@@ -7,7 +7,6 @@ import Modelos.Productos;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.MouseWheelEvent;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,20 +52,21 @@ public class SubCategoriasPanel extends JPanel {
         scrollProductos.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollProductos.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        scrollProductos.getVerticalScrollBar().setUnitIncrement(32);
+        scrollProductos.getVerticalScrollBar().setBlockIncrement(180);
         configurarRuedaVertical();
-        add(scrollProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 1810, 680));
+        // El área visible queda limitada; las filas restantes continúan abajo.
+        add(scrollProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 1810, 610));
         mostrarEstado("Cargando productos...");
     }
 
     private void configurarRuedaVertical() {
-        java.awt.event.MouseWheelListener rueda = (MouseWheelEvent evento) -> {
-            javax.swing.JScrollBar barra = scrollProductos.getVerticalScrollBar();
-            barra.setValue(barra.getValue() + evento.getUnitsToScroll() * barra.getUnitIncrement());
-            evento.consume();
-        };
-        scrollProductos.addMouseWheelListener(rueda);
-        scrollProductos.getViewport().addMouseWheelListener(rueda);
-        panelProductos.addMouseWheelListener(rueda);
+        Componentes.DesplazamientoSuave.instalarVertical(scrollProductos);
+        Componentes.DesplazamientoSuave.instalarSobreVista(
+                panelProductos,
+                scrollProductos.getVerticalScrollBar(),
+                false
+        );
     }
 
     private void cargarCategoria() {
@@ -138,7 +138,7 @@ public class SubCategoriasPanel extends JPanel {
                     productosPendientes = get();
                     indiceLote = 0;
                     panelProductos.removeAll();
-                    panelProductos.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
+                    panelProductos.setLayout(new FlowLayout(FlowLayout.LEFT, 40, 15));
                     if (productosPendientes.isEmpty()) {
                         mostrarEstado("No hay productos disponibles.");
                     } else {
@@ -164,6 +164,8 @@ public class SubCategoriasPanel extends JPanel {
         indiceLote = fin;
         panelProductos.revalidate();
         panelProductos.repaint();
+        scrollProductos.revalidate();
+        scrollProductos.repaint();
         if (indiceLote < productosPendientes.size()) {
             temporizadorLotes = new Timer(20, e -> {
                 ((Timer) e.getSource()).stop();

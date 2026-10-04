@@ -136,22 +136,7 @@ public class Scroll_Categorias extends JScrollPane {
         // RUEDA DEL MOUSE
         // =====================================================
 
-        addMouseWheelListener(e -> {
-
-            JScrollBar scroll =
-                    getHorizontalScrollBar();
-
-
-            int movimiento =
-                    e.getWheelRotation()
-                    * 45;
-
-
-            scroll.setValue(
-                    scroll.getValue()
-                    + movimiento
-            );
-        });
+        DesplazamientoSuave.instalarHorizontal(this);
     }
 
 
@@ -175,6 +160,12 @@ public class Scroll_Categorias extends JScrollPane {
         // Meter el panel visual dentro del scroll
         setViewportView(
                 panelCategorias
+        );
+
+        DesplazamientoSuave.instalarSobreVista(
+                panelCategorias,
+                getHorizontalScrollBar(),
+                true
         );
 
 

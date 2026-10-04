@@ -76,6 +76,8 @@ public class Scroll_Vertical extends JScrollPane {
         barra.setUI(
                 new BarraNaranjaVertical()
         );
+
+        DesplazamientoSuave.instalarVertical(this);
     }
 
     // ==========================================
@@ -87,6 +89,12 @@ public class Scroll_Vertical extends JScrollPane {
         this.panelContenido = panel;
 
         setViewportView(panelContenido);
+
+        DesplazamientoSuave.instalarSobreVista(
+                panelContenido,
+                getVerticalScrollBar(),
+                false
+        );
 
         panelContenido.revalidate();
         panelContenido.repaint();
