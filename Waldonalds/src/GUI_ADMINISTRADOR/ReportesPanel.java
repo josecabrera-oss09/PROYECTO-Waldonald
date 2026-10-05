@@ -2,6 +2,7 @@ package GUI_ADMINISTRADOR;
 
 import Componentes.BotonDesplegable;
 import Componentes.BotonRedondeado;
+import Componentes.GraficaBarras;
 import Componentes.PanelCircular;
 import Componentes.PanelFlotante;
 import DAO.ReporteDAO;
@@ -66,6 +67,8 @@ public class ReportesPanel extends javax.swing.JPanel {
     private final TemaAdmin tema = new TemaAdmin();
     private final ReporteDAO reporteDAO = new ReporteDAO();
     private final ModeloTablaVentas modeloTabla = new ModeloTablaVentas();
+    private final ModeloProductosVendidos modeloProductos =
+            new ModeloProductosVendidos();
     private final DecimalFormat moneda = new DecimalFormat(
             "'Q'#,##0.00",
             DecimalFormatSymbols.getInstance(Locale.US));
@@ -92,6 +95,7 @@ public class ReportesPanel extends javax.swing.JPanel {
         temporizadorBusqueda.setRepeats(false);
         configurarVista();
         configurarFiltros();
+        configurarAnalisis();
         configurarTabla();
         configurarEventos();
         limpiarResultados();
@@ -148,6 +152,51 @@ public class ReportesPanel extends javax.swing.JPanel {
         labelCancelacionesCaja.setForeground(ROJO);
         estadoCarga.setFont(tema.regular(12f));
         estadoCarga.setForeground(SECUNDARIO);
+    }
+
+    private void configurarAnalisis() {
+        for (PanelFlotante panel : new PanelFlotante[]{
+            panelProductosVendidos, panelVentasCajero, panelVentasHora
+        }) {
+            panel.setColorFondo(Color.WHITE);
+            panel.setColorBorde(BORDE);
+            panel.setSombra(false);
+            panel.setRadio(18);
+        }
+
+        for (JLabel titulo : new JLabel[]{
+            labelProductosVendidos, labelVentasCajero, labelVentasHora,
+            labelDetalleVentas
+        }) {
+            titulo.setFont(tema.negrita(17f));
+            titulo.setForeground(AZUL);
+        }
+        for (JLabel subtitulo : new JLabel[]{
+            labelProductosSubtitulo, labelCajeroSubtitulo, labelHoraSubtitulo
+        }) {
+            subtitulo.setFont(tema.regular(12f));
+            subtitulo.setForeground(SECUNDARIO);
+        }
+
+        tablaProductos.setModel(modeloProductos);
+        tablaProductos.aplicarEstilo();
+        tablaProductos.setRowHeight(30);
+        tablaProductos.setFilasAlternadas(true);
+        tablaProductos.setAltoCabecera(34);
+        tablaProductos.setColumnasCentradas("0,2,3");
+        tablaProductos.getColumnModel().getColumn(0).setPreferredWidth(34);
+        tablaProductos.getColumnModel().getColumn(1).setPreferredWidth(215);
+        tablaProductos.getColumnModel().getColumn(2).setPreferredWidth(75);
+        tablaProductos.getColumnModel().getColumn(3).setPreferredWidth(75);
+        scrollProductos.setBorder(BorderFactory.createEmptyBorder());
+        scrollProductos.getViewport().setBackground(Color.WHITE);
+
+        graficaCajeros.setOrientacion(
+                GraficaBarras.Orientacion.HORIZONTAL);
+        graficaCajeros.setColorBarra(AMARILLO);
+        graficaHoras.setOrientacion(
+                GraficaBarras.Orientacion.VERTICAL);
+        graficaHoras.setColorBarra(AMARILLO);
     }
 
     private void configurarTarjeta(PanelFlotante panel,
@@ -430,6 +479,31 @@ public class ReportesPanel extends javax.swing.JPanel {
                 porcentaje(resultado.tarjeta(), resultado.ventas()));
         labelPorcentajeOtros.setText(
                 porcentaje(resultado.otros(), resultado.ventas()));
+        mostrarAnalisis(resultado);
+    }
+
+    private void mostrarAnalisis(ReporteDAO.Resumen resultado) {
+        modeloProductos.setFilas(resultado.productosMasVendidos());
+
+        List<GraficaBarras.Dato> cajeros = new ArrayList<>();
+        for (Object[] fila : resultado.ventasPorCajero()) {
+            BigDecimal total = new BigDecimal(fila[1].toString());
+            long pedidos = ((Number) fila[2]).longValue();
+            cajeros.add(new GraficaBarras.Dato(
+                    String.valueOf(fila[0]), total.doubleValue(),
+                    moneda.format(total), Long.toString(pedidos)));
+        }
+        graficaCajeros.setDatos(cajeros);
+
+        List<GraficaBarras.Dato> horas = new ArrayList<>();
+        for (Object[] fila : resultado.ventasPorHora()) {
+            int hora = ((Number) fila[0]).intValue();
+            BigDecimal total = new BigDecimal(fila[1].toString());
+            horas.add(new GraficaBarras.Dato(
+                    String.format("%02d", hora), total.doubleValue(),
+                    "Q" + total.setScale(0, RoundingMode.HALF_UP)));
+        }
+        graficaHoras.setDatos(horas);
     }
 
     private String porcentaje(BigDecimal parte, BigDecimal total) {
@@ -573,6 +647,9 @@ public class ReportesPanel extends javax.swing.JPanel {
         labelPorcentajeEfectivo.setText("0% del total");
         labelPorcentajeTarjeta.setText("0% del total");
         labelPorcentajeOtros.setText("0% del total");
+        modeloProductos.setFilas(List.of());
+        graficaCajeros.setDatos(List.of());
+        graficaHoras.setDatos(List.of());
         paginaActual = 1;
         mostrarPagina();
         botonExportar.setEnabled(false);
@@ -673,7 +750,21 @@ public class ReportesPanel extends javax.swing.JPanel {
         filtroMetodo = new Componentes.BotonDesplegable();
         filtroServicio = new Componentes.BotonDesplegable();
         botonLimpiarFiltros = new Componentes.BotonRedondeado();
+        panelProductosVendidos = new Componentes.PanelFlotante();
+        labelProductosVendidos = new javax.swing.JLabel();
+        labelProductosSubtitulo = new javax.swing.JLabel();
+        scrollProductos = new javax.swing.JScrollPane();
+        tablaProductos = new Componentes.TablaAdministrativa();
+        panelVentasCajero = new Componentes.PanelFlotante();
+        labelVentasCajero = new javax.swing.JLabel();
+        labelCajeroSubtitulo = new javax.swing.JLabel();
+        graficaCajeros = new Componentes.GraficaBarras();
+        panelVentasHora = new Componentes.PanelFlotante();
+        labelVentasHora = new javax.swing.JLabel();
+        labelHoraSubtitulo = new javax.swing.JLabel();
+        graficaHoras = new Componentes.GraficaBarras();
         panelTabla = new Componentes.PanelFlotante();
+        labelDetalleVentas = new javax.swing.JLabel();
         scrollPedidos = new javax.swing.JScrollPane();
         tablaPedidos = new Componentes.TablaAdministrativa();
         etiquetaRango = new javax.swing.JLabel();
@@ -705,7 +796,7 @@ public class ReportesPanel extends javax.swing.JPanel {
         estadoCarga = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(248, 249, 251));
-        setPreferredSize(new java.awt.Dimension(1580, 932));
+        setPreferredSize(new java.awt.Dimension(1580, 1230));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         labelTitulo.setFont(new java.awt.Font("Dialog", 1, 42)); // NOI18N
@@ -844,9 +935,76 @@ public class ReportesPanel extends javax.swing.JPanel {
 
         add(panelFiltros, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 320, 1470, 100));
 
+        panelProductosVendidos.setRadio(18);
+        panelProductosVendidos.setSombra(false);
+        panelProductosVendidos.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelProductosVendidos.setText("Productos más vendidos");
+        panelProductosVendidos.add(labelProductosVendidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 14, 300, 28));
+
+        labelProductosSubtitulo.setText("Top 5 de la fecha seleccionada");
+        panelProductosVendidos.add(labelProductosSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 41, 300, 22));
+
+        scrollProductos.setBorder(null);
+        scrollProductos.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollProductos.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        tablaProductos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "#", "Producto", "Cantidad", "% ventas"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        scrollProductos.setViewportView(tablaProductos);
+
+        panelProductosVendidos.add(scrollProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 70, 419, 180));
+
+        add(panelProductosVendidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 435, 455, 270));
+
+        panelVentasCajero.setRadio(18);
+        panelVentasCajero.setSombra(false);
+        panelVentasCajero.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelVentasCajero.setText("Ventas por cajero");
+        panelVentasCajero.add(labelVentasCajero, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 14, 300, 28));
+
+        labelCajeroSubtitulo.setText("Total vendido y número de pedidos");
+        panelVentasCajero.add(labelCajeroSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 41, 350, 22));
+
+        panelVentasCajero.add(graficaCajeros, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 65, 449, 190));
+
+        add(panelVentasCajero, new org.netbeans.lib.awtextra.AbsoluteConstraints(525, 435, 485, 270));
+
+        panelVentasHora.setRadio(18);
+        panelVentasHora.setSombra(false);
+        panelVentasHora.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelVentasHora.setText("Ventas por hora");
+        panelVentasHora.add(labelVentasHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 14, 300, 28));
+
+        labelHoraSubtitulo.setText("Total vendido por hora");
+        panelVentasHora.add(labelHoraSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 41, 300, 22));
+
+        panelVentasHora.add(graficaHoras, new org.netbeans.lib.awtextra.AbsoluteConstraints(18, 65, 474, 190));
+
+        add(panelVentasHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(1020, 435, 510, 270));
+
         panelTabla.setRadio(18);
         panelTabla.setSombra(false);
         panelTabla.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelDetalleVentas.setText("Detalle de ventas del día");
+        panelTabla.add(labelDetalleVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(24, 12, 350, 30));
 
         scrollPedidos.setBorder(null);
         scrollPedidos.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -870,7 +1028,7 @@ public class ReportesPanel extends javax.swing.JPanel {
         });
         scrollPedidos.setViewportView(tablaPedidos);
 
-        panelTabla.add(scrollPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 250));
+        panelTabla.add(scrollPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 48, 1442, 216));
 
         etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
         etiquetaRango.setText("No se encontraron ventas");
@@ -896,7 +1054,7 @@ public class ReportesPanel extends javax.swing.JPanel {
 
         panelTabla.add(panelPaginacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 278, 270, 42));
 
-        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 435, 1470, 340));
+        add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 720, 1470, 340));
 
         panelResumen.setRadio(18);
         panelResumen.setSombra(false);
@@ -956,11 +1114,11 @@ public class ReportesPanel extends javax.swing.JPanel {
         cancelacionDetalle.setText("Pedidos cancelados");
         panelResumen.add(cancelacionDetalle, new org.netbeans.lib.awtextra.AbsoluteConstraints(1165, 73, 250, 22));
 
-        add(panelResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 790, 1470, 110));
+        add(panelResumen, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 1075, 1470, 110));
 
         estadoCarga.setForeground(new java.awt.Color(92, 103, 124));
         estadoCarga.setText("Selecciona una fecha y actualiza el reporte.");
-        add(estadoCarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 904, 1450, 24));
+        add(estadoCarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 1192, 1450, 24));
     }// </editor-fold>//GEN-END:initComponents
 
     private org.netbeans.lib.awtextra.AbsoluteConstraints posicion(
@@ -1056,6 +1214,48 @@ public class ReportesPanel extends javax.swing.JPanel {
         JLabel etiqueta = etiqueta(texto, 12, false);
         panel.add(etiqueta, posicion(x, 73, 250, 22));
         return etiqueta;
+    }
+
+    private static final class ModeloProductosVendidos
+            extends AbstractTableModel {
+
+        private final String[] columnas = {
+            "#", "Producto", "Cantidad", "% ventas"
+        };
+        private List<Object[]> filas = List.of();
+
+        private void setFilas(List<Object[]> nuevasFilas) {
+            filas = nuevasFilas == null
+                    ? List.of() : List.copyOf(nuevasFilas);
+            fireTableDataChanged();
+        }
+
+        @Override public int getRowCount() {
+            return filas.size();
+        }
+
+        @Override public int getColumnCount() {
+            return columnas.length;
+        }
+
+        @Override public String getColumnName(int columna) {
+            return columnas[columna];
+        }
+
+        @Override public Object getValueAt(int fila, int columna) {
+            Object[] dato = filas.get(fila);
+            return switch (columna) {
+                case 0 -> fila + 1;
+                case 1 -> dato[0];
+                case 2 -> dato[1];
+                case 3 -> dato[2] + "%";
+                default -> "";
+            };
+        }
+
+        @Override public boolean isCellEditable(int fila, int columna) {
+            return false;
+        }
     }
 
     private final class ModeloTablaVentas extends AbstractTableModel {
@@ -1192,8 +1392,12 @@ public class ReportesPanel extends javax.swing.JPanel {
     private Componentes.BotonDesplegable filtroCajero;
     private Componentes.BotonDesplegable filtroMetodo;
     private Componentes.BotonDesplegable filtroServicio;
+    private Componentes.GraficaBarras graficaCajeros;
+    private Componentes.GraficaBarras graficaHoras;
+    private javax.swing.JLabel labelCajeroSubtitulo;
     private javax.swing.JLabel labelCancelacionesCaja;
     private javax.swing.JLabel labelCancelados;
+    private javax.swing.JLabel labelDetalleVentas;
     private javax.swing.JLabel labelEfectivo;
     private Labels.LabelEscalable labelEscalable2;
     private Labels.LabelEscalable labelEscalable3;
@@ -1201,6 +1405,8 @@ public class ReportesPanel extends javax.swing.JPanel {
     private Labels.LabelEscalable labelEscalable5;
     private javax.swing.JLabel labelOtros;
     private javax.swing.JLabel labelPedidos;
+    private javax.swing.JLabel labelProductosSubtitulo;
+    private javax.swing.JLabel labelProductosVendidos;
     private javax.swing.JLabel labelPorcentajeEfectivo;
     private javax.swing.JLabel labelPorcentajeOtros;
     private javax.swing.JLabel labelPorcentajeTarjeta;
@@ -1215,6 +1421,9 @@ public class ReportesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel labelTituloTicket;
     private javax.swing.JLabel labelTituloVentas;
     private javax.swing.JLabel labelVentas;
+    private javax.swing.JLabel labelVentasCajero;
+    private javax.swing.JLabel labelVentasHora;
+    private javax.swing.JLabel labelHoraSubtitulo;
     private javax.swing.JLabel otrosTitulo;
     private Componentes.PanelFlotante panelCancelados;
     private Componentes.PanelCircular panelCircular2;
@@ -1224,16 +1433,21 @@ public class ReportesPanel extends javax.swing.JPanel {
     private Componentes.PanelFlotante panelFiltros;
     private javax.swing.JPanel panelPaginacion;
     private Componentes.PanelFlotante panelPedidos;
+    private Componentes.PanelFlotante panelProductosVendidos;
     private Componentes.PanelFlotante panelResumen;
     private Componentes.PanelFlotante panelTabla;
     private Componentes.PanelFlotante panelTicket;
     private Componentes.PanelFlotante panelVentas;
+    private Componentes.PanelFlotante panelVentasCajero;
+    private Componentes.PanelFlotante panelVentasHora;
     private javax.swing.JScrollPane scrollPedidos;
+    private javax.swing.JScrollPane scrollProductos;
     private javax.swing.JSeparator separadorResumen1;
     private javax.swing.JSeparator separadorResumen2;
     private javax.swing.JSeparator separadorResumen3;
     private javax.swing.JSeparator separadorResumen4;
     private Componentes.TablaAdministrativa tablaPedidos;
+    private Componentes.TablaAdministrativa tablaProductos;
     private javax.swing.JLabel tarjetaTitulo;
     // End of variables declaration//GEN-END:variables
 }

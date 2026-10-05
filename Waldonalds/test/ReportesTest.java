@@ -25,7 +25,11 @@ public class ReportesTest {
     static void imagen(Container c, String destino) throws Exception {
         organizar(c);
         BufferedImage img = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = img.createGraphics(); c.printAll(g); g.dispose(); ImageIO.write(img, "png", new File(destino));
+        Graphics2D g = img.createGraphics(); c.printAll(g); g.dispose();
+        File archivo = new File(destino);
+        File carpeta = archivo.getParentFile();
+        if (carpeta != null) carpeta.mkdirs();
+        ImageIO.write(img, "png", archivo);
     }
     public static void main(String[] args) throws Exception {
         var ejemplo = new ReporteDAO.Resumen(new BigDecimal("125.50"), 2, new BigDecimal("62.75"), 0, 0,
@@ -37,7 +41,7 @@ public class ReportesTest {
         final ReportesPanel[] panel = new ReportesPanel[1];
         SwingUtilities.invokeAndWait(() -> {
             try {
-                panel[0] = new ReportesPanel(); panel[0].setSize(1580,980);
+                panel[0] = new ReportesPanel(); panel[0].setSize(1580,1230);
                 comprobar(campo(panel[0],"carga") == null, "Constructor sin consultas");
                 comprobar(!((JTable) campo(panel[0],"tablaPedidos")).getModel().isCellEditable(0,0), "Tabla solo lectura");
                 var fecha = (JSpinner) campo(panel[0],"fechaReporte");
@@ -73,7 +77,7 @@ public class ReportesTest {
                 try {
                     comprobar(campo(panel[0],"ultimoReporte")!=null,"Carga SwingWorker completada");
                     JFrame marco = new JFrame(); marco.setContentPane(panel[0]); marco.pack();
-                    panel[0].setSize(1580,980);
+                    panel[0].setSize(1580,1230);
                     imagen(panel[0],"build/reportes-check/reportes.png");
                     marco.dispose();
                 } catch(Exception ex) { throw new RuntimeException(ex); }

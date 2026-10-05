@@ -38,6 +38,15 @@ public class ReporteDAOTest {
             verificar(r.stockBajo()==2 && r.alertas().size()==3,"Umbral inclusivo y solo activos");
             verificar(r.productos().size()==2 && "Combo".equals(r.productos().get(0)[0]),"Top sin componentes ni cancelados/pendientes");
             verificar(new BigDecimal(r.productos().get(0)[2].toString()).intValue()==2,"Cantidad del combo");
+            verificar(r.productosMasVendidos().size()==2
+                    && "Combo".equals(r.productosMasVendidos().get(0)[0]),
+                    "Top 5 para reportes");
+            verificar(r.ventasPorCajero().size()==1
+                    && new BigDecimal(r.ventasPorCajero().get(0)[1].toString())
+                            .compareTo(new BigDecimal("150"))==0,
+                    "Ventas agrupadas por cajero");
+            verificar(r.ventasPorHora().size()==2,
+                    "Ventas agrupadas por hora");
             verificar("A domicilio".equals(r.recientes().get(0)[3]),"Servicio y orden reciente");
             var vacio=dao.cargar(c,LocalDate.of(2026,9,24));
             verificar(vacio.pedidos()==0 && vacio.cancelados()==0 && vacio.ventas().signum()==0 && vacio.ticket().signum()==0,"Día sin ventas");

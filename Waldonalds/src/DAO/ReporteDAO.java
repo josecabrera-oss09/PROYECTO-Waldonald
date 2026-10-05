@@ -12,14 +12,18 @@ public final class ReporteDAO {
     public record Resumen(BigDecimal ventas, long pedidos, BigDecimal ticket,
             long cancelados, long stockBajo, List<Object[]> recientes, List<Object[]> productos,
             List<Object[]> alertas, List<Object[]> ventasDetalle,
-            BigDecimal efectivo, BigDecimal tarjeta, BigDecimal otros) {
+            BigDecimal efectivo, BigDecimal tarjeta, BigDecimal otros,
+            List<Object[]> productosMasVendidos,
+            List<Object[]> ventasPorCajero,
+            List<Object[]> ventasPorHora) {
 
         public Resumen(BigDecimal ventas, long pedidos, BigDecimal ticket,
                 long cancelados, long stockBajo, List<Object[]> recientes,
                 List<Object[]> productos, List<Object[]> alertas) {
             this(ventas, pedidos, ticket, cancelados, stockBajo, recientes,
                     productos, alertas, List.of(), BigDecimal.ZERO,
-                    BigDecimal.ZERO, BigDecimal.ZERO);
+                    BigDecimal.ZERO, BigDecimal.ZERO, List.of(),
+                    List.of(), List.of());
         }
     }
 
@@ -84,6 +88,42 @@ public final class ReporteDAO {
                     + "UNION ALL SELECT 'Ingrediente',nombre,stock_actual,stock_minimo,unidad_medida, "
                     + "CASE WHEN stock_actual<=0 THEN 'Agotado' ELSE 'Stock bajo' END "
                     + "FROM ingrediente WHERE estado=1 AND stock_actual<=stock_minimo ORDER BY 6,2", null);
+                List<Object[]> productosMasVendidos = consultar(c,
+                    "SELECT pr.nombre, SUM(d.cantidad) "
+                    + "FROM pedido_detalle d JOIN pedido p ON p.id_pedido=d.id_pedido "
+                    + "JOIN presentacion_menu pm ON pm.id_presentacion=d.id_presentacion "
+                    + "JOIN producto pr ON pr.id_producto=pm.id_producto_principal "
+                    + "WHERE p.estado='PAGADO' AND p.fecha_hora>=? AND p.fecha_hora<? "
+                    + "GROUP BY pr.id_producto,pr.nombre "
+                    + "ORDER BY SUM(d.cantidad) DESC,pr.nombre LIMIT 5", fecha);
+                List<Object[]> totalUnidades = consultar(c,
+                    "SELECT COALESCE(SUM(d.cantidad),0) "
+                    + "FROM pedido_detalle d JOIN pedido p ON p.id_pedido=d.id_pedido "
+                    + "WHERE p.estado='PAGADO' AND p.fecha_hora>=? AND p.fecha_hora<?", fecha);
+                BigDecimal unidadesVendidas = new BigDecimal(
+                        totalUnidades.get(0)[0].toString());
+                for (int i = 0; i < productosMasVendidos.size(); i++) {
+                    Object[] original = productosMasVendidos.get(i);
+                    BigDecimal unidades = new BigDecimal(original[1].toString());
+                    BigDecimal porcentaje = unidadesVendidas.signum() == 0
+                            ? BigDecimal.ZERO
+                            : unidades.multiply(BigDecimal.valueOf(100))
+                                    .divide(unidadesVendidas, 1,
+                                            java.math.RoundingMode.HALF_UP);
+                    productosMasVendidos.set(i,
+                            new Object[]{original[0], original[1], porcentaje});
+                }
+                List<Object[]> ventasPorCajero = consultar(c,
+                    "SELECT CONCAT(u.nombre,' ',u.apellido), SUM(p.total), COUNT(*) "
+                    + "FROM pedido p JOIN usuario u ON u.id_usuario=p.id_usuario "
+                    + "WHERE p.estado='PAGADO' AND p.fecha_hora>=? AND p.fecha_hora<? "
+                    + "GROUP BY u.id_usuario,u.nombre,u.apellido "
+                    + "ORDER BY SUM(p.total) DESC,u.nombre LIMIT 5", fecha);
+                List<Object[]> ventasPorHora = consultar(c,
+                    "SELECT HOUR(p.fecha_hora), SUM(p.total), COUNT(*) "
+                    + "FROM pedido p WHERE p.estado='PAGADO' "
+                    + "AND p.fecha_hora>=? AND p.fecha_hora<? "
+                    + "GROUP BY HOUR(p.fecha_hora) ORDER BY HOUR(p.fecha_hora)", fecha);
                 Object[] k = indicadores.get(0);
                 BigDecimal efectivo = totalPorMetodo(ventasDetalle, "EFECTIVO");
                 BigDecimal tarjeta = totalPorMetodo(ventasDetalle, "TARJETA");
@@ -93,7 +133,8 @@ public final class ReporteDAO {
                 Resumen resultado = new Resumen(new BigDecimal(k[0].toString()), ((Number) k[1]).longValue(),
                     new BigDecimal(k[2].toString()), ((Number) k[3]).longValue(),
                     ((Number) stock.get(0)[0]).longValue(), pedidos, productos, alertas,
-                    ventasDetalle, efectivo, tarjeta, otros);
+                    ventasDetalle, efectivo, tarjeta, otros,
+                    productosMasVendidos, ventasPorCajero, ventasPorHora);
                 c.commit();
                 return resultado;
             } catch (SQLException ex) {
