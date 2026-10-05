@@ -509,22 +509,23 @@ public class PedidoPanel extends JPanel {
     private void abrirPago() {
         if (ocupado || recuperacionFallida || lineas.isEmpty()) return;
         JDialog dialogo = new JDialog(SwingUtilities.getWindowAncestor(this), "Cobrar pedido", Dialog.ModalityType.APPLICATION_MODAL);
-        JPanel campos = new JPanel(new GridLayout(0, 1, 5, 8)); campos.setBorder(BorderFactory.createEmptyBorder(20,20,20,20)); campos.setBackground(Color.WHITE);
-        JComboBox<String> servicio = new JComboBox<>(new String[]{"Comer aquí", "Para llevar"});
-        JComboBox<String> metodo = new JComboBox<>(new String[]{"Efectivo", "Tarjeta (terminal externa)"});
-        JTextField recibido = new JTextField(suma().toPlainString()), referencia = new JTextField();
-        JCheckBox confirmado = new JCheckBox("Pago aprobado en la terminal externa");
-        JLabel cambio = new JLabel();
-        JButton guardar = boton("Confirmar pago", AMARILLO, TINTA), volver = boton("Volver al pedido", new Color(245, 246, 248), TINTA);
-        campos.add(new JLabel("Total a pagar: Q" + suma().toPlainString())); campos.add(servicio); campos.add(metodo);
-        campos.add(new JLabel("Monto recibido")); campos.add(recibido); campos.add(cambio);
-        campos.add(new JLabel("Referencia de terminal (sin datos de tarjeta)")); campos.add(referencia); campos.add(confirmado);
-        campos.add(guardar); campos.add(volver);
+        // Conserva el encabezado del diseño y elimina la barra de título de Windows.
+        dialogo.setUndecorated(true);
+        dialogo.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+        dialogo.setResizable(false);
+        dialogo.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialogo.getRootPane().setBorder(BorderFactory.createLineBorder(new Color(220, 226, 233)));
+        FormularioCobro formulario = new FormularioCobro(suma());
+        JComboBox<String> servicio = formulario.servicio, metodo = formulario.metodo;
+        JTextField recibido = formulario.recibido, referencia = formulario.referencia;
+        JCheckBox confirmado = formulario.confirmado;
+        JButton guardar = formulario.guardar, volver = formulario.volver;
         Runnable refrescar = () -> {
             boolean tarjeta = metodo.getSelectedIndex() == 1;
             recibido.setEnabled(!tarjeta && pendiente == null); referencia.setEnabled(tarjeta && pendiente == null); confirmado.setEnabled(tarjeta && pendiente == null);
-            try { BigDecimal valor = monto(recibido.getText()).subtract(suma()); cambio.setText(valor.signum() < 0 ? "Faltan: Q" + valor.negate() : "Cambio: Q" + valor); }
-            catch (IllegalArgumentException ex) { cambio.setText("Ingrese un monto con hasta dos decimales."); }
+            formulario.mostrarMetodo(tarjeta);
+            try { formulario.actualizarCambio(monto(recibido.getText()).subtract(suma())); }
+            catch (IllegalArgumentException ex) { formulario.montoInvalido(); }
         };
         recibido.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { refrescar.run(); }
@@ -588,9 +589,398 @@ public class PedidoPanel extends JPanel {
                 }
             }.execute();
         });
-        dialogo.setContentPane(campos); dialogo.pack(); dialogo.setMinimumSize(new Dimension(440, dialogo.getHeight()));
-        dialogo.setLocationRelativeTo(this); dialogo.setVisible(true);
+        // El contenido conserva su tamaño natural; en pantallas pequeñas puede desplazarse.
+        JScrollPane desplazamiento = new JScrollPane(formulario,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        desplazamiento.setBorder(BorderFactory.createEmptyBorder());
+        desplazamiento.getViewport().setBackground(Color.WHITE);
+        desplazamiento.getVerticalScrollBar().setUnitIncrement(16);
+        desplazamiento.getVerticalScrollBar().setUI(new BarraPedidoMinimalista());
+        desplazamiento.getVerticalScrollBar().setOpaque(false);
+        desplazamiento.getVerticalScrollBar().setPreferredSize(new Dimension(10, 0));
+        dialogo.setContentPane(desplazamiento);
+        dialogo.getRootPane().setDefaultButton(guardar);
+        dialogo.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0), "volverPedido");
+        dialogo.getRootPane().getActionMap().put("volverPedido", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                if (volver.isEnabled()) dialogo.dispose();
+            }
+        });
+        Runnable ajustarVentana = () -> {
+            // Calcula el tamaño con los componentes actuales, incluso si el proyecto los escala.
+            // No impone una altura mínima que deje espacio vacío debajo de los botones.
+            dialogo.setMinimumSize(new Dimension(0, 0));
+            dialogo.pack();
+            GraphicsConfiguration pantalla = dialogo.getGraphicsConfiguration();
+            Rectangle area = pantalla.getBounds();
+            Insets bordesPantalla = Toolkit.getDefaultToolkit().getScreenInsets(pantalla);
+            int anchoDisponible = Math.max(1, area.width - bordesPantalla.left - bordesPantalla.right - 32);
+            int altoDisponible = Math.max(1, area.height - bordesPantalla.top - bordesPantalla.bottom - 32);
+            dialogo.setSize(Math.min(dialogo.getWidth(), anchoDisponible),
+                    Math.min(dialogo.getHeight(), altoDisponible));
+            dialogo.setLocationRelativeTo(this);
+        };
+        ajustarVentana.run();
+        dialogo.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowOpened(java.awt.event.WindowEvent e) {
+                // Se vuelve a ajustar después de cualquier escalado al abrir la ventana.
+                SwingUtilities.invokeLater(() -> {
+                    if (!dialogo.isDisplayable()) return;
+                    ajustarVentana.run();
+                    if (pendiente != null) guardar.requestFocusInWindow();
+                    else if (metodo.getSelectedIndex() == 1) referencia.requestFocusInWindow();
+                    else { recibido.requestFocusInWindow(); recibido.selectAll(); }
+                });
+            }
+        });
+        dialogo.setVisible(true);
     }
+
+    /** Vista del cobro; no realiza operaciones ni modifica los datos del pedido. */
+    private static final class FormularioCobro extends JPanel implements Scrollable {
+        private static final Color TEXTO_SECUNDARIO = new Color(108, 119, 135);
+        private static final Color BORDE = new Color(220, 226, 233);
+        private final JComboBox<String> servicio = selector(new String[]{"Comer aquí", "Para llevar"});
+        private final JComboBox<String> metodo = selector(new String[]{"Efectivo", "Tarjeta"});
+        private final JTextField recibido;
+        private final JTextField referencia = new JTextField();
+        private final JCheckBox confirmado = new JCheckBox("Pago aprobado en la terminal externa");
+        private final JLabel cambio = new JLabel("Q0.00", SwingConstants.RIGHT);
+        private final JLabel tituloCambio = etiqueta("Cambio a entregar", 12, Font.PLAIN);
+        private final JButton guardar = new AccionCobro("Confirmar pago", AMARILLO, ROJO_HEADER);
+        private final JButton volver = new AccionCobro("Volver al pedido", new Color(243, 245, 248), ROJO_HEADER);
+        private final CardLayout modoPago = new CardLayout();
+        private final JPanel detallePago = new JPanel(modoPago);
+        private final SuperficieCobro resumenCambio = new SuperficieCobro(new Color(242, 247, 243), null);
+
+        private FormularioCobro(BigDecimal importe) {
+            super(new BorderLayout(0, 20));
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createEmptyBorder(24, 24, 22, 24));
+            recibido = new JTextField(importe.toPlainString());
+
+            JPanel encabezado = transparente(new BorderLayout(14, 0));
+            JLabel icono = new JLabel(new IconoCobro());
+            encabezado.add(icono, BorderLayout.WEST);
+            JPanel textos = transparente(new GridLayout(2, 1, 0, 4));
+            textos.add(etiqueta("Cobrar pedido", 21, Font.BOLD));
+            JLabel ayuda = etiqueta("Completa los datos para finalizar el pedido", 12, Font.PLAIN);
+            ayuda.setForeground(TEXTO_SECUNDARIO);
+            textos.add(ayuda);
+            encabezado.add(textos, BorderLayout.CENTER);
+            add(encabezado, BorderLayout.NORTH);
+
+            JPanel contenido = transparente(new BorderLayout(0, 18));
+            SuperficieCobro resumenTotal = new SuperficieCobro(new Color(255, 248, 226), null);
+            resumenTotal.setLayout(new BorderLayout(12, 0));
+            resumenTotal.setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
+            resumenTotal.add(etiqueta("Total a pagar", 13, Font.BOLD), BorderLayout.WEST);
+            JLabel importeTotal = etiqueta("Q" + importe.toPlainString(), 30, Font.BOLD);
+            importeTotal.setHorizontalAlignment(SwingConstants.RIGHT);
+            resumenTotal.add(importeTotal, BorderLayout.CENTER);
+            contenido.add(resumenTotal, BorderLayout.NORTH);
+
+            JPanel campos = transparente(new BorderLayout(0, 18));
+            JPanel opciones = transparente(new GridLayout(1, 2, 16, 0));
+            opciones.add(campo("Tipo de pedido", servicio));
+            opciones.add(campo("Método de pago", metodo));
+            campos.add(opciones, BorderLayout.NORTH);
+
+            recibido.setFont(new Font(FUENTE, Font.BOLD, 18));
+            recibido.setForeground(ROJO_HEADER);
+            recibido.setDisabledTextColor(TEXTO_SECUNDARIO);
+            recibido.setOpaque(false);
+            recibido.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
+            SuperficieCobro entradaMonto = new SuperficieCobro(Color.WHITE, BORDE);
+            entradaMonto.setLayout(new BorderLayout(0, 0));
+            entradaMonto.setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
+            entradaMonto.setPreferredSize(new Dimension(0, 46));
+            JLabel moneda = etiqueta("Q", 16, Font.PLAIN);
+            moneda.setForeground(TEXTO_SECUNDARIO);
+            entradaMonto.add(moneda, BorderLayout.WEST);
+            entradaMonto.add(recibido, BorderLayout.CENTER);
+            entradaMonto.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override public void mousePressed(java.awt.event.MouseEvent e) {
+                    if (recibido.isEnabled()) recibido.requestFocusInWindow();
+                }
+            });
+            foco(recibido, entradaMonto);
+
+            JPanel efectivo = transparente(new BorderLayout(0, 14));
+            efectivo.add(campo("Monto recibido", entradaMonto, recibido), BorderLayout.NORTH);
+            resumenCambio.setLayout(new BorderLayout(8, 0));
+            resumenCambio.setBorder(BorderFactory.createEmptyBorder(15, 16, 15, 16));
+            cambio.setFont(new Font(FUENTE, Font.BOLD, 20));
+            cambio.setForeground(new Color(39, 112, 69));
+            resumenCambio.add(tituloCambio, BorderLayout.WEST);
+            resumenCambio.add(cambio, BorderLayout.CENTER);
+            efectivo.add(resumenCambio, BorderLayout.SOUTH);
+
+            referencia.setFont(new Font(FUENTE, Font.PLAIN, 14));
+            referencia.setForeground(ROJO_HEADER);
+            referencia.setDisabledTextColor(TEXTO_SECUNDARIO);
+            referencia.setBorder(new BordeCampoCobro());
+            referencia.setPreferredSize(new Dimension(0, 44));
+            referencia.setOpaque(false);
+            referencia.setToolTipText("Solo la referencia del comprobante de la terminal; no ingreses datos de tarjeta.");
+            foco(referencia, referencia);
+            JPanel tarjeta = transparente(new BorderLayout(0, 14));
+            JPanel referenciaTerminal = transparente(new BorderLayout(0, 6));
+            referenciaTerminal.add(campo("Referencia de terminal", referencia), BorderLayout.CENTER);
+            JLabel avisoReferencia = etiqueta("Sin número de tarjeta, fecha de vencimiento ni CVV.", 11, Font.PLAIN);
+            avisoReferencia.setForeground(TEXTO_SECUNDARIO);
+            referenciaTerminal.add(avisoReferencia, BorderLayout.SOUTH);
+            tarjeta.add(referenciaTerminal, BorderLayout.NORTH);
+            confirmado.setFont(new Font(FUENTE, Font.PLAIN, 12));
+            confirmado.setForeground(ROJO_HEADER);
+            confirmado.setOpaque(false);
+            confirmado.setBorder(BorderFactory.createEmptyBorder());
+            SuperficieCobro aprobacion = new SuperficieCobro(new Color(246, 247, 250), null);
+            aprobacion.setLayout(new BorderLayout());
+            aprobacion.setBorder(BorderFactory.createEmptyBorder(14, 12, 14, 12));
+            aprobacion.add(confirmado, BorderLayout.CENTER);
+            tarjeta.add(aprobacion, BorderLayout.SOUTH);
+
+            detallePago.setOpaque(false);
+            detallePago.add(efectivo, "EFECTIVO");
+            detallePago.add(tarjeta, "TARJETA");
+            campos.add(detallePago, BorderLayout.CENTER);
+            contenido.add(campos, BorderLayout.CENTER);
+            add(contenido, BorderLayout.CENTER);
+
+            JPanel acciones = transparente(new GridLayout(1, 2, 12, 0));
+            acciones.add(volver);
+            acciones.add(guardar);
+            JPanel pie = transparente(new BorderLayout());
+            pie.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(236, 239, 243)),
+                    BorderFactory.createEmptyBorder(18, 0, 0, 0)));
+            pie.add(acciones, BorderLayout.CENTER);
+            add(pie, BorderLayout.SOUTH);
+            servicio.getAccessibleContext().setAccessibleName("Tipo de pedido");
+            metodo.getAccessibleContext().setAccessibleName("Método de pago");
+            recibido.getAccessibleContext().setAccessibleName("Monto recibido en quetzales");
+            referencia.getAccessibleContext().setAccessibleName("Referencia de terminal");
+        }
+
+        private void mostrarMetodo(boolean tarjeta) {
+            modoPago.show(detallePago, tarjeta ? "TARJETA" : "EFECTIVO");
+        }
+
+        private void actualizarCambio(BigDecimal valor) {
+            boolean falta = valor.signum() < 0;
+            tituloCambio.setText(falta ? "Monto pendiente" : "Cambio a entregar");
+            cambio.setFont(new Font(FUENTE, Font.BOLD, 20));
+            cambio.setText("Q" + valor.abs().setScale(2, java.math.RoundingMode.HALF_UP).toPlainString());
+            cambio.setForeground(falta ? ROJO : new Color(39, 112, 69));
+            resumenCambio.fondo = falta ? new Color(255, 241, 242) : new Color(242, 247, 243);
+            resumenCambio.repaint();
+        }
+
+        private void montoInvalido() {
+            tituloCambio.setText("Monto inválido");
+            cambio.setFont(new Font(FUENTE, Font.PLAIN, 12));
+            cambio.setText("Usa hasta 2 decimales");
+            cambio.setForeground(ROJO);
+            resumenCambio.fondo = new Color(255, 241, 242);
+            resumenCambio.repaint();
+        }
+
+        @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override public int getScrollableUnitIncrement(Rectangle r, int o, int d) { return 16; }
+        @Override public int getScrollableBlockIncrement(Rectangle r, int o, int d) {
+            return Math.max(16, (o == SwingConstants.VERTICAL ? r.height : r.width) - 16);
+        }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() { return false; }
+
+        private static JLabel etiqueta(String texto, int tamano, int estilo) {
+            JLabel etiqueta = new JLabel(texto);
+            etiqueta.setFont(new Font(FUENTE, estilo, tamano));
+            etiqueta.setForeground(ROJO_HEADER);
+            return etiqueta;
+        }
+
+        private static JPanel transparente(LayoutManager layout) {
+            JPanel panel = new JPanel(layout);
+            panel.setOpaque(false);
+            return panel;
+        }
+
+        private static JPanel campo(String nombre, JComponent control) {
+            return campo(nombre, control, control);
+        }
+
+        private static JPanel campo(String nombre, JComponent control, JComponent foco) {
+            JPanel panel = transparente(new BorderLayout(0, 8));
+            JLabel nombreCampo = etiqueta(nombre, 12, Font.BOLD);
+            nombreCampo.setLabelFor(foco);
+            panel.add(nombreCampo, BorderLayout.NORTH);
+            panel.add(control, BorderLayout.CENTER);
+            return panel;
+        }
+
+        private static void foco(JComponent control, JComponent superficie) {
+            control.addFocusListener(new java.awt.event.FocusAdapter() {
+                @Override public void focusGained(java.awt.event.FocusEvent e) { superficie.repaint(); }
+                @Override public void focusLost(java.awt.event.FocusEvent e) { superficie.repaint(); }
+            });
+        }
+
+        private static JComboBox<String> selector(String[] opciones) {
+            JComboBox<String> combo = new JComboBox<>(opciones);
+            combo.setFont(new Font(FUENTE, Font.PLAIN, 13));
+            combo.setForeground(ROJO_HEADER);
+            combo.setBackground(Color.WHITE);
+            combo.setOpaque(false);
+            combo.setBorder(new BordeCampoCobro());
+            combo.setPreferredSize(new Dimension(0, 44));
+            combo.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+                @Override protected JButton createArrowButton() {
+                    JButton flecha = new JButton() {
+                        @Override protected void paintComponent(Graphics graphics) {
+                            Graphics2D g2 = (Graphics2D) graphics.create();
+                            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                            g2.setColor(isEnabled() ? ROJO_HEADER : TEXTO_SECUNDARIO);
+                            g2.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                            int x = getWidth() / 2, y = getHeight() / 2;
+                            g2.drawLine(x - 4, y - 2, x, y + 2);
+                            g2.drawLine(x, y + 2, x + 4, y - 2);
+                            g2.dispose();
+                        }
+                    };
+                    flecha.setPreferredSize(new Dimension(26, 24));
+                    flecha.setBorder(BorderFactory.createEmptyBorder());
+                    flecha.setOpaque(false);
+                    flecha.setContentAreaFilled(false);
+                    flecha.setFocusable(false);
+                    return flecha;
+                }
+                @Override public void paintCurrentValueBackground(Graphics g, Rectangle r, boolean foco) {
+                    // La superficie blanca y el contorno redondeado pertenecen al campo.
+                }
+            });
+            combo.setRenderer(new DefaultListCellRenderer() {
+                @Override public Component getListCellRendererComponent(JList<?> lista, Object valor,
+                        int indice, boolean seleccionado, boolean enfocado) {
+                    JLabel label = (JLabel) super.getListCellRendererComponent(lista, valor, indice, seleccionado, enfocado);
+                    label.setFont(new Font(FUENTE, Font.PLAIN, 13));
+                    label.setOpaque(indice >= 0);
+                    label.setBackground(seleccionado ? new Color(255, 246, 217) : Color.WHITE);
+                    label.setForeground(combo.isEnabled() ? ROJO_HEADER : TEXTO_SECUNDARIO);
+                    label.setBorder(BorderFactory.createEmptyBorder(6, 2, 6, 2));
+                    return label;
+                }
+            });
+            foco(combo, combo);
+            return combo;
+        }
+
+        private static boolean contieneFoco(Component componente) {
+            Component foco = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+            return foco != null && (foco == componente || SwingUtilities.isDescendingFrom(foco, componente));
+        }
+
+        private static final class BordeCampoCobro extends javax.swing.border.AbstractBorder {
+            @Override public Insets getBorderInsets(Component c) { return new Insets(10, 12, 10, 8); }
+            @Override public Insets getBorderInsets(Component c, Insets insets) {
+                insets.set(10, 12, 10, 8);
+                return insets;
+            }
+            @Override public void paintBorder(Component c, Graphics graphics, int x, int y, int ancho, int alto) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                boolean foco = contieneFoco(c);
+                g2.setColor(foco ? AMARILLO : BORDE);
+                g2.setStroke(new BasicStroke(foco ? 2f : 1f));
+                g2.drawRoundRect(x + 1, y + 1, Math.max(0, ancho - 3), Math.max(0, alto - 3), 12, 12);
+                g2.dispose();
+            }
+        }
+
+        private static final class SuperficieCobro extends JPanel {
+            private Color fondo;
+            private final Color borde;
+            private SuperficieCobro(Color fondo, Color borde) {
+                this.fondo = fondo;
+                this.borde = borde;
+                setOpaque(false);
+            }
+            @Override protected void paintComponent(Graphics graphics) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(fondo);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 14, 14);
+                if (borde != null) {
+                    boolean foco = contieneFoco(this);
+                    g2.setColor(foco ? AMARILLO : borde);
+                    g2.setStroke(new BasicStroke(foco ? 2f : 1f));
+                    g2.drawRoundRect(1, 1, Math.max(0, getWidth() - 3), Math.max(0, getHeight() - 3), 12, 12);
+                }
+                g2.dispose();
+                super.paintComponent(graphics);
+            }
+        }
+
+        private static final class AccionCobro extends JButton {
+            private final Color fondo;
+            private AccionCobro(String texto, Color fondo, Color tinta) {
+                super(texto);
+                this.fondo = fondo;
+                setFont(new Font(FUENTE, Font.BOLD, 13));
+                setForeground(tinta);
+                setPreferredSize(new Dimension(220, 44));
+                setMargin(new Insets(8, 10, 8, 10));
+                setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setOpaque(false);
+                setFocusPainted(false);
+                setRolloverEnabled(true);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+            @Override protected void paintComponent(Graphics graphics) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Color color = fondo;
+                if (!isEnabled()) color = new Color(237, 239, 242);
+                else if (getModel().isPressed()) color = fondo.darker();
+                else if (getModel().isRollover()) color = fondo.equals(AMARILLO)
+                        ? new Color(255, 179, 0) : new Color(233, 237, 243);
+                g2.setColor(color);
+                g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 12, 12);
+                if (hasFocus()) {
+                    g2.setColor(ROJO_HEADER);
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 10, 10);
+                }
+                g2.dispose();
+                super.paintComponent(graphics);
+            }
+        }
+
+        private static final class IconoCobro implements Icon {
+            @Override public int getIconWidth() { return 48; }
+            @Override public int getIconHeight() { return 48; }
+            @Override public void paintIcon(Component c, Graphics graphics, int x, int y) {
+                Graphics2D g2 = (Graphics2D) graphics.create();
+                g2.translate(x, y);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(255, 245, 216));
+                g2.fillOval(0, 0, 48, 48);
+                g2.setColor(new Color(221, 146, 0));
+                g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawRoundRect(16, 13, 16, 23, 3, 3);
+                g2.drawLine(20, 19, 28, 19);
+                g2.drawLine(20, 24, 28, 24);
+                g2.drawLine(20, 29, 25, 29);
+                g2.dispose();
+            }
+        }
+    }
+
 
     public static BigDecimal monto(String texto) {
         if (texto == null || !texto.trim().matches("[0-9]{1,8}([.,][0-9]{1,2})?")) throw new IllegalArgumentException("Monto inválido.");
