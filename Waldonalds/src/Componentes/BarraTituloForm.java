@@ -44,7 +44,38 @@ public class BarraTituloForm extends javax.swing.JPanel {
 
         contenedor.revalidate();
         contenedor.repaint();
+        javax.swing.SwingUtilities.invokeLater(
+                () -> limitarAlAreaUtil(ventana));
         return barra;
+    }
+
+    /**
+     * Evita que una ventana diseñada a 1920x1080 quede detrás de la barra de
+     * tareas al añadir los 48 px de la barra personalizada.
+     */
+    private static void limitarAlAreaUtil(javax.swing.JFrame ventana) {
+        java.awt.Rectangle area = java.awt.GraphicsEnvironment
+                .getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        ventana.setMaximizedBounds(area);
+
+        boolean maximizada = (ventana.getExtendedState()
+                & java.awt.Frame.MAXIMIZED_BOTH)
+                == java.awt.Frame.MAXIMIZED_BOTH;
+        if (maximizada) {
+            return;
+        }
+
+        int ancho = Math.min(ventana.getWidth(), area.width);
+        int alto = Math.min(ventana.getHeight(), area.height);
+        if (ancho != ventana.getWidth() || alto != ventana.getHeight()) {
+            ventana.setSize(ancho, alto);
+        }
+
+        int x = Math.max(area.x,
+                Math.min(ventana.getX(), area.x + area.width - ancho));
+        int y = Math.max(area.y,
+                Math.min(ventana.getY(), area.y + area.height - alto));
+        ventana.setLocation(x, y);
     }
 
     public static BarraTituloForm instalar(javax.swing.JFrame ventana) {

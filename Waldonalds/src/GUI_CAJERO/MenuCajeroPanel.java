@@ -5,6 +5,7 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
     public MenuCajeroPanel() {
 
         initComponents();
+        configurarDisenoAdaptable();
 
         CategoriasPanel categoriasPanel
                 = new CategoriasPanel(this);
@@ -13,6 +14,38 @@ public class MenuCajeroPanel extends javax.swing.JPanel {
                 categoriasPanel
         );
 
+    }
+
+    /**
+     * Mantiene fija la cabecera visual y entrega al catálogo exactamente la
+     * altura restante. Así, la barra de título no recorta un JScrollPane que
+     * todavía crea disponer de 660 px.
+     */
+    private void configurarDisenoAdaptable() {
+        removeAll();
+        setLayout(new java.awt.BorderLayout());
+
+        javax.swing.JPanel cabecera = new javax.swing.JPanel(
+                new java.awt.BorderLayout(0, 10));
+        cabecera.setBackground(java.awt.Color.WHITE);
+        cabecera.setBorder(javax.swing.BorderFactory.createEmptyBorder(
+                20, 60, 15, 50));
+        cabecera.setPreferredSize(new java.awt.Dimension(0, 350));
+
+        jLabel1.setPreferredSize(new java.awt.Dimension(0, 105));
+        panelCategoria.setPreferredSize(new java.awt.Dimension(0, 200));
+        cabecera.add(jLabel1, java.awt.BorderLayout.NORTH);
+        cabecera.add(panelCategoria, java.awt.BorderLayout.CENTER);
+
+        javax.swing.JPanel areaProductos = new javax.swing.JPanel(
+                new java.awt.BorderLayout());
+        areaProductos.setBackground(java.awt.Color.WHITE);
+        areaProductos.setBorder(javax.swing.BorderFactory.createEmptyBorder(
+                0, 60, 0, 50));
+        areaProductos.add(panelContenido, java.awt.BorderLayout.CENTER);
+
+        add(cabecera, java.awt.BorderLayout.NORTH);
+        add(areaProductos, java.awt.BorderLayout.CENTER);
     }
 
     public void mostrarPanelCategoria(javax.swing.JPanel panel) {
