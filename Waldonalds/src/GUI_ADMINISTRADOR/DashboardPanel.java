@@ -9,12 +9,72 @@ package GUI_ADMINISTRADOR;
  * @author Humberto Alvarado
  */
 public class DashboardPanel extends javax.swing.JPanel {
+    private DashboardSecciones seccionesDashboard;
 
     /**
      * Creates new form DashboardPanel
      */
     public DashboardPanel() {
         initComponents();
+        configurarDashboard();
+    }
+    
+    // Todo este bloque queda fuera del código generado por NetBeans.
+    private void configurarDashboard() {
+        setBackground(new java.awt.Color(248, 249, 251));
+        labelTitulo5.setText("Q0.00");
+        labelTitulo8.setText("0");
+        labelTitulo4.setText("Q0.00");
+        labelTitulo11.setText("0");
+
+        seccionesDashboard = new DashboardSecciones(this::mostrarResumen);
+        add(seccionesDashboard,
+                new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 220, 1470, 650));
+
+        // También recarga al regresar a la pestaña Dashboard.
+        addHierarchyListener(evento -> {
+            if ((evento.getChangeFlags()
+                    & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0
+                    && isShowing()) {
+                seccionesDashboard.recargar();
+            }
+        });
+    }
+
+    public void recargarDashboard() {
+        if (seccionesDashboard != null) {
+            seccionesDashboard.recargar();
+        }
+    }
+
+    private void mostrarResumen(CRUD.DashboardCRUD.Resumen datos) {
+        labelTitulo5.setText(DashboardSecciones.moneda(datos.ventasHoy()));
+        labelTitulo8.setText(String.valueOf(datos.pedidosHoy()));
+        labelTitulo4.setText(DashboardSecciones.moneda(datos.ticketHoy()));
+        labelTitulo11.setText(String.valueOf(datos.productosStockBajo()));
+
+        mostrarVariacion(labelTitulo2, datos.ventasHoy(), datos.ventasAyer());
+        mostrarVariacion(labelTitulo9,
+                java.math.BigDecimal.valueOf(datos.pedidosHoy()),
+                java.math.BigDecimal.valueOf(datos.pedidosAyer()));
+        mostrarVariacion(labelTitulo15, datos.ticketHoy(), datos.ticketAyer());
+    }
+
+    private void mostrarVariacion(javax.swing.JLabel etiqueta,
+            java.math.BigDecimal hoy, java.math.BigDecimal ayer) {
+        if (ayer.signum() == 0) {
+            etiqueta.setText("Sin comparación con ayer");
+            etiqueta.setForeground(new java.awt.Color(127, 137, 154));
+            return;
+        }
+        java.math.BigDecimal porcentaje = hoy.subtract(ayer)
+                .multiply(java.math.BigDecimal.valueOf(100))
+                .divide(ayer, 1, java.math.RoundingMode.HALF_UP);
+        String flecha = porcentaje.signum() < 0 ? "↓ " : "↑ ";
+        etiqueta.setText(flecha + porcentaje.abs().toPlainString() + "% vs. ayer");
+        etiqueta.setForeground(porcentaje.signum() < 0
+                ? new java.awt.Color(195, 61, 66)
+                : new java.awt.Color(24, 142, 73));
     }
 
     /**
