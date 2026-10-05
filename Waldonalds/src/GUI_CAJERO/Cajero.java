@@ -5,6 +5,8 @@
 package GUI_CAJERO;
 
 import Componentes.BarraTituloForm;
+import Login.Login;
+import Utilidades.SesionUsuario;
 
 /**
  *
@@ -54,6 +56,7 @@ private boolean configurandoProducto;
 
 private javax.swing.JButton btnMenu;
 private javax.swing.JButton btnOrdenar;
+private Componentes.BotonMenuLateral btnCerrarSesion;
 
 private javax.swing.JButton botonActivo;
 private BarraTituloForm barraTitulo;
@@ -375,6 +378,17 @@ private void configurarBarra() {
             )
     );
 
+    btnCerrarSesion = new Componentes.BotonMenuLateral();
+    btnCerrarSesion.setText("Cerrar sesión");
+    btnCerrarSesion.setTipoIcono("SALIR");
+    btnCerrarSesion.setMostrarBorde(true);
+    btnCerrarSesion.setFont(
+            new java.awt.Font("Arial", java.awt.Font.BOLD, 14)
+    );
+    btnCerrarSesion.setPreferredSize(
+            new java.awt.Dimension(175, 55)
+    );
+
 
     // =================================================
     // DERECHA
@@ -390,6 +404,10 @@ private void configurarBarra() {
             );
 
     panelDerecho.setOpaque(false);
+
+    panelDerecho.add(
+            btnCerrarSesion
+    );
 
     panelDerecho.add(
             btnOrdenar
@@ -436,6 +454,8 @@ private void configurarBarra() {
         abrirPedido();
 
     });
+
+    btnCerrarSesion.addActionListener(e -> cerrarSesion());
 
 
     jPanel2.revalidate();
@@ -652,6 +672,25 @@ private void seleccionarBoton(
         btnMenu.repaint();
     }
 
+}
+
+private void cerrarSesion() {
+    int confirmar = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Deseas cerrar la sesión actual?",
+            "Confirmar cierre de sesión",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.QUESTION_MESSAGE
+    );
+    if (confirmar != javax.swing.JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    SesionUsuario.cerrar();
+    Login login = new Login();
+    login.setLocationRelativeTo(null);
+    login.setVisible(true);
+    dispose();
 }
 
 
