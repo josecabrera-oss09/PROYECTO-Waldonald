@@ -110,7 +110,6 @@ public class PedidoPanel extends JPanel {
     private boolean ocupado;
     private SolicitudPago pendiente;
     private String comprobante;
-    private String ticketCocina;
     private final Utilidades.PagoPendienteStore respaldo = new Utilidades.PagoPendienteStore(SesionUsuario.getIdUsuario());
     private final Utilidades.UltimoComprobanteStore ultimoComprobanteStore =
             new Utilidades.UltimoComprobanteStore(SesionUsuario.getIdUsuario());
@@ -565,7 +564,6 @@ public class PedidoPanel extends JPanel {
                 @Override protected void done() {
                     try {
                         comprobante = get();
-                        ticketCocina = crearTicketCocina(solicitud);
                         try {
                             ultimoComprobanteStore.guardar(comprobante);
                         } catch (java.io.IOException ex) {
@@ -988,59 +986,68 @@ public class PedidoPanel extends JPanel {
     }
     private void mostrarComprobante() {
         if (comprobante == null) return;
-        JTextArea texto = new JTextArea(comprobante, 20, 38); texto.setEditable(false); texto.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-        Object[] opciones = {"Cerrar", "Imprimir comprobante", "Ver / imprimir cocina"};
+        JDialog dialogo = new JDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "Comprobante",
+                Dialog.ModalityType.APPLICATION_MODAL
+        );
+        dialogo.setUndecorated(true);
+        JPanel contenido = new JPanel(new BorderLayout(0, 18));
+        contenido.setBackground(Color.WHITE);
+        contenido.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 226, 233)),
+                BorderFactory.createEmptyBorder(24, 24, 22, 24)));
+
+        JPanel encabezado = new JPanel(new BorderLayout(14, 0));
+        encabezado.setOpaque(false);
+        encabezado.add(new JLabel(new FormularioCobro.IconoCobro()), BorderLayout.WEST);
+        JPanel textos = new JPanel(new GridLayout(2, 1, 0, 4));
+        textos.setOpaque(false);
+        textos.add(FormularioCobro.etiqueta("Comprobante de venta", 21, Font.BOLD));
+        JLabel ayuda = FormularioCobro.etiqueta("El pedido fue cobrado correctamente", 12, Font.PLAIN);
+        ayuda.setForeground(new Color(108, 119, 135));
+        textos.add(ayuda);
+        encabezado.add(textos, BorderLayout.CENTER);
+        contenido.add(encabezado, BorderLayout.NORTH);
+
+        JTextArea texto = new JTextArea(comprobante);
+        texto.setEditable(false);
+        texto.setFocusable(false);
+        texto.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        texto.setForeground(TINTA);
+        texto.setBackground(new Color(250, 251, 252));
+        texto.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
+        texto.setMargin(new Insets(0, 0, 0, 0));
+        texto.setLineWrap(false);
         JScrollPane scrollComprobante = new JScrollPane(texto);
-        Componentes.DesplazamientoSuave.ocultarBarras(scrollComprobante);
-        int eleccion = JOptionPane.showOptionDialog(this, scrollComprobante, "Comprobante",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
-        if (eleccion == 1) imprimir(texto);
-        if (eleccion == 2 && ticketCocina != null) {
-            JTextArea cocina = new JTextArea(ticketCocina, 24, 42);
-            cocina.setEditable(false); cocina.setFont(new Font(Font.MONOSPACED, Font.BOLD, 13));
-            Object[] acciones = {"Cerrar", "Imprimir cocina"};
-            JScrollPane scrollCocina = new JScrollPane(cocina);
-            Componentes.DesplazamientoSuave.ocultarBarras(scrollCocina);
-            if (JOptionPane.showOptionDialog(this, scrollCocina, "Ticket de cocina",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, acciones, acciones[0]) == 1)
-                imprimir(cocina);
-        }
-    }
-    private void imprimir(JTextArea texto) {
-        try { texto.print(); }
-        catch (java.awt.print.PrinterException ex) {
-            aviso("No se pudo imprimir. Puedes reabrir el comprobante. " + ex.getMessage());
-        }
-    }
-    private static String crearTicketCocina(SolicitudPago solicitud) {
-        StringBuilder b = new StringBuilder("WALDONALD'S - COCINA\n")
-                .append(solicitud.servicio().equals("COMER_AQUI") ? "COMER AQUÍ" : "PARA LLEVAR")
-                .append("\n================================\n");
-        for (LineaPedido linea : solicitud.lineas()) {
-            b.append('\n').append(linea.cantidad()).append(" x ").append(linea.nombre())
-                    .append(" [").append(linea.presentacion()).append("]\n");
-            Map<String,Integer> repetidos = new HashMap<>();
-            Map<String,Long> totalesNombre = new HashMap<>();
-            linea.opciones().stream().flatMap(o -> o.productos().stream()).forEach(p ->
-                    totalesNombre.merge(p.nombre(), 1L, Long::sum));
-            for (OpcionPedido opcion : linea.opciones()) {
-                if (!opcion.grupo().startsWith("__"))
-                    b.append("  ").append(opcion.grupo()).append(": ").append(opcion.opcion()).append('\n');
-                for (ProductoPedido producto : opcion.productos()) {
-                    int numero = repetidos.merge(producto.nombre(), 1, Integer::sum);
-                    b.append("    > ").append(producto.nombre());
-                    if (totalesNombre.getOrDefault(producto.nombre(), 0L) > 1)
-                        b.append(" #").append(numero);
-                    if (producto.modificaciones().isEmpty()) b.append(" - CON TODO");
-                    b.append('\n');
-                    for (ModificacionPedido cambio : producto.modificaciones())
-                        b.append("       ** ").append(cambio.tipo().equals("SIN") ? "SIN " : "EXTRA ")
-                                .append(cambio.ingrediente())
-                                .append(cambio.veces() > 1 ? " x" + cambio.veces() : "").append(" **\n");
-                }
-            }
-        }
-        return b.append("\n================================\n").toString();
+        scrollComprobante.setBorder(BorderFactory.createLineBorder(new Color(220, 226, 233)));
+        scrollComprobante.getViewport().setBackground(texto.getBackground());
+        contenido.add(scrollComprobante, BorderLayout.CENTER);
+
+        JButton cerrar = new FormularioCobro.AccionCobro(
+                "Cerrar", new Color(243, 245, 248), ROJO_HEADER
+        );
+        cerrar.addActionListener(e -> dialogo.dispose());
+        JPanel pie = new JPanel(new BorderLayout());
+        pie.setOpaque(false);
+        pie.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(236, 239, 243)),
+                BorderFactory.createEmptyBorder(18, 0, 0, 0)));
+        pie.add(cerrar, BorderLayout.EAST);
+        contenido.add(pie, BorderLayout.SOUTH);
+
+        dialogo.setContentPane(contenido);
+        dialogo.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialogo.getRootPane().setDefaultButton(cerrar);
+        dialogo.getRootPane().registerKeyboardAction(
+                e -> dialogo.dispose(),
+                KeyStroke.getKeyStroke("ESCAPE"),
+                JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+        dialogo.setSize(560, 590);
+        dialogo.setMinimumSize(new Dimension(460, 480));
+        dialogo.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        dialogo.setVisible(true);
     }
     private static String mensaje(Exception ex) {
         Throwable causa = ex instanceof java.util.concurrent.ExecutionException ? ex.getCause() : ex;

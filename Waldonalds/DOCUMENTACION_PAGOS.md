@@ -19,7 +19,7 @@ Antes de enviar el cobro, se guarda su solicitud en `pagos_pendientes/caja-ID.pr
 
 Ante un error SQL, el carrito queda bloqueado y ofrece reintentar la misma operación. Si MySQL ya confirmó la venta pero se perdió la respuesta, devuelve el comprobante original sin duplicar el pedido ni descontar más stock. Al reiniciar desde el mismo directorio, el cajero recupera la solicitud pendiente. No repetir el cargo en la terminal externa al reintentar su registro. Si la terminal aprobó pero el pedido no se puede completar, se debe resolver o revertir ese cargo en la propia terminal.
 
-Tras un pago exitoso se muestra el comprobante y puede imprimirse; el botón «Último comprobante» permite reabrirlo durante la sesión. La copia persistente está en `pago_operacion.comprobante`. Es un comprobante de venta interno; no implementa facturación electrónica.
+Tras un pago exitoso se muestra el comprobante; el botón «Último comprobante» permite reabrirlo durante la sesión. La copia persistente está en `pago_operacion.comprobante`. Es un comprobante de venta interno; no implementa facturación electrónica.
 
 ## Pruebas
 

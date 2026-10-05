@@ -38,9 +38,6 @@ private javax.swing.JPanel panelContenido;
 
 private MenuCajeroPanel menuCajeroPanel;
 
-private promocionesPanel promocionesPanel;
-
-
 
 // =====================================================
 // ZONA CENTRAL Y PEDIDO
@@ -56,7 +53,6 @@ private boolean configurandoProducto;
 // =====================================================
 
 private javax.swing.JButton btnMenu;
-private javax.swing.JButton btnPromociones;
 private javax.swing.JButton btnOrdenar;
 
 private javax.swing.JButton botonActivo;
@@ -136,10 +132,6 @@ private void configurarInterfaz() {
     menuCajeroPanel =
             new MenuCajeroPanel();
     
-    promocionesPanel =
-            new promocionesPanel();
-
-
 
     // =================================================
     // AGREGAR AL CARD LAYOUT
@@ -149,12 +141,6 @@ private void configurarInterfaz() {
             menuCajeroPanel,
             "MENU"
     );
-    
-    panelContenido.add(
-            promocionesPanel,
-            "PROMOCIONES"
-    );
-
     // =================================================
     // CREAR PEDIDO
     // =================================================
@@ -248,9 +234,7 @@ private void mostrarPanel(
     panelContenido.repaint();
 
     if (barraTitulo != null) {
-        barraTitulo.setSeccion(
-                "PROMOCIONES".equals(nombrePanel) ? "Promociones" : "Menú"
-        );
+        barraTitulo.setSeccion("Menú");
     }
 }
 
@@ -325,17 +309,8 @@ private void configurarBarra() {
                     "Menú"
             );
 
-    btnPromociones =
-            crearBotonBarra(
-                    "Promociones"
-            );
-
     panelIzquierdo.add(
             btnMenu
-    );
-
-    panelIzquierdo.add(
-            btnPromociones
     );
 
 
@@ -451,21 +426,6 @@ private void configurarBarra() {
         );
     });
 
-
-    // =================================================
-    // PROMOCIONES
-    // =================================================
-
-    btnPromociones.addActionListener(e -> {
-
-        mostrarPanel(
-                "PROMOCIONES"
-        );
-
-        seleccionarBoton(
-                btnPromociones
-        );
-    });
 
     // =================================================
     // ORDENAR
@@ -692,15 +652,6 @@ private void seleccionarBoton(
         btnMenu.repaint();
     }
 
-
-    if (btnPromociones != null) {
-
-        btnPromociones.setForeground(
-                java.awt.Color.WHITE
-        );
-
-        btnPromociones.repaint();
-    }
 }
 
 

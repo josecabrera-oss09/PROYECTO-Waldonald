@@ -73,5 +73,5 @@ por separado y el ticket de cocina imprime cada preparación individualmente.
   venta para evitar cobros viejos o sobreventa entre dos cajas.
 - `disponibilidad_menu` conserva `TODO_DIA`, `DESAYUNO` y `ALMUERZO`. El horario
   existente del proyecto no fue modificado.
-- El comprobante conserva el detalle de la configuración y el cajero puede abrir
-  un ticket de cocina separado, con opciones y modificaciones resaltadas.
+- El comprobante conserva el detalle de la configuración y sus opciones y
+  modificaciones resaltadas.
