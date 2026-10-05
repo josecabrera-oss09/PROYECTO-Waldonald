@@ -82,6 +82,36 @@ public class promocionesPanel extends javax.swing.JPanel {
             scrollCategorias.repaint();
         });
 
+        configurarDisenoAdaptable();
+
+    }
+
+    /** Usa el mismo reparto vertical adaptable que la vista principal. */
+    private void configurarDisenoAdaptable() {
+        removeAll();
+        setLayout(new BorderLayout());
+
+        javax.swing.JPanel cabecera = new javax.swing.JPanel(
+                new BorderLayout(0, 10));
+        cabecera.setBackground(Color.WHITE);
+        cabecera.setBorder(javax.swing.BorderFactory.createEmptyBorder(
+                20, 70, 15, 60));
+        cabecera.setPreferredSize(new Dimension(0, 350));
+
+        jLabel1.setPreferredSize(new Dimension(0, 105));
+        panelCategoriaPromo.setPreferredSize(new Dimension(0, 200));
+        cabecera.add(jLabel1, BorderLayout.NORTH);
+        cabecera.add(panelCategoriaPromo, BorderLayout.CENTER);
+
+        javax.swing.JPanel areaPromociones = new javax.swing.JPanel(
+                new BorderLayout());
+        areaPromociones.setBackground(Color.WHITE);
+        areaPromociones.setBorder(javax.swing.BorderFactory.createEmptyBorder(
+                0, 70, 0, 40));
+        areaPromociones.add(panelContenidoPromo, BorderLayout.CENTER);
+
+        add(cabecera, BorderLayout.NORTH);
+        add(areaPromociones, BorderLayout.CENTER);
     }
 
     private void mostrarPanelPromocion(javax.swing.JPanel panel) {

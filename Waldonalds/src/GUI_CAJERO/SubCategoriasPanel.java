@@ -5,13 +5,16 @@ import Componentes.TarjetaProducto;
 import DAO.ProductoDAO;
 import Modelos.Productos;
 import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
@@ -43,9 +46,11 @@ public class SubCategoriasPanel extends JPanel {
 
     private void inicializarVista() {
         setBackground(Color.WHITE);
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setLayout(new BorderLayout(0, 10));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 0, 0, 0));
         barraSubcategorias.setBackground(Color.WHITE);
-        add(barraSubcategorias, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 1810, 30));
+        barraSubcategorias.setPreferredSize(new Dimension(0, 30));
+        add(barraSubcategorias, BorderLayout.NORTH);
         panelProductos.setBackground(Color.WHITE);
         scrollProductos.setBackground(Color.WHITE);
         scrollProductos.getViewport().setBackground(Color.WHITE);
@@ -55,8 +60,8 @@ public class SubCategoriasPanel extends JPanel {
         scrollProductos.getVerticalScrollBar().setUnitIncrement(32);
         scrollProductos.getVerticalScrollBar().setBlockIncrement(180);
         configurarRuedaVertical();
-        // El área visible queda limitada; las filas restantes continúan abajo.
-        add(scrollProductos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 1810, 610));
+        // BorderLayout entrega al catálogo la altura real que queda disponible.
+        add(scrollProductos, BorderLayout.CENTER);
         mostrarEstado("Cargando productos...");
     }
 
@@ -124,6 +129,7 @@ public class SubCategoriasPanel extends JPanel {
         final int version = ++versionVista;
         panelProductos.setBackground(colorFondo);
         scrollProductos.getViewport().setBackground(colorFondo);
+        irAlInicio();
         mostrarEstado("Cargando productos...");
         cargaProductos = new SwingWorker<>() {
             @Override protected List<Productos> doInBackground() {
@@ -143,6 +149,7 @@ public class SubCategoriasPanel extends JPanel {
                         mostrarEstado("No hay productos disponibles.");
                     } else {
                         cargarSiguienteLote(version);
+                        irAlInicio();
                     }
                 } catch (Exception ex) {
                     mostrarEstado("No se pudieron cargar los productos.");
@@ -150,6 +157,13 @@ public class SubCategoriasPanel extends JPanel {
             }
         };
         cargaProductos.execute();
+    }
+
+    private void irAlInicio() {
+        SwingUtilities.invokeLater(() -> {
+            scrollProductos.getVerticalScrollBar().setValue(0);
+            scrollProductos.getViewport().setViewPosition(new Point(0, 0));
+        });
     }
 
     private void cargarSiguienteLote(int version) {

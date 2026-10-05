@@ -82,11 +82,10 @@ private Rectangle boundsUsuario;
     setUndecorated(true);
 
     initComponents();
+    configurarRaizAdaptable();
 
     barraTitulo = BarraTituloForm.instalar(this, "Inicio de Administrador");
-    // La barra personalizada ocupa 48 px dentro de una ventana de 1080 px.
-    // El contenido administrativo dispone de los 1032 px restantes.
-    setSize(1920, 1080);
+    setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
 
     aplicarTipografia();
     configurarSecciones();
@@ -96,7 +95,23 @@ private Rectangle boundsUsuario;
 
     // Conserva la animación del menú con las medidas del formulario.
     configurarMenuDesplegable();
-}
+ }
+
+   /** Hace que la raíz ocupe el centro real restante bajo la barra de título. */
+   private void configurarRaizAdaptable() {
+       java.awt.Container contenido = getContentPane();
+       contenido.removeAll();
+       contenido.setLayout(new java.awt.BorderLayout());
+       contenido.add(panelRaiz, java.awt.BorderLayout.CENTER);
+       panelRaiz.addComponentListener(new java.awt.event.ComponentAdapter() {
+           @Override
+           public void componentResized(java.awt.event.ComponentEvent evento) {
+               if (boundsContenidoAbierto != null) {
+                   aplicarAperturaMenu(aperturaMenu);
+               }
+           }
+       });
+   }
    private void configurarMenuDesplegable() {
 
     /*
@@ -139,6 +154,8 @@ private Rectangle boundsUsuario;
             botonReportes, botonCerrarSesion}) {
         boton.setToolTipText(boton.getText());
     }
+    javax.swing.SwingUtilities.invokeLater(
+            () -> aplicarAperturaMenu(aperturaMenu));
 }
     private void guardarGeometriaMenu() {
     anchoLateralAbierto = panelLateral.getWidth();
@@ -269,11 +286,14 @@ private Rectangle boundsUsuario;
     // PANEL LATERAL
     // ==========================================
 
+    int altoRaiz = panelRaiz.getHeight() > 0
+            ? panelRaiz.getHeight() : 1032;
+
     panelLateral.setBounds(
             0,
             0,
             anchoActual,
-            panelLateral.getHeight()
+            altoRaiz
     );
 
 
@@ -303,7 +323,7 @@ private Rectangle boundsUsuario;
             anchoActual,
             boundsContenidoAbierto.y,
             anchoContenido,
-            boundsContenidoAbierto.height
+            Math.max(0, altoRaiz - boundsContenidoAbierto.y)
     );
 
 
@@ -406,6 +426,15 @@ private Rectangle boundsUsuario;
             apertura
     );
 
+    int margenInferior = 1032
+            - boundsBotonCerrarSesion.y
+            - boundsBotonCerrarSesion.height;
+    botonCerrarSesion.setLocation(
+            botonCerrarSesion.getX(),
+            Math.max(boundsBotonReportes.y + boundsBotonReportes.height + 12,
+                    altoRaiz - margenInferior - botonCerrarSesion.getHeight())
+    );
+
     int alpha = (int) Math.round(255 * Math.max(0.0, Math.min(1.0, (apertura - 0.35) / 0.65)));
     labelMarca.setForeground(new Color(255, 255, 255, alpha));
     labelRol.setForeground(new Color(255, 190, 0, alpha));
@@ -496,9 +525,17 @@ private Rectangle boundsUsuario;
 
     private void agregarSeccion(JPanel seccion, String nombre) {
         seccion.setBackground(new Color(248, 249, 251));
-        JPanel contenedor = new JPanel(new GridBagLayout());
+        JPanel contenedor = new JPanel(new java.awt.BorderLayout());
         contenedor.setBackground(new Color(248, 249, 251));
-        contenedor.add(seccion);
+        javax.swing.JScrollPane desplazamiento = new javax.swing.JScrollPane(seccion);
+        desplazamiento.setBorder(null);
+        desplazamiento.setHorizontalScrollBarPolicy(
+                javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        desplazamiento.setVerticalScrollBarPolicy(
+                javax.swing.JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        desplazamiento.getViewport().setBackground(new Color(248, 249, 251));
+        desplazamiento.getVerticalScrollBar().setUnitIncrement(30);
+        contenedor.add(desplazamiento, java.awt.BorderLayout.CENTER);
         panelContenido.add(contenedor, nombre);
     }
 
