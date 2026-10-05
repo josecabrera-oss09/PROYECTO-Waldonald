@@ -5,6 +5,8 @@
 package GUI_CAJERO;
 
 import Componentes.BarraTituloForm;
+import Login.Login;
+import Utilidades.SesionUsuario;
 
 /**
  *
@@ -38,9 +40,6 @@ private javax.swing.JPanel panelContenido;
 
 private MenuCajeroPanel menuCajeroPanel;
 
-private promocionesPanel promocionesPanel;
-
-
 
 // =====================================================
 // ZONA CENTRAL Y PEDIDO
@@ -56,8 +55,8 @@ private boolean configurandoProducto;
 // =====================================================
 
 private javax.swing.JButton btnMenu;
-private javax.swing.JButton btnPromociones;
 private javax.swing.JButton btnOrdenar;
+private Componentes.BotonMenuLateral btnCerrarSesion;
 
 private javax.swing.JButton botonActivo;
 private BarraTituloForm barraTitulo;
@@ -136,10 +135,6 @@ private void configurarInterfaz() {
     menuCajeroPanel =
             new MenuCajeroPanel();
     
-    promocionesPanel =
-            new promocionesPanel();
-
-
 
     // =================================================
     // AGREGAR AL CARD LAYOUT
@@ -149,12 +144,6 @@ private void configurarInterfaz() {
             menuCajeroPanel,
             "MENU"
     );
-    
-    panelContenido.add(
-            promocionesPanel,
-            "PROMOCIONES"
-    );
-
     // =================================================
     // CREAR PEDIDO
     // =================================================
@@ -248,9 +237,7 @@ private void mostrarPanel(
     panelContenido.repaint();
 
     if (barraTitulo != null) {
-        barraTitulo.setSeccion(
-                "PROMOCIONES".equals(nombrePanel) ? "Promociones" : "Menú"
-        );
+        barraTitulo.setSeccion("Menú");
     }
 }
 
@@ -325,17 +312,8 @@ private void configurarBarra() {
                     "Menú"
             );
 
-    btnPromociones =
-            crearBotonBarra(
-                    "Promociones"
-            );
-
     panelIzquierdo.add(
             btnMenu
-    );
-
-    panelIzquierdo.add(
-            btnPromociones
     );
 
 
@@ -400,6 +378,17 @@ private void configurarBarra() {
             )
     );
 
+    btnCerrarSesion = new Componentes.BotonMenuLateral();
+    btnCerrarSesion.setText("Cerrar sesión");
+    btnCerrarSesion.setTipoIcono("SALIR");
+    btnCerrarSesion.setMostrarBorde(true);
+    btnCerrarSesion.setFont(
+            new java.awt.Font("Arial", java.awt.Font.BOLD, 14)
+    );
+    btnCerrarSesion.setPreferredSize(
+            new java.awt.Dimension(175, 55)
+    );
+
 
     // =================================================
     // DERECHA
@@ -415,6 +404,10 @@ private void configurarBarra() {
             );
 
     panelDerecho.setOpaque(false);
+
+    panelDerecho.add(
+            btnCerrarSesion
+    );
 
     panelDerecho.add(
             btnOrdenar
@@ -453,21 +446,6 @@ private void configurarBarra() {
 
 
     // =================================================
-    // PROMOCIONES
-    // =================================================
-
-    btnPromociones.addActionListener(e -> {
-
-        mostrarPanel(
-                "PROMOCIONES"
-        );
-
-        seleccionarBoton(
-                btnPromociones
-        );
-    });
-
-    // =================================================
     // ORDENAR
     // =================================================
 
@@ -476,6 +454,8 @@ private void configurarBarra() {
         abrirPedido();
 
     });
+
+    btnCerrarSesion.addActionListener(e -> cerrarSesion());
 
 
     jPanel2.revalidate();
@@ -692,15 +672,25 @@ private void seleccionarBoton(
         btnMenu.repaint();
     }
 
+}
 
-    if (btnPromociones != null) {
-
-        btnPromociones.setForeground(
-                java.awt.Color.WHITE
-        );
-
-        btnPromociones.repaint();
+private void cerrarSesion() {
+    int confirmar = javax.swing.JOptionPane.showConfirmDialog(
+            this,
+            "¿Deseas cerrar la sesión actual?",
+            "Confirmar cierre de sesión",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.QUESTION_MESSAGE
+    );
+    if (confirmar != javax.swing.JOptionPane.YES_OPTION) {
+        return;
     }
+
+    SesionUsuario.cerrar();
+    Login login = new Login();
+    login.setLocationRelativeTo(null);
+    login.setVisible(true);
+    dispose();
 }
 
 

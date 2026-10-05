@@ -124,7 +124,7 @@ $productRows.Add("('Cajita Feliz','Complementos','Papas Kids','Porción infantil
 $productRows.Add("('Cajita Feliz','Complementos','Puré de manzana','Puré de manzana para menú infantil.',9.00,'/Imagenes/BEBIDAS/jugo_manzana.png','TODO_DIA','DIRECTO',FALSE,150,15)")
 $productRows.Add("('Cajita Feliz','Complementos','Yogur de fresa','Yogur de fresa para menú infantil.',9.00,NULL,'TODO_DIA','DIRECTO',FALSE,150,15)")
 $productRows.Add("('Cajita Feliz','Bebidas','Jugo de manzana Kids','Jugo de manzana en tamaño infantil.',8.00,'/Imagenes/BEBIDAS/jugo_manzana.png','TODO_DIA','DIRECTO',FALSE,150,15)")
-$productRows.Add("('Cajita Feliz','Juguetes','Juguete sorpresa','Juguete disponible para la promoción infantil.',12.00,NULL,'TODO_DIA','DIRECTO',FALSE,200,20)")
+$productRows.Add("('Cajita Feliz','Juguetes','Juguete sorpresa','Juguete sorpresa disponible para niños.',12.00,NULL,'TODO_DIA','DIRECTO',FALSE,200,20)")
 $productRows.Add("('Bebidas','Sodas','Coca-Cola 1.5 L','Bebida familiar para cajas y combos.',25.00,'/Imagenes/BEBIDAS/coca_cola.png','TODO_DIA','DIRECTO',FALSE,100,10)")
 
 $header = @'
