@@ -28,6 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 /**
  * JTable reutilizable para los módulos administrativos.
@@ -53,6 +54,7 @@ public class TablaAdministrativa extends JTable {
     private boolean filasAlternadas;
     private String columnasCentradas = "";
     private String columnasDerecha = "";
+    private String anchosColumnas = "";
     private Set<Integer> indicesCentrados = Set.of();
     private Set<Integer> indicesDerecha = Set.of();
 
@@ -67,6 +69,16 @@ public class TablaAdministrativa extends JTable {
         setDefaultRenderer(Object.class, new RenderTexto());
         setDefaultRenderer(String.class, new RenderTexto());
         aplicarEstilo();
+    }
+
+    /**
+     * Conserva las propiedades elegidas en el diseñador cuando el panel cambia
+     * el modelo de ejemplo por el modelo que contiene los datos reales.
+     */
+    @Override
+    public void setModel(TableModel dataModel) {
+        super.setModel(dataModel);
+        aplicarAnchosColumnas();
     }
 
     /** Reaplica al JTable los valores elegidos desde Properties. */
@@ -519,5 +531,39 @@ public class TablaAdministrativa extends JTable {
                 ? "" : columnasDerecha;
         indicesDerecha = convertirIndices(this.columnasDerecha);
         repaint();
+    }
+
+    public String getAnchosColumnas() {
+        return anchosColumnas;
+    }
+
+    /**
+     * Permite definir desde Properties los anchos preferidos, por ejemplo:
+     * 170,410,100,150,150.
+     */
+    @BeanProperty(description = "Anchos preferidos separados por coma")
+    public void setAnchosColumnas(String anchosColumnas) {
+        this.anchosColumnas = anchosColumnas == null ? "" : anchosColumnas;
+        aplicarAnchosColumnas();
+    }
+
+    private void aplicarAnchosColumnas() {
+        if (anchosColumnas == null || anchosColumnas.isBlank()
+                || getColumnModel() == null) {
+            return;
+        }
+        String[] valores = this.anchosColumnas.split("[,; ]+");
+        int cantidad = Math.min(valores.length, getColumnCount());
+        for (int columna = 0; columna < cantidad; columna++) {
+            try {
+                int ancho = Integer.parseInt(valores[columna].trim());
+                if (ancho > 0) {
+                    getColumnModel().getColumn(columna)
+                            .setPreferredWidth(ancho);
+                }
+            } catch (NumberFormatException ignorada) {
+                // Properties puede quedar temporalmente incompleto al editar.
+            }
+        }
     }
 }

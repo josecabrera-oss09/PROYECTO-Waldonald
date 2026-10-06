@@ -29,7 +29,7 @@ public final class DashboardCRUD {
     }
 
     public record ProductoVendido(int id, String nombre, String categoria,
-            long unidades, boolean activo, int stockActual) {
+            long unidades, boolean activo, boolean disponible) {
     }
 
     public record Alerta(boolean esProducto, int id, String nombre,
@@ -113,7 +113,8 @@ public final class DashboardCRUD {
         String sql = """
                 SELECT COUNT(*) AS total
                 FROM producto
-                WHERE estado = TRUE AND stock_minimo > 0
+                WHERE estado = TRUE AND tipo_stock = 'DIRECTO'
+                    AND stock_minimo > 0
                     AND stock_actual <= stock_minimo
                 """;
         int stockBajo;
@@ -181,7 +182,35 @@ public final class DashboardCRUD {
             throws SQLException {
         String sql = """
                 SELECT pr.id_producto, pr.nombre, c.nombre AS categoria,
-                    SUM(d.cantidad) AS unidades, pr.estado, pr.stock_actual
+                    SUM(d.cantidad) AS unidades, pr.estado,
+                    CASE
+                        WHEN pr.estado = FALSE THEN FALSE
+                        WHEN pr.tipo_stock = 'DIRECTO'
+                            THEN pr.stock_actual > 0
+                        WHEN pr.tipo_stock = 'RECETA' THEN
+                            EXISTS (
+                                SELECT 1
+                                FROM producto_ingrediente receta
+                                WHERE receta.id_producto = pr.id_producto
+                                    AND receta.estado = TRUE
+                                    AND receta.cantidad_default > 0
+                            )
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM producto_ingrediente receta
+                                LEFT JOIN ingrediente ingrediente_receta
+                                    ON ingrediente_receta.id_ingrediente =
+                                        receta.id_ingrediente
+                                WHERE receta.id_producto = pr.id_producto
+                                    AND receta.estado = TRUE
+                                    AND receta.cantidad_default > 0
+                                    AND (ingrediente_receta.id_ingrediente IS NULL
+                                        OR ingrediente_receta.estado = FALSE
+                                        OR ingrediente_receta.stock_actual
+                                            < receta.cantidad_default)
+                            )
+                        ELSE TRUE
+                    END AS disponible
                 FROM pedido_detalle d
                 JOIN pedido p ON p.id_pedido = d.id_pedido
                 JOIN presentacion_menu pm
@@ -191,7 +220,7 @@ public final class DashboardCRUD {
                 JOIN categoria c ON c.id_categoria = pr.id_categoria
                 WHERE p.estado = 'PAGADO'
                 GROUP BY pr.id_producto, pr.nombre, c.nombre,
-                    pr.estado, pr.stock_actual
+                    pr.estado, pr.tipo_stock, pr.stock_actual
                 ORDER BY unidades DESC, pr.nombre ASC
                 """ + (limite > 0 ? " LIMIT ?" : "");
         List<ProductoVendido> filas = new ArrayList<>();
@@ -204,7 +233,7 @@ public final class DashboardCRUD {
                     filas.add(new ProductoVendido(rs.getInt("id_producto"),
                             rs.getString("nombre"), rs.getString("categoria"),
                             rs.getLong("unidades"), rs.getBoolean("estado"),
-                            rs.getInt("stock_actual")));
+                            rs.getBoolean("disponible")));
                 }
             }
         }
@@ -218,7 +247,8 @@ public final class DashboardCRUD {
                     (SELECT MAX(m.fecha_hora) FROM movimiento_inventario m
                      WHERE m.id_producto = p.id_producto) AS ultimo
                 FROM producto p
-                WHERE p.estado = TRUE AND p.stock_minimo > 0
+                WHERE p.estado = TRUE AND p.tipo_stock = 'DIRECTO'
+                    AND p.stock_minimo > 0
                     AND p.stock_actual <= p.stock_minimo
                 """;
         try (PreparedStatement ps = conexion.prepareStatement(productosSql);

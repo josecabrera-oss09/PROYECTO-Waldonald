@@ -60,7 +60,7 @@ public final class ReporteDAO {
                         + "WHEN 'PARA_LLEVAR' THEN 'Para llevar' ELSE 'A domicilio' END, "
                         + "p.estado, COALESCE(p.metodo_pago,'-'), "
                         + "COALESCE(p.monto_recibido,0), p.total, "
-                        + "COALESCE(SUM(d.cantidad),0) "
+                        + "COALESCE(SUM(d.cantidad),0), p.id_pedido "
                         + "FROM pedido p JOIN usuario u ON u.id_usuario=p.id_usuario "
                         + "LEFT JOIN pedido_detalle d ON d.id_pedido=p.id_pedido "
                         + "WHERE p.fecha_hora>=? AND p.fecha_hora<? "

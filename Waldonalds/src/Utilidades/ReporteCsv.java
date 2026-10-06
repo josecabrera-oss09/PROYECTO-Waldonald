@@ -2,6 +2,7 @@ package Utilidades;
 
 import DAO.ReporteDAO;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 /** Exporta el resultado consultado sin modificar datos. */
@@ -35,7 +36,12 @@ public final class ReporteCsv {
         b.append("\r\n");
         fila(b, titulo);
         fila(b, (Object[]) columnas);
-        for (Object[] valores : filas) fila(b, valores);
+        for (Object[] valores : filas) {
+            // Algunas consultas incluyen identificadores internos ocultos.
+            // El CSV conserva únicamente las columnas visibles declaradas.
+            fila(b, Arrays.copyOf(valores,
+                    Math.min(valores.length, columnas.length)));
+        }
     }
 
     private static void fila(StringBuilder b, Object... valores) {

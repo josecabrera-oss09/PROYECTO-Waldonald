@@ -358,7 +358,7 @@ public final class DashboardSecciones extends JPanel {
         DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
         for (ProductoVendido p : productos) {
             String estado = !p.activo() ? "Inactivo"
-                    : p.stockActual() > 0 ? "Disponible" : "Agotado";
+                    : p.disponible() ? "Disponible" : "Agotado";
             modelo.addRow(new Object[]{p.nombre(), p.categoria(),
                 p.unidades(), estado});
         }

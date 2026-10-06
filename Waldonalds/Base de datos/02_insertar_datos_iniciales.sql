@@ -1,3 +1,23 @@
+USE waldonalds;
+
+-- ============================================================
+-- USUARIOS INICIALES PARA PROBAR EL SISTEMA
+-- Las contraseñas se guardan con SHA-256. Al iniciar sesión por
+-- primera vez, el programa las actualiza automáticamente a PBKDF2.
+--
+-- Administrador: admin  / Admin123!
+-- Cajero:        cajero / Cajero123!
+-- ============================================================
+
+INSERT INTO usuario (
+    nombre,apellido,usuario,correo,password_hash,rol,
+    estado,turno,hora_inicio,hora_fin
+) VALUES
+('Administrador','Prueba','admin','admin@waldonalds.local',
+ SHA2('Admin123!',256),'ADMINISTRADOR',TRUE,'MANANA','06:00:00','14:00:00'),
+('Cajero','Prueba','cajero','cajero@waldonalds.local',
+ SHA2('Cajero123!',256),'CAJERO',TRUE,'TARDE','14:00:00','22:00:00');
+
 -- Fuente adaptada: productos_terminados.sql
 -- Filas de producto encontradas: 186
 -- Productos únicos conservados: 164

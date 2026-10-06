@@ -46,11 +46,14 @@ function Get-StockType($Product) {
 $source = Get-Content -LiteralPath $SourcePath -Raw
 $pattern = "\(\(SELECT id_categoria FROM categoria WHERE nombre = '([^']+)'\),\s*'((?:''|[^'])*)',\s*'((?:''|[^'])*)',\s*'((?:''|[^'])*)',\s*([0-9.]+),\s*'((?:''|[^'])*)',\s*'([A-Z_]+)',\s*NULL,\s*(TRUE|FALSE),\s*([0-9]+),\s*([0-9]+),\s*TRUE\)"
 
-$products = [regex]::Matches(
+$productMatches = [regex]::Matches(
     $source,
     $pattern,
     [System.Text.RegularExpressions.RegexOptions]::Singleline
-) | ForEach-Object {
+)
+$sourceRowCount = $productMatches.Count
+
+$products = $productMatches | ForEach-Object {
     [pscustomobject]@{
         Categoria = $_.Groups[1].Value
         Subcategoria = $_.Groups[2].Value.Replace("''", "'")
@@ -71,24 +74,40 @@ $imageCorrections = @{
     "Bucket Pollo WlCrispy Snack" = "/Imagenes/PARA COMPARTIR/Bucket Pollo McCrispy ® Snack.png"
     "Café guatemalteco" = "/Imagenes/wlcafe/cafe_guatemalteco.png"
     "Caja Grande con Postre" = "/Imagenes/para compartir/caja grande con postre (1).png"
-    "Clásica Gourmet" = "/Imagenes/HAMBURGUESAS/clasica gourmet res.png"
+    "Clásica Gourmet" = "/Imagenes/HAMBURGUESAS/clasica_gourmet.png"
     "Clásica Gourmet Doble Res Doble" = "/Imagenes/HAMBURGUESAS/clasica_gourmet_doble_res_doble.png"
     "Coca-Cola Zero" = "/Imagenes/BEBIDAS/coca_cola_zero.png"
-    "Cuarto de Libra Bacon Doble con Queso" = "/Imagenes/HAMBURGUESAS/cuarto_de_libra_bacon_doble_queso.png"
-    "Frappé Caramelo" = "/Imagenes/wlcafe/frappé caramelo.png"
-    "Frappé Vainilla" = "/Imagenes/wlcafe/Frappé Vainilla.png"
+    "Cuarto de Libra Bacon Doble con Queso" = "/Imagenes/HAMBURGUESAS/cuarto_libra_bacon_doble_queso.png"
+    "Frappé Caramelo" = "/Imagenes/wlcafe/frappe_caramelo.png"
+    "Frappé Vainilla" = "/Imagenes/wlcafe/frappe_vainilla.png"
+    "Pico Guacamol Gourmet Doble" = "/Imagenes/HAMBURGUESAS/pico_guacamol_gourmet_res.png"
     "Pollo WlCrispy Dos Piezas" = "/Imagenes/HAMBURGUESAS/pollowlcrispy _dospiezas.png"
-    "Res" = "/Imagenes/HAMBURGUESAS/hamburguesa.png"
     "Té Guatemalteco Bora Bora" = "/Imagenes/wlcafe/te_guatemalteco_borabora.png"
     "Té Guatemalteco Melocotón Mix" = "/Imagenes/wlcafe/te_guatealteco_melocoton_mix.png"
     "Té Guatemalteco Menta Fusión" = "/Imagenes/wlcafe/te_guatemalteco_menta_fusion.png"
     "Té Guatemalteco Vainilla Relax" = "/Imagenes/wlcafe/teguatemalteco_vainilla_relax.png"
     "WlCrispy Chicken Deluxe" = "/Imagenes/HAMBURGUESAS/WlCrispy_Chicken_Deluxe.png"
     "WlFizz A.M." = "/Imagenes/wlcafe/wlfizz_A.M..png"
+    "WlFrizz Blue" = "/Imagenes/bebidas/wlfrizz blue.png"
     "WlGriddle Tocino Huevo" = "/Imagenes/DESAYUNOS/wlgriddle_tocinohuevo.png"
     "WlMuffin de Doble Huevo" = "/Imagenes/DESAYUNOS/eggwlmuffin_doble_huevo.png"
     "WlMuffin Salchicha Doble y Huevo" = "/Imagenes/DESAYUNOS/wlMuffi_Salchich_Doble_y_Huevo.png"
     "WlMuffin Salchicha y doble huevo" = "/Imagenes/DESAYUNOS/wlMuffin_Salchicha_y_doble huevo.png"
+    "WlMuffin Cheddar WlMelt" = "/Imagenes/Desayunos/wlmuffin_cheddar_wlmelt.png"
+}
+
+# Mapa de rutas reales. Ademas de comprobar que el archivo exista, conserva
+# exactamente las mayusculas y espacios del recurso empaquetado por Java.
+$imageRoot = [System.IO.Path]::GetFullPath(
+    (Join-Path $PSScriptRoot "..\src\Imagenes")
+)
+$realImageRoutes = @{}
+if (Test-Path -LiteralPath $imageRoot) {
+    Get-ChildItem -LiteralPath $imageRoot -Recurse -File | ForEach-Object {
+        $relative = $_.FullName.Substring($imageRoot.Length).TrimStart('\')
+        $route = "/Imagenes/" + $relative.Replace('\', '/')
+        $realImageRoutes[$route.ToLowerInvariant()] = $route
+    }
 }
 
 $productRows = New-Object System.Collections.Generic.List[string]
@@ -102,14 +121,19 @@ foreach ($product in $products) {
     } else {
         $product.Imagen -replace "^/imagenes/", "/Imagenes/"
     }
+    $imageKey = $image.ToLowerInvariant()
+    if ($realImageRoutes.ContainsKey($imageKey)) {
+        $image = $realImageRoutes[$imageKey]
+    }
+    $imageSql = "'" + (Escape-Sql $image) + "'"
     $productRows.Add((
-        "('{0}','{1}','{2}','{3}',{4},'{5}','{6}','{7}',{8},{9},{10})" -f
+        "((SELECT id_categoria FROM categoria WHERE nombre='{0}'),'{1}','{2}',{3},{4},'{5}','{6}','{7}',{8},{9},{10},TRUE)" -f
         (Escape-Sql $product.Categoria),
-        (Escape-Sql $product.Subcategoria),
         (Escape-Sql $product.Nombre),
         (Escape-Sql $product.Descripcion),
         $product.Precio,
-        (Escape-Sql $image),
+        $imageSql,
+        (Escape-Sql $product.Subcategoria),
         $product.Horario,
         $stockType,
         $customizable,
@@ -120,143 +144,54 @@ foreach ($product in $products) {
 
 # Productos auxiliares que no estaban en el catálogo viejo pero son necesarios
 # para construir una Cajita o una caja familiar real.
-$productRows.Add("('Cajita Feliz','Complementos','Papas Kids','Porción infantil de papas.',10.00,'/Imagenes/ANTOJOS/papas.png','TODO_DIA','DIRECTO',FALSE,200,20)")
-$productRows.Add("('Cajita Feliz','Complementos','Puré de manzana','Puré de manzana para menú infantil.',9.00,'/Imagenes/BEBIDAS/jugo_manzana.png','TODO_DIA','DIRECTO',FALSE,150,15)")
-$productRows.Add("('Cajita Feliz','Complementos','Yogur de fresa','Yogur de fresa para menú infantil.',9.00,NULL,'TODO_DIA','DIRECTO',FALSE,150,15)")
-$productRows.Add("('Cajita Feliz','Bebidas','Jugo de manzana Kids','Jugo de manzana en tamaño infantil.',8.00,'/Imagenes/BEBIDAS/jugo_manzana.png','TODO_DIA','DIRECTO',FALSE,150,15)")
-$productRows.Add("('Cajita Feliz','Juguetes','Juguete sorpresa','Juguete sorpresa disponible para niños.',12.00,NULL,'TODO_DIA','DIRECTO',FALSE,200,20)")
-$productRows.Add("('Bebidas','Sodas','Coca-Cola 1.5 L','Bebida familiar para cajas y combos.',25.00,'/Imagenes/BEBIDAS/coca_cola.png','TODO_DIA','DIRECTO',FALSE,100,10)")
+$productRows.Add("((SELECT id_categoria FROM categoria WHERE nombre='Cajita Feliz'),'Papas Kids','Porción infantil de papas.',10.00,'/Imagenes/antojos/papas.png','Complementos','TODO_DIA','DIRECTO',FALSE,200,20,TRUE)")
+$productRows.Add("((SELECT id_categoria FROM categoria WHERE nombre='Cajita Feliz'),'Puré de manzana','Puré de manzana para menú infantil.',9.00,'/Imagenes/bebidas/jugo_manzana.png','Complementos','TODO_DIA','DIRECTO',FALSE,150,15,TRUE)")
+$productRows.Add("((SELECT id_categoria FROM categoria WHERE nombre='Cajita Feliz'),'Yogur de fresa','Yogur de fresa para menú infantil.',9.00,NULL,'Complementos','TODO_DIA','DIRECTO',FALSE,150,15,TRUE)")
+$productRows.Add("((SELECT id_categoria FROM categoria WHERE nombre='Cajita Feliz'),'Jugo de manzana Kids','Jugo de manzana en tamaño infantil.',8.00,'/Imagenes/bebidas/jugo_manzana.png','Bebidas','TODO_DIA','DIRECTO',FALSE,150,15,TRUE)")
+$productRows.Add("((SELECT id_categoria FROM categoria WHERE nombre='Cajita Feliz'),'Juguete sorpresa','Juguete sorpresa disponible para niños.',12.00,NULL,'Juguetes','TODO_DIA','DIRECTO',FALSE,200,20,TRUE)")
+$productRows.Add("((SELECT id_categoria FROM categoria WHERE nombre='Bebidas'),'Coca-Cola 1.5 L','Bebida familiar para cajas y combos.',25.00,'/Imagenes/bebidas/coca_cola.png','Sodas','TODO_DIA','DIRECTO',FALSE,100,10,TRUE)")
 
 $header = @'
 -- ============================================================
--- DATOS COMPLETOS PARA LA NUEVA BASE WALDONALDS
--- Generado desde los INSERT antiguos y adaptado al modelo de
--- recetas, presentaciones, WlMenús, Cajitas y combos.
+-- DATOS INICIALES PARA LA NUEVA BASE WALDONALDS
+-- Ejecutar una sola vez sobre las tablas vacías.
+-- Contiene únicamente sentencias INSERT.
 -- ============================================================
-
-USE waldonalds;
-
-START TRANSACTION;
 
 -- ============================================================
 -- 1. CATEGORÍAS
 -- ============================================================
 
-INSERT INTO categoria (nombre, estado)
-SELECT datos.nombre, TRUE
-FROM (
-    SELECT 'Antojos' AS nombre
-    UNION ALL SELECT 'Bebidas'
-    UNION ALL SELECT 'Cajita Feliz'
-    UNION ALL SELECT 'Desayunos'
-    UNION ALL SELECT 'Almuerzos'
-    UNION ALL SELECT 'Postres'
-    UNION ALL SELECT 'WlCafé'
-) datos
-WHERE NOT EXISTS (
-    SELECT 1 FROM categoria c WHERE c.nombre = datos.nombre
-);
-
-UPDATE categoria
-SET estado = TRUE
-WHERE nombre IN ('Antojos','Bebidas','Cajita Feliz','Desayunos',
-                 'Almuerzos','Postres','WlCafé');
+INSERT INTO categoria (nombre, estado) VALUES
+('Antojos',TRUE),
+('Bebidas',TRUE),
+('Cajita Feliz',TRUE),
+('Desayunos',TRUE),
+('Almuerzos',TRUE),
+('Postres',TRUE),
+('WlCafé',TRUE);
 
 -- ============================================================
 -- 2. PRODUCTOS
--- Se usa una tabla temporal para evitar duplicados si el archivo
--- se ejecuta más de una vez.
 -- ============================================================
 
-DROP TEMPORARY TABLE IF EXISTS carga_producto;
-
-CREATE TEMPORARY TABLE carga_producto (
-    categoria VARCHAR(100),
-    subcategoria VARCHAR(100),
-    nombre VARCHAR(150),
-    descripcion VARCHAR(500),
-    precio DECIMAL(12,2),
-    imagen VARCHAR(500),
-    disponibilidad VARCHAR(20),
-    tipo_stock VARCHAR(20),
-    personalizable BOOLEAN,
-    stock_actual INT,
-    stock_minimo INT
-);
-
-INSERT INTO carga_producto (
-    categoria, subcategoria, nombre, descripcion, precio, imagen,
-    disponibilidad, tipo_stock, personalizable, stock_actual, stock_minimo
+INSERT INTO producto (
+    id_categoria,nombre,descripcion,precio_base,imagen,subcategoria,
+    disponibilidad_menu,tipo_stock,personalizable,
+    stock_actual,stock_minimo,estado
 )
 VALUES
 '@
 
 $afterProducts = @'
 
-INSERT INTO producto (
-    id_categoria, nombre, descripcion, precio_base, imagen, subcategoria,
-    disponibilidad_menu, tipo_stock, personalizable,
-    stock_actual, stock_minimo, estado
-)
-SELECT
-    c.id_categoria,
-    cp.nombre,
-    cp.descripcion,
-    cp.precio,
-    cp.imagen,
-    cp.subcategoria,
-    cp.disponibilidad,
-    cp.tipo_stock,
-    cp.personalizable,
-    cp.stock_actual,
-    cp.stock_minimo,
-    TRUE
-FROM carga_producto cp
-INNER JOIN categoria c ON c.nombre = cp.categoria
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM producto p
-    WHERE p.id_categoria = c.id_categoria
-      AND p.nombre = cp.nombre
-);
-
--- Si el producto ya existía, se actualizan sus campos comerciales.
-UPDATE producto p
-INNER JOIN categoria c ON c.id_categoria = p.id_categoria
-INNER JOIN carga_producto cp
-        ON cp.categoria = c.nombre AND cp.nombre = p.nombre
-SET p.descripcion = cp.descripcion,
-    p.precio_base = cp.precio,
-    p.imagen = cp.imagen,
-    p.subcategoria = cp.subcategoria,
-    p.disponibilidad_menu = cp.disponibilidad,
-    p.tipo_stock = cp.tipo_stock,
-    p.personalizable = cp.personalizable,
-    p.stock_actual = CASE
-        WHEN cp.tipo_stock = 'DIRECTO' AND p.stock_actual = 0
-            THEN cp.stock_actual
-        ELSE p.stock_actual
-    END,
-    p.stock_minimo = cp.stock_minimo,
-    p.estado = TRUE;
-
-DROP TEMPORARY TABLE carga_producto;
-
 -- ============================================================
 -- 3. INGREDIENTES
 -- Las cantidades están expresadas según unidad_medida.
 -- ============================================================
 
-DROP TEMPORARY TABLE IF EXISTS carga_ingrediente;
-
-CREATE TEMPORARY TABLE carga_ingrediente (
-    nombre VARCHAR(100),
-    unidad VARCHAR(30),
-    stock DECIMAL(12,2),
-    minimo DECIMAL(12,2)
-);
-
-INSERT INTO carga_ingrediente (nombre, unidad, stock, minimo) VALUES
+INSERT INTO ingrediente
+(nombre,unidad_medida,stock_actual,stock_minimo) VALUES
 ('Pan hamburguesa','unidad',1000,100),
 ('Pan muffin','unidad',800,80),
 ('Pan WlGriddle','unidad',800,80),
@@ -312,46 +247,30 @@ INSERT INTO carga_ingrediente (nombre, unidad, stock, minimo) VALUES
 ('Galleta Oreo','gramo',12000,1200),
 ('Chocolate M&M','gramo',12000,1200);
 
-INSERT INTO ingrediente (
-    nombre, unidad_medida, stock_actual, stock_minimo, estado
-)
-SELECT ci.nombre, ci.unidad, ci.stock, ci.minimo, TRUE
-FROM carga_ingrediente ci
-WHERE NOT EXISTS (
-    SELECT 1 FROM ingrediente i WHERE i.nombre = ci.nombre
-);
-
-UPDATE ingrediente i
-INNER JOIN carga_ingrediente ci ON ci.nombre = i.nombre
-SET i.unidad_medida = ci.unidad,
-    i.stock_actual = CASE WHEN i.stock_actual = 0 THEN ci.stock ELSE i.stock_actual END,
-    i.stock_minimo = ci.minimo,
-    i.estado = TRUE;
-
-DROP TEMPORARY TABLE carga_ingrediente;
-
 -- ============================================================
 -- 4. RECETAS
--- Se cargan primero en una tabla temporal para fusionar reglas
--- repetidas antes de insertarlas en producto_ingrediente.
+-- Las reglas se consolidan dentro del mismo INSERT.
 -- ============================================================
 
-DROP TEMPORARY TABLE IF EXISTS carga_receta;
-
-CREATE TEMPORARY TABLE carga_receta (
-    id_producto INT,
-    id_ingrediente INT,
-    cantidad DECIMAL(12,2),
-    permite_quitar BOOLEAN,
-    permite_extra BOOLEAN,
-    cantidad_extra DECIMAL(12,2),
-    precio_extra DECIMAL(12,2),
-    max_extras INT
-);
-
 -- Tostados y derretidos.
-INSERT INTO carga_receta
-SELECT p.id_producto,i.id_ingrediente,2,FALSE,FALSE,1,0,1
+INSERT INTO producto_ingrediente (
+    id_producto,id_ingrediente,cantidad_default,
+    permite_quitar,permite_extra,cantidad_extra,
+    precio_extra,max_extras,estado
+)
+SELECT receta.id_producto,receta.id_ingrediente,
+       MAX(receta.cantidad),MAX(receta.permite_quitar),
+       MAX(receta.permite_extra),MAX(receta.cantidad_extra),
+       MAX(receta.precio_extra),MAX(receta.max_extras),TRUE
+FROM (
+SELECT p.id_producto AS id_producto,
+       i.id_ingrediente AS id_ingrediente,
+       2 AS cantidad,
+       FALSE AS permite_quitar,
+       FALSE AS permite_extra,
+       1 AS cantidad_extra,
+       0 AS precio_extra,
+       1 AS max_extras
 FROM producto p JOIN categoria c ON c.id_categoria=p.id_categoria
 JOIN ingrediente i ON i.nombre='Pan tostado'
 WHERE p.tipo_stock='RECETA' AND c.nombre IN ('Antojos','WlCafé')
@@ -842,45 +761,9 @@ WHERE p.tipo_stock='RECETA' AND p.nombre REGEXP 'Sundae Chocolate|WlFlurry.*Choc
 INSERT INTO carga_receta
 SELECT p.id_producto,i.id_ingrediente,25,FALSE,TRUE,10,2.00,2
 FROM producto p JOIN ingrediente i ON i.nombre='Jarabe fresa'
-WHERE p.tipo_stock='RECETA' AND p.nombre LIKE '%Fresa%';
-
--- Inserción final de recetas, evitando pares repetidos.
-INSERT INTO producto_ingrediente (
-    id_producto, id_ingrediente, cantidad_default,
-    permite_quitar, permite_extra, cantidad_extra,
-    precio_extra, max_extras, estado
-)
-SELECT
-    receta.id_producto,
-    receta.id_ingrediente,
-    receta.cantidad,
-    receta.permite_quitar,
-    receta.permite_extra,
-    receta.cantidad_extra,
-    receta.precio_extra,
-    receta.max_extras,
-    TRUE
-FROM (
-    SELECT
-        id_producto,
-        id_ingrediente,
-        MAX(cantidad) AS cantidad,
-        MAX(permite_quitar) AS permite_quitar,
-        MAX(permite_extra) AS permite_extra,
-        MAX(cantidad_extra) AS cantidad_extra,
-        MAX(precio_extra) AS precio_extra,
-        MAX(max_extras) AS max_extras
-    FROM carga_receta
-    GROUP BY id_producto, id_ingrediente
+WHERE p.tipo_stock='RECETA' AND p.nombre LIKE '%Fresa%'
 ) receta
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM producto_ingrediente pi
-    WHERE pi.id_producto = receta.id_producto
-      AND pi.id_ingrediente = receta.id_ingrediente
-);
-
-DROP TEMPORARY TABLE carga_receta;
+GROUP BY receta.id_producto,receta.id_ingrediente;
 
 -- ============================================================
 -- 5. PRESENTACIÓN INDIVIDUAL
@@ -1033,6 +916,21 @@ JOIN producto principal ON principal.id_producto=pm.id_producto_principal
 WHERE pm.tipo='MENU' AND gp.nombre='Elige el complemento'
   AND NOT EXISTS (SELECT 1 FROM opcion_grupo og WHERE og.id_grupo=gp.id_grupo);
 
+-- En los menús que incluyen Papas también se permite cambiarlas por
+-- WlPatatas. El precio adicional corresponde a una porción.
+INSERT INTO opcion_grupo
+(id_grupo,nombre,incremento_precio,predeterminada,estado)
+SELECT gp.id_grupo,'WlPatatas',5.00,FALSE,TRUE
+FROM grupo_presentacion gp
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+WHERE pm.tipo='MENU' AND gp.nombre='Elige el complemento'
+  AND EXISTS (SELECT 1 FROM opcion_grupo papas
+              WHERE papas.id_grupo=gp.id_grupo
+                AND papas.nombre='Papas')
+  AND NOT EXISTS (SELECT 1 FROM opcion_grupo existente
+                  WHERE existente.id_grupo=gp.id_grupo
+                    AND existente.nombre='WlPatatas');
+
 INSERT INTO opcion_componente (id_opcion,id_producto,cantidad)
 SELECT og.id_opcion,componente.id_producto,1
 FROM opcion_grupo og
@@ -1173,6 +1071,20 @@ WHERE pm.tipo='INFANTIL' AND gp.nombre='Elige el complemento'
   AND NOT EXISTS (SELECT 1 FROM opcion_grupo og
                   WHERE og.id_grupo=gp.id_grupo AND og.nombre=componente.nombre);
 
+-- Cambio opcional de Papas Kids por una porción de WlPatatas.
+INSERT INTO opcion_grupo
+(id_grupo,nombre,incremento_precio,predeterminada,estado)
+SELECT gp.id_grupo,'WlPatatas',5.00,FALSE,TRUE
+FROM grupo_presentacion gp
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+WHERE pm.tipo='INFANTIL' AND gp.nombre='Elige el complemento'
+  AND EXISTS (SELECT 1 FROM opcion_grupo papas
+              WHERE papas.id_grupo=gp.id_grupo
+                AND papas.nombre='Papas Kids')
+  AND NOT EXISTS (SELECT 1 FROM opcion_grupo existente
+                  WHERE existente.id_grupo=gp.id_grupo
+                    AND existente.nombre='WlPatatas');
+
 -- Bebidas infantiles.
 INSERT INTO opcion_grupo
 (id_grupo,nombre,incremento_precio,predeterminada,estado)
@@ -1250,7 +1162,8 @@ WHERE pm.tipo='COMBO' AND gp.nombre='Elige tus productos'
                   WHERE oc.id_opcion=og.id_opcion
                     AND oc.id_producto=componente.id_producto);
 
--- Contenido fijo de cajas grandes: cuatro papas y bebida familiar.
+-- Contenido fijo de cajas grandes. Las papas se crean más adelante como
+-- una elección visible, por lo que aquí solo queda la bebida familiar.
 INSERT INTO grupo_presentacion
 (id_presentacion,nombre,minimo,maximo,permite_repetir,visible,permite_personalizar,estado)
 SELECT pm.id_presentacion,'Incluye',1,1,FALSE,FALSE,FALSE,TRUE
@@ -1261,17 +1174,16 @@ WHERE pm.tipo='COMBO' AND p.nombre IN ('Caja Grande','Caja Grande con Postre')
 
 INSERT INTO opcion_grupo
 (id_grupo,nombre,incremento_precio,predeterminada,estado)
-SELECT gp.id_grupo,'Papas y bebida familiar',0,TRUE,TRUE
+SELECT gp.id_grupo,'Bebida familiar',0,TRUE,TRUE
 FROM grupo_presentacion gp
 WHERE gp.nombre='Incluye'
   AND NOT EXISTS (SELECT 1 FROM opcion_grupo og WHERE og.id_grupo=gp.id_grupo);
 
 INSERT INTO opcion_componente (id_opcion,id_producto,cantidad)
-SELECT og.id_opcion,p.id_producto,
-       CASE WHEN p.nombre='Papas' THEN 4 ELSE 1 END
+SELECT og.id_opcion,p.id_producto,1
 FROM opcion_grupo og
 JOIN grupo_presentacion gp ON gp.id_grupo=og.id_grupo
-JOIN producto p ON p.nombre IN ('Papas','Coca-Cola 1.5 L')
+JOIN producto p ON p.nombre='Coca-Cola 1.5 L'
 WHERE gp.nombre='Incluye'
   AND NOT EXISTS (SELECT 1 FROM opcion_componente oc
                   WHERE oc.id_opcion=og.id_opcion AND oc.id_producto=p.id_producto);
@@ -1331,8 +1243,6 @@ SELECT og.id_opcion,componente.id_producto,
          WHEN raiz.nombre='Caja de 24 WlNuggets'
               AND componente.nombre='10 WlNuggets de Pollo' THEN 2
          WHEN raiz.nombre='Caja Grande Snack' AND componente.nombre='Quesoburguesa' THEN 2
-         WHEN raiz.nombre='Caja Grande Snack' AND componente.nombre='Papas' THEN 2
-         WHEN raiz.nombre LIKE 'Bucket%' AND componente.nombre='Papas' THEN 3
          WHEN raiz.nombre LIKE 'Caja Grande D%' AND componente.nombre='Hash Brown' THEN 4
          WHEN raiz.nombre LIKE 'Caja Grande D%' AND componente.nombre='Café' THEN 2
          WHEN raiz.nombre='Caja Grande Deluxe' AND componente.nombre='Hot Cakes' THEN 2
@@ -1346,17 +1256,17 @@ JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
 JOIN producto raiz ON raiz.id_producto=pm.id_producto_principal
 JOIN producto componente ON
     (raiz.nombre='Bucket para Todos' AND componente.nombre IN
-        ('Pollo WlCrispy 10 Piezas','Papas','Coca-Cola 1.5 L'))
+        ('Pollo WlCrispy 10 Piezas','Coca-Cola 1.5 L'))
  OR (raiz.nombre='Bucket Pollo WlCrispy' AND componente.nombre IN
-        ('Pollo WlCrispy 10 Piezas','Papas'))
+        ('Pollo WlCrispy 10 Piezas'))
  OR (raiz.nombre='Bucket Pollo WlCrispy Para Tres' AND componente.nombre IN
-        ('Pollo WlCrispy 10 Piezas','Papas','Coca-Cola 1.5 L'))
+        ('Pollo WlCrispy 10 Piezas','Coca-Cola 1.5 L'))
  OR (raiz.nombre='Bucket Pollo WlCrispy Snack' AND componente.nombre IN
-        ('Pollo WlCrispy Dos Piezas','WlNuggets 4 pz','Papas'))
+        ('Pollo WlCrispy Dos Piezas','WlNuggets 4 pz'))
  OR (raiz.nombre='Caja de 24 WlNuggets' AND componente.nombre IN
         ('10 WlNuggets de Pollo','WlNuggets 4 pz'))
  OR (raiz.nombre='Caja Grande Snack' AND componente.nombre IN
-        ('Quesoburguesa','WlNuggets 4 pz','Papas','Coca-Cola 1.5 L'))
+        ('Quesoburguesa','WlNuggets 4 pz','Coca-Cola 1.5 L'))
  OR (raiz.nombre='Caja Grande Deluxe' AND componente.nombre IN
         ('Hot Cakes','WlMuffin de Huevo','Hash Brown','Café'))
  OR (raiz.nombre='Caja Grande Desayuno' AND componente.nombre IN
@@ -1366,57 +1276,90 @@ WHERE pm.tipo='COMBO' AND gp.nombre='Contenido del combo'
                   WHERE oc.id_opcion=og.id_opcion
                     AND oc.id_producto=componente.id_producto);
 
-COMMIT;
+-- Elección de papas de los combos que originalmente incluyen Papas.
+-- Caja Grande lleva 4 porciones, los buckets 3 y Caja Grande Snack 2.
+INSERT INTO grupo_presentacion
+(id_presentacion,nombre,minimo,maximo,permite_repetir,visible,permite_personalizar,estado)
+SELECT pm.id_presentacion,'Elige tus papas',1,1,FALSE,TRUE,FALSE,TRUE
+FROM presentacion_menu pm
+JOIN producto principal ON principal.id_producto=pm.id_producto_principal
+WHERE pm.tipo='COMBO'
+  AND principal.nombre IN (
+      'Bucket para Todos',
+      'Bucket Pollo WlCrispy',
+      'Bucket Pollo WlCrispy Para Tres',
+      'Bucket Pollo WlCrispy Snack',
+      'Caja Grande',
+      'Caja Grande con Postre',
+      'Caja Grande Snack'
+  )
+  AND NOT EXISTS (SELECT 1 FROM grupo_presentacion existente
+                  WHERE existente.id_presentacion=pm.id_presentacion
+                    AND existente.nombre='Elige tus papas');
 
--- ============================================================
--- 9. COMPROBACIONES
--- Todas estas consultas deben devolver cero filas, salvo el resumen.
--- ============================================================
-
--- Productos RECETA sin ingredientes.
-SELECT p.id_producto,p.nombre AS receta_sin_ingredientes
-FROM producto p
-LEFT JOIN producto_ingrediente pi ON pi.id_producto=p.id_producto AND pi.estado=TRUE
-WHERE p.tipo_stock='RECETA' AND p.estado=TRUE
-GROUP BY p.id_producto,p.nombre
-HAVING COUNT(pi.id_producto_ingrediente)=0;
-
--- Productos vendibles sin presentación.
-SELECT p.id_producto,p.nombre AS producto_sin_presentacion
-FROM producto p
-LEFT JOIN presentacion_menu pm ON pm.id_producto_principal=p.id_producto AND pm.estado=TRUE
-WHERE p.estado=TRUE
-GROUP BY p.id_producto,p.nombre
-HAVING COUNT(pm.id_presentacion)=0
-   AND NOT EXISTS (
-       SELECT 1 FROM opcion_componente oc WHERE oc.id_producto=p.id_producto
-   );
-
--- Grupos sin opciones.
-SELECT gp.id_grupo,gp.nombre AS grupo_sin_opciones
+INSERT INTO opcion_grupo
+(id_grupo,nombre,incremento_precio,predeterminada,estado)
+SELECT gp.id_grupo,acompanamiento.nombre,
+       CASE
+         WHEN acompanamiento.nombre='Papas' THEN 0
+         WHEN principal.nombre IN ('Caja Grande','Caja Grande con Postre')
+              THEN 20.00
+         WHEN principal.nombre='Caja Grande Snack'
+              THEN 10.00
+         ELSE 15.00
+       END,
+       acompanamiento.nombre='Papas',TRUE
 FROM grupo_presentacion gp
-LEFT JOIN opcion_grupo og ON og.id_grupo=gp.id_grupo AND og.estado=TRUE
-WHERE gp.estado=TRUE
-GROUP BY gp.id_grupo,gp.nombre
-HAVING COUNT(og.id_opcion)=0;
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+JOIN producto principal ON principal.id_producto=pm.id_producto_principal
+JOIN producto acompanamiento ON acompanamiento.nombre IN ('Papas','WlPatatas')
+WHERE pm.tipo='COMBO' AND gp.nombre='Elige tus papas'
+  AND NOT EXISTS (SELECT 1 FROM opcion_grupo existente
+                  WHERE existente.id_grupo=gp.id_grupo
+                    AND existente.nombre=acompanamiento.nombre);
 
--- Opciones sin productos componentes.
-SELECT og.id_opcion,og.nombre AS opcion_sin_componentes
+INSERT INTO opcion_componente (id_opcion,id_producto,cantidad)
+SELECT og.id_opcion,acompanamiento.id_producto,
+       CASE
+         WHEN principal.nombre IN ('Caja Grande','Caja Grande con Postre') THEN 4
+         WHEN principal.nombre='Caja Grande Snack' THEN 2
+         ELSE 3
+       END
 FROM opcion_grupo og
-LEFT JOIN opcion_componente oc ON oc.id_opcion=og.id_opcion
-WHERE og.estado=TRUE
-GROUP BY og.id_opcion,og.nombre
-HAVING COUNT(oc.id_opcion_componente)=0;
+JOIN grupo_presentacion gp ON gp.id_grupo=og.id_grupo
+JOIN presentacion_menu pm ON pm.id_presentacion=gp.id_presentacion
+JOIN producto principal ON principal.id_producto=pm.id_producto_principal
+JOIN producto acompanamiento ON acompanamiento.nombre=og.nombre
+WHERE pm.tipo='COMBO' AND gp.nombre='Elige tus papas'
+  AND og.nombre IN ('Papas','WlPatatas')
+  AND NOT EXISTS (SELECT 1 FROM opcion_componente existente
+                  WHERE existente.id_opcion=og.id_opcion
+                    AND existente.id_producto=acompanamiento.id_producto);
 
--- Resumen final por tipo de stock.
-SELECT tipo_stock,COUNT(*) AS productos
-FROM producto
-WHERE estado=TRUE
-GROUP BY tipo_stock
-ORDER BY tipo_stock;
 '@
 
+# Las recetas se escriben como un solo INSERT con UNION ALL, sin tablas
+# temporales. Los comentarios intermedios se conservan para facilitar estudio.
+$afterProducts = [regex]::Replace(
+    $afterProducts,
+    "INSERT INTO carga_receta\r?\n",
+    "UNION ALL" + [Environment]::NewLine
+)
+$afterProducts = [regex]::Replace(
+    $afterProducts,
+    ";\r?\n(?=(?:\s*--[^\r\n]*\r?\n)*\s*UNION ALL)",
+    [Environment]::NewLine
+)
+
 $lines = New-Object System.Collections.Generic.List[string]
+$auditHeader = @"
+-- Fuente adaptada: $(Split-Path -Leaf $SourcePath)
+-- Filas de producto encontradas: $sourceRowCount
+-- Productos únicos conservados: $($products.Count)
+-- Filas duplicadas descartadas: $($sourceRowCount - $products.Count)
+-- Productos internos agregados para Cajitas y combos: 6
+"@
+$lines.Add($auditHeader.TrimEnd())
 $lines.Add($header.TrimEnd())
 for ($index = 0; $index -lt $productRows.Count; $index++) {
     $suffix = if ($index -eq $productRows.Count - 1) { ";" } else { "," }

@@ -261,6 +261,7 @@ public class Login extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         labelEscalable2 = new Labels.LabelEscalable();
         labelEscalable1 = new Labels.LabelEscalable();
+        labelEscalable4 = new Labels.LabelEscalable();
         textBox_Login2 = new Labels.TextBox_Login();
         textbox_Contrasena1 = new Labels.Textbox_Contrasena();
 
@@ -321,9 +322,13 @@ public class Login extends javax.swing.JFrame {
         labelEscalable2.setText("labelEscalable2");
         jPanel1.add(labelEscalable2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1210, 80, 140, 180));
 
-        labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Usuarios.png"))); // NOI18N
+        labelEscalable1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/cerrar-con-llave.png"))); // NOI18N
         labelEscalable1.setText("labelEscalable1");
-        jPanel1.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 420, 50, 50));
+        jPanel1.add(labelEscalable1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1013, 574, 45, 45));
+
+        labelEscalable4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Usuarios.png"))); // NOI18N
+        labelEscalable4.setText("labelEscalable1");
+        jPanel1.add(labelEscalable4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 420, 50, 50));
 
         textBox_Login2.setPlaceholder("Ingresa tu usuario");
         jPanel1.add(textBox_Login2, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 400, -1, -1));
@@ -390,6 +395,7 @@ public class Login extends javax.swing.JFrame {
     private Labels.LabelEscalable labelEscalable1;
     private Labels.LabelEscalable labelEscalable2;
     private Labels.LabelEscalable labelEscalable3;
+    private Labels.LabelEscalable labelEscalable4;
     private Labels.TextBox_Login textBox_Login2;
     private Labels.Textbox_Contrasena textbox_Contrasena1;
     // End of variables declaration//GEN-END:variables

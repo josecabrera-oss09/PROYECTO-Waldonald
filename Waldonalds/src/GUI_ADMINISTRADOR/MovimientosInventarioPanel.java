@@ -1,17 +1,13 @@
 package GUI_ADMINISTRADOR;
 
-import Componentes.BotonDesplegable;
 import DAO.InventarioDAO;
 import Modelos.MovimientoInventario;
-import Utilidades.TemaAdmin;
-import java.awt.Color;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
@@ -23,13 +19,9 @@ import javax.swing.table.AbstractTableModel;
 @SuppressWarnings({"serial", "this-escape"})
 public class MovimientosInventarioPanel extends javax.swing.JPanel {
 
-    private static final Color AZUL = new Color(0, 20, 43);
-    private static final Color SECUNDARIO = new Color(92, 103, 124);
-    private static final Color BORDE = new Color(225, 230, 237);
     private static final DateTimeFormatter FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final TemaAdmin tema = new TemaAdmin();
     private final InventarioDAO dao = new InventarioDAO();
     private final ModeloMovimientos modelo = new ModeloMovimientos();
     private final Timer temporizadorFiltro;
@@ -50,24 +42,8 @@ public class MovimientosInventarioPanel extends javax.swing.JPanel {
     }
 
     private void prepararVista() {
-        labelTitulo.setFont(tema.negrita(42f));
-        labelSubtitulo.setFont(tema.regular(16f));
-        labelSubtitulo.setForeground(SECUNDARIO);
-        botonActualizar.setFont(tema.negrita(14f));
-        campoBusqueda.setFont(tema.regular(14f));
-        etiquetaRango.setFont(tema.regular(12f));
-        etiquetaRango.setForeground(SECUNDARIO);
-        scrollTabla.setBorder(BorderFactory.createEmptyBorder());
-        scrollTabla.getViewport().setBackground(Color.WHITE);
         tablaMovimientos.setModel(modelo);
         tablaMovimientos.aplicarEstilo();
-        tablaMovimientos.setRowHeight(49);
-        tablaMovimientos.setColumnasCentradas("0,1,3,4,5,7");
-        int[] anchos = {75, 145, 275, 145, 125, 105, 360, 85};
-        for (int i = 0; i < anchos.length; i++) {
-            tablaMovimientos.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
-        }
-        prepararSelector(filtroTipo);
     }
 
     private void configurarFiltros() {
@@ -87,18 +63,6 @@ public class MovimientosInventarioPanel extends javax.swing.JPanel {
             @Override public void changedUpdate(DocumentEvent e) { temporizadorFiltro.restart(); }
         });
         botonActualizar.addActionListener(e -> cargarMovimientos());
-    }
-
-    private void prepararSelector(BotonDesplegable selector) {
-        selector.setFont(tema.regular(14f));
-        selector.setForeground(AZUL);
-        selector.setColorFondo(Color.WHITE);
-        selector.setColorHover(new Color(248, 249, 251));
-        selector.setColorDesplegado(new Color(255, 247, 222));
-        selector.setColorTextoOpcion(AZUL);
-        selector.setColorBordeMenu(BORDE);
-        selector.setAnchoMenu(280);
-        selector.setAltoOpcion(42);
     }
 
     private void cargarMovimientos() {
@@ -195,6 +159,7 @@ public class MovimientosInventarioPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         labelTitulo = new javax.swing.JLabel();
         labelSubtitulo = new javax.swing.JLabel();
         botonActualizar = new Componentes.BotonDerretido();
@@ -209,11 +174,18 @@ public class MovimientosInventarioPanel extends javax.swing.JPanel {
         setBackground(new java.awt.Color(248, 249, 251));
         setPreferredSize(new java.awt.Dimension(1530, 932));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        labelTitulo.setFont(new java.awt.Font("Dialog", 1, 42)); // NOI18N
         labelTitulo.setForeground(new java.awt.Color(0, 20, 43));
         labelTitulo.setText("Movimientos de Inventario");
         add(labelTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 16, 700, 64));
+
+        labelSubtitulo.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        labelSubtitulo.setForeground(new java.awt.Color(92, 103, 124));
         labelSubtitulo.setText("Consulta entradas, salidas y ajustes registrados");
         add(labelSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 76, 650, 36));
+
+        botonActualizar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         botonActualizar.setText("Actualizar historial");
         add(botonActualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(1290, 42, 220, 60));
 
@@ -221,24 +193,63 @@ public class MovimientosInventarioPanel extends javax.swing.JPanel {
         panelFiltros.setRadio(18);
         panelFiltros.setSombra(false);
         panelFiltros.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        campoBusqueda.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         campoBusqueda.setPlaceholder("Buscar artículo, motivo o ID...");
         panelFiltros.add(campoBusqueda, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 750, 55));
+
+        filtroTipo.setAltoOpcion(42);
+        filtroTipo.setAnchoMenu(280);
+        filtroTipo.setColorBordeMenu(new java.awt.Color(225, 230, 237));
+        filtroTipo.setColorDesplegado(new java.awt.Color(255, 247, 222));
+        filtroTipo.setColorFondo(new java.awt.Color(255, 255, 255));
+        filtroTipo.setColorHover(new java.awt.Color(248, 249, 251));
+        filtroTipo.setColorTextoOpcion(new java.awt.Color(0, 20, 43));
+        filtroTipo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        filtroTipo.setForeground(new java.awt.Color(0, 20, 43));
         filtroTipo.setText("Todos los movimientos");
         filtroTipo.setTextoDesplegable("Todos los movimientos;Entradas;Salidas;Ajustes");
         panelFiltros.add(filtroTipo, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 22, 280, 52));
+
         add(panelFiltros, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 175, 1470, 95));
 
         panelTabla.setColorBorde(new java.awt.Color(225, 230, 237));
         panelTabla.setRadio(18);
         panelTabla.setSombra(false);
         panelTabla.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         scrollTabla.setBorder(null);
         scrollTabla.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         scrollTabla.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        tablaMovimientos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "Fecha", "Artículo", "Tipo", "Movimiento", "Cantidad", "Motivo", "Pedido"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tablaMovimientos.setRowHeight(49);
+        tablaMovimientos.setAnchosColumnas("75,145,275,145,125,105,360,85");
+        tablaMovimientos.setColumnasCentradas("0,1,3,4,5,7");
         scrollTabla.setViewportView(tablaMovimientos);
+
         panelTabla.add(scrollTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 555));
+
+        etiquetaRango.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
         etiquetaRango.setText("Cargando movimientos...");
         panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 581, 800, 42));
+
         add(panelTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 285, 1470, 640));
     }// </editor-fold>//GEN-END:initComponents
 

@@ -1,7 +1,6 @@
 package GUI_ADMINISTRADOR;
 
 import CRUD.IngredienteCRUD;
-import Componentes.BotonDesplegable;
 import Componentes.BotonRedondeado;
 import Modelos.Ingrediente;
 import Modelos.PaginaIngredientes;
@@ -17,7 +16,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractCellEditor;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -77,26 +75,13 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
     }
 
     private void prepararVista() {
-        labelTitulo.setFont(tema.negrita(42f));
-        labelSubtitulo.setFont(tema.regular(16f));
-        labelSubtitulo.setForeground(SECUNDARIO);
-        botonAgregar.setFont(tema.negrita(14f));
-        campoBusqueda.setFont(tema.regular(14f));
-        botonLimpiar.setFont(tema.negrita(14f));
         botonLimpiar.setIcon(IconosUsuarios.crear(
                 IconosUsuarios.Tipo.FILTRO, ROJO, 19));
-        botonLimpiar.setIconTextGap(9);
-        scrollTabla.setBorder(BorderFactory.createEmptyBorder());
-        scrollTabla.getViewport().setBackground(Color.WHITE);
-        etiquetaRango.setFont(tema.regular(12f));
-        etiquetaRango.setForeground(SECUNDARIO);
     }
 
     private void configurarTabla() {
         tablaIngredientes.setModel(modelo);
         tablaIngredientes.aplicarEstilo();
-        tablaIngredientes.setRowHeight(53);
-        tablaIngredientes.setColumnasCentradas("0,2,3,4,5,6,7");
         tablaIngredientes.getColumnModel().getColumn(5)
                 .setCellRenderer(new RenderNivel());
         tablaIngredientes.getColumnModel().getColumn(6)
@@ -105,15 +90,9 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
                 .setCellRenderer(new RenderAcciones());
         tablaIngredientes.getColumnModel().getColumn(7)
                 .setCellEditor(new EditorAcciones());
-        int[] anchos = {80, 330, 155, 135, 135, 115, 115, 125};
-        for (int i = 0; i < anchos.length; i++) {
-            tablaIngredientes.getColumnModel().getColumn(i)
-                    .setPreferredWidth(anchos[i]);
-        }
     }
 
     private void configurarFiltros() {
-        prepararSelector(filtroStock);
         filtroStock.addMenuOpcionListener(e -> {
             filtroStock.setText(e.getActionCommand());
             stockBajoActual = switch (e.getActionCommand()) {
@@ -124,7 +103,6 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
             paginaActual = 1;
             cargarPagina();
         });
-        prepararSelector(filtroEstado);
         filtroEstado.addMenuOpcionListener(e -> {
             filtroEstado.setText(e.getActionCommand());
             estadoActual = switch (e.getActionCommand()) {
@@ -151,18 +129,6 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
             paginaActual = 1;
             cargarPagina();
         });
-    }
-
-    private void prepararSelector(BotonDesplegable selector) {
-        selector.setFont(tema.regular(14f));
-        selector.setForeground(AZUL);
-        selector.setColorFondo(Color.WHITE);
-        selector.setColorHover(new Color(248, 249, 251));
-        selector.setColorDesplegado(new Color(255, 247, 222));
-        selector.setColorTextoOpcion(AZUL);
-        selector.setColorBordeMenu(BORDE);
-        selector.setAnchoMenu(280);
-        selector.setAltoOpcion(42);
     }
 
     private void configurarPaginacion() {
@@ -476,12 +442,16 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         labelTitulo.setForeground(new java.awt.Color(0, 20, 43));
+        labelTitulo.setFont(new java.awt.Font("Dialog", 1, 42)); // NOI18N
         labelTitulo.setText("Catálogo de Ingredientes");
         add(labelTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 16, 650, 64));
 
+        labelSubtitulo.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
+        labelSubtitulo.setForeground(new java.awt.Color(92, 103, 124));
         labelSubtitulo.setText("Define los insumos, su unidad y el nivel mínimo de reposición");
         add(labelSubtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 76, 690, 36));
 
+        botonAgregar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         botonAgregar.setText("Agregar ingrediente");
         add(botonAgregar, new org.netbeans.lib.awtextra.AbsoluteConstraints(1290, 42, 220, 60));
 
@@ -490,13 +460,32 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
         panelFiltros.setSombra(false);
         panelFiltros.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        campoBusqueda.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         campoBusqueda.setPlaceholder("Buscar ingrediente o unidad...");
         panelFiltros.add(campoBusqueda, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 440, 55));
 
+        filtroStock.setAltoOpcion(42);
+        filtroStock.setAnchoMenu(280);
+        filtroStock.setColorBordeMenu(new java.awt.Color(225, 230, 237));
+        filtroStock.setColorDesplegado(new java.awt.Color(255, 247, 222));
+        filtroStock.setColorFondo(new java.awt.Color(255, 255, 255));
+        filtroStock.setColorHover(new java.awt.Color(248, 249, 251));
+        filtroStock.setColorTextoOpcion(new java.awt.Color(0, 20, 43));
+        filtroStock.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        filtroStock.setForeground(new java.awt.Color(0, 20, 43));
         filtroStock.setText("Todos los niveles");
         filtroStock.setTextoDesplegable("Todos los niveles;Stock bajo;Stock normal");
         panelFiltros.add(filtroStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 22, 280, 52));
 
+        filtroEstado.setAltoOpcion(42);
+        filtroEstado.setAnchoMenu(280);
+        filtroEstado.setColorBordeMenu(new java.awt.Color(225, 230, 237));
+        filtroEstado.setColorDesplegado(new java.awt.Color(255, 247, 222));
+        filtroEstado.setColorFondo(new java.awt.Color(255, 255, 255));
+        filtroEstado.setColorHover(new java.awt.Color(248, 249, 251));
+        filtroEstado.setColorTextoOpcion(new java.awt.Color(0, 20, 43));
+        filtroEstado.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        filtroEstado.setForeground(new java.awt.Color(0, 20, 43));
         filtroEstado.setText("Todos los estados");
         filtroEstado.setTextoDesplegable("Todos los estados;Activos;Inactivos");
         panelFiltros.add(filtroEstado, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 22, 280, 52));
@@ -506,6 +495,8 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
         botonLimpiar.setColorBorde(new java.awt.Color(231, 55, 65));
         botonLimpiar.setDegradado(false);
         botonLimpiar.setForeground(new java.awt.Color(231, 55, 65));
+        botonLimpiar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        botonLimpiar.setIconTextGap(9);
         botonLimpiar.setText("Limpiar filtros");
         panelFiltros.add(botonLimpiar, new org.netbeans.lib.awtextra.AbsoluteConstraints(1190, 22, 250, 52));
 
@@ -519,10 +510,30 @@ public class CatalogoIngredientesPanel extends javax.swing.JPanel {
         scrollTabla.setBorder(null);
         scrollTabla.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         scrollTabla.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tablaIngredientes.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+            },
+            new String [] {
+                "ID", "Ingrediente", "Unidad", "Stock actual", "Stock mínimo", "Nivel", "Estado", "Acciones"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tablaIngredientes.setRowHeight(53);
+        tablaIngredientes.setAnchosColumnas("80,330,155,135,135,115,115,125");
+        tablaIngredientes.setColumnasCentradas("0,2,3,4,5,6,7");
         scrollTabla.setViewportView(tablaIngredientes);
 
         panelTabla.add(scrollTabla, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 555));
 
+        etiquetaRango.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
         etiquetaRango.setText("Mostrando ingredientes");
         panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 581, 430, 42));
 

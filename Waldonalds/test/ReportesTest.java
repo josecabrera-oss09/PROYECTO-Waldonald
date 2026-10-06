@@ -1,12 +1,17 @@
 import DAO.ReporteDAO;
+import DAO.VentaDetalleDAO;
+import CRUD.DashboardCRUD;
 import GUI_ADMINISTRADOR.ReportesPanel;
 import GUI_ADMINISTRADOR.MenuAdmin;
+import GUI_ADMINISTRADOR.VentaDetalleFormPanel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.zip.ZipFile;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -67,6 +72,50 @@ public class ReportesTest {
             for (Object[] fila : r.alertas()) comprobar(new BigDecimal(fila[2].toString()).compareTo(new BigDecimal(fila[3].toString())) <= 0, "Umbral stock");
             var vacio = new ReporteDAO().cargar(LocalDate.of(1000,1,1));
             comprobar(vacio.pedidos()==0 && vacio.ventas().signum()==0 && vacio.ticket().signum()==0, "Día vacío sin división por cero");
+            File libro = new File("build/reportes-check/reporte.xlsx");
+            libro.getParentFile().mkdirs();
+            Utilidades.ReporteExcel.guardar(libro.toPath(), fecha, r);
+            try (ZipFile zip = new ZipFile(libro)) {
+                comprobar(zip.getEntry("xl/worksheets/sheet1.xml") != null,
+                        "Excel contiene la hoja de ventas");
+                comprobar(zip.getEntry("xl/styles.xml") != null,
+                        "Excel contiene estilos");
+                String hoja = new String(zip.getInputStream(zip.getEntry(
+                        "xl/worksheets/sheet1.xml")).readAllBytes(),
+                        StandardCharsets.UTF_8);
+                String estilos = new String(zip.getInputStream(zip.getEntry(
+                        "xl/styles.xml")).readAllBytes(),
+                        StandardCharsets.UTF_8);
+                comprobar(!hoja.contains("<mergeCells")
+                                && !hoja.contains("<cols>"),
+                        "Excel sencillo sin combinaciones ni medidas visuales");
+                comprobar(!estilos.contains("patternType=\"solid\"")
+                                && !estilos.contains("<color rgb="),
+                        "Excel sencillo sin colores ni rellenos");
+            }
+            var pedidosGuardados = new DashboardCRUD().obtenerPedidos(1);
+            if (!pedidosGuardados.isEmpty()) {
+                var pedido = pedidosGuardados.get(0);
+                var detalle = new VentaDetalleDAO().cargar(pedido.id());
+                comprobar(detalle.numeroOrden() == pedido.numeroOrden(),
+                        "Detalle corresponde a la venta seleccionada");
+                comprobar(detalle.total().compareTo(pedido.total()) == 0,
+                        "Detalle conserva el total cobrado");
+                SwingUtilities.invokeAndWait(() -> {
+                    try {
+                        VentaDetalleFormPanel vista =
+                                new VentaDetalleFormPanel(detalle);
+                        JFrame marcoDetalle = new JFrame();
+                        marcoDetalle.setContentPane(vista);
+                        marcoDetalle.pack();
+                        imagen(vista,
+                                "build/reportes-check/detalle-venta.png");
+                        marcoDetalle.dispose();
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+            }
             SwingUtilities.invokeAndWait(() -> panel[0].actualizarReporte());
             long fin = System.currentTimeMillis()+30000;
             while (System.currentTimeMillis()<fin) {

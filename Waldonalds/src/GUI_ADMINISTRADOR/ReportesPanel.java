@@ -6,19 +6,19 @@ import Componentes.GraficaBarras;
 import Componentes.PanelCircular;
 import Componentes.PanelFlotante;
 import DAO.ReporteDAO;
+import DAO.VentaDetalleDAO;
 import Utilidades.IconosUsuarios;
-import Utilidades.ReporteCsv;
+import Utilidades.ReporteExcel;
 import Utilidades.TemaAdmin;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -66,6 +66,7 @@ public class ReportesPanel extends javax.swing.JPanel {
 
     private final TemaAdmin tema = new TemaAdmin();
     private final ReporteDAO reporteDAO = new ReporteDAO();
+    private final VentaDetalleDAO ventaDetalleDAO = new VentaDetalleDAO();
     private final ModeloTablaVentas modeloTabla = new ModeloTablaVentas();
     private final ModeloProductosVendidos modeloProductos =
             new ModeloProductosVendidos();
@@ -78,6 +79,7 @@ public class ReportesPanel extends javax.swing.JPanel {
     private final Timer temporizadorBusqueda;
 
     private SwingWorker<ReporteDAO.Resumen, Void> carga;
+    private SwingWorker<VentaDetalleDAO.Venta, Void> cargaDetalle;
     private ReporteDAO.Resumen ultimoReporte;
     private LocalDate fechaCargada;
     private List<Object[]> ventasFiltradas = List.of();
@@ -327,6 +329,25 @@ public class ReportesPanel extends javax.swing.JPanel {
         tablaPedidos.getColumnModel().getColumn(7)
                 .setCellRenderer(new RenderMoneda(true));
         configurarAnchosColumnas();
+        tablaPedidos.setCursor(Cursor.getPredefinedCursor(
+                Cursor.HAND_CURSOR));
+        tablaPedidos.setToolTipText(
+                "Haz doble clic para ver el contenido de la venta");
+        tablaPedidos.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evento) {
+                if (evento.getClickCount() != 2
+                        || !javax.swing.SwingUtilities.isLeftMouseButton(
+                                evento)) {
+                    return;
+                }
+                int filaVista = tablaPedidos.rowAtPoint(evento.getPoint());
+                if (filaVista < 0) return;
+                int filaModelo = tablaPedidos.convertRowIndexToModel(
+                        filaVista);
+                abrirDetalleVenta(modeloTabla.idPedido(filaModelo));
+            }
+        });
 
         scrollPedidos.setBorder(BorderFactory.createEmptyBorder());
         scrollPedidos.getViewport().setBackground(Color.WHITE);
@@ -661,21 +682,19 @@ public class ReportesPanel extends javax.swing.JPanel {
         JFileChooser selector = new JFileChooser();
         selector.setDialogTitle("Guardar reporte de ventas");
         selector.setFileFilter(new FileNameExtensionFilter(
-                "Archivo CSV", "csv"));
+                "Libro de Excel (*.xlsx)", "xlsx"));
         selector.setSelectedFile(new File(
-                "reporte-ventas-" + fechaCargada + ".csv"));
+                "reporte-ventas-" + fechaCargada + ".xlsx"));
         if (selector.showSaveDialog(this)
                 != JFileChooser.APPROVE_OPTION) return;
 
         Path archivo = selector.getSelectedFile().toPath();
-        if (!archivo.toString().toLowerCase(Locale.ROOT).endsWith(".csv")) {
+        if (!archivo.toString().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
             archivo = archivo.resolveSibling(
-                    archivo.getFileName() + ".csv");
+                    archivo.getFileName() + ".xlsx");
         }
         try {
-            Files.writeString(archivo,
-                    ReporteCsv.generar(fechaCargada, ultimoReporte),
-                    StandardCharsets.UTF_8);
+            ReporteExcel.guardar(archivo, fechaCargada, ultimoReporte);
             JOptionPane.showMessageDialog(this,
                     "Reporte guardado en:\n" + archivo,
                     "Exportación completada",
@@ -704,12 +723,53 @@ public class ReportesPanel extends javax.swing.JPanel {
         }
     }
 
+    private void abrirDetalleVenta(int idPedido) {
+        if (idPedido <= 0 || cargaDetalle != null) return;
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        cargaDetalle = new SwingWorker<>() {
+            @Override
+            protected VentaDetalleDAO.Venta doInBackground()
+                    throws Exception {
+                return ventaDetalleDAO.cargar(idPedido);
+            }
+
+            @Override
+            protected void done() {
+                setCursor(Cursor.getDefaultCursor());
+                try {
+                    VentaDetalleDAO.Venta venta = get();
+                    VentaDetalleDialog.mostrar(
+                            javax.swing.SwingUtilities.getWindowAncestor(
+                                    ReportesPanel.this),
+                            venta);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException ex) {
+                    Throwable causa = ex.getCause() == null
+                            ? ex : ex.getCause();
+                    JOptionPane.showMessageDialog(ReportesPanel.this,
+                            "No se pudo cargar el contenido de la venta.\n"
+                            + causa.getMessage(),
+                            "Detalle de venta",
+                            JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    cargaDetalle = null;
+                }
+            }
+        };
+        cargaDetalle.execute();
+    }
+
     @Override
     public void removeNotify() {
         temporizadorBusqueda.stop();
         if (carga != null) {
             carga.cancel(true);
             carga = null;
+        }
+        if (cargaDetalle != null) {
+            cargaDetalle.cancel(true);
+            cargaDetalle = null;
         }
         super.removeNotify();
     }
@@ -1269,6 +1329,14 @@ public class ReportesPanel extends javax.swing.JPanel {
         private void setFilas(List<Object[]> nuevasFilas) {
             filas = List.copyOf(nuevasFilas);
             fireTableDataChanged();
+        }
+        private int idPedido(int fila) {
+            if (fila < 0 || fila >= filas.size()) return -1;
+            Object[] valores = filas.get(fila);
+            if (valores.length <= 9 || !(valores[9] instanceof Number id)) {
+                return -1;
+            }
+            return id.intValue();
         }
         @Override public int getRowCount() { return filas.size(); }
         @Override public int getColumnCount() { return columnas.length; }

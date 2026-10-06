@@ -54,6 +54,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnCajita.setText("Cajita Feliz");
+        btnCajita.setIcon(iconoCategoria("/Imagenes/cajita feliz/cajita feliz de hamburguesa.png"));
         btnCajita.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnCajita.setHideActionText(true);
         btnCajita.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -65,6 +66,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         add(btnCajita, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 180, 170));
 
         btnDesayuno1.setText("Desayuno");
+        btnDesayuno1.setIcon(iconoCategoria("/Imagenes/Desayunos/burrito.png"));
         btnDesayuno1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnDesayuno1.setHideActionText(true);
         btnDesayuno1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -76,6 +78,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         add(btnDesayuno1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 180, 170));
 
         btnAlmuerzos.setText("Almuerzos");
+        btnAlmuerzos.setIcon(iconoCategoria("/Imagenes/HAMBURGUESAS/bigmac.png"));
         btnAlmuerzos.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnAlmuerzos.setHideActionText(true);
         btnAlmuerzos.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -87,6 +90,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         add(btnAlmuerzos, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 10, 180, 170));
 
         btnPostres.setText("Postres");
+        btnPostres.setIcon(iconoCategoria("/Imagenes/postres/mcflurry oreo.png"));
         btnPostres.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnPostres.setHideActionText(true);
         btnPostres.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -98,6 +102,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         add(btnPostres, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 10, 180, 170));
 
         btnCafe.setText("WlCafé");
+        btnCafe.setIcon(iconoCategoria("/Imagenes/wlcafe/cafe_guatemalteco.png"));
         btnCafe.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnCafe.setHideActionText(true);
         btnCafe.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -109,6 +114,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         add(btnCafe, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 10, 180, 170));
 
         btnBebidos.setText("Bebidas");
+        btnBebidos.setIcon(iconoCategoria("/Imagenes/bebidas/coca_cola.png"));
         btnBebidos.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnBebidos.setHideActionText(true);
         btnBebidos.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -120,6 +126,7 @@ public class CategoriasPanel extends javax.swing.JPanel {
         add(btnBebidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 10, 180, 170));
 
         btnAntojos.setText("Antojos");
+        btnAntojos.setIcon(iconoCategoria("/Imagenes/antojos/papas.png"));
         btnAntojos.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         btnAntojos.setHideActionText(true);
         btnAntojos.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -130,6 +137,14 @@ public class CategoriasPanel extends javax.swing.JPanel {
         });
         add(btnAntojos, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 10, 180, 170));
     }// </editor-fold>//GEN-END:initComponents
+
+    private javax.swing.ImageIcon iconoCategoria(String ruta) {
+        javax.swing.ImageIcon original = new javax.swing.ImageIcon(getClass().getResource(ruta));
+        java.awt.Image imagen = original.getImage().getScaledInstance(
+                100, 100, java.awt.Image.SCALE_SMOOTH
+        );
+        return new javax.swing.ImageIcon(imagen);
+    }
 
     private void btnCajitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCajitaActionPerformed
         mostrarCategoriaDinamica("Cajita Feliz", java.util.List.of(

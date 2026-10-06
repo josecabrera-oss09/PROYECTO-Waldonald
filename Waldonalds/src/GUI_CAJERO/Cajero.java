@@ -290,6 +290,21 @@ private void configurarBarra() {
             new javax.swing.JPanel();
 
     espacioLogo.setOpaque(false);
+    espacioLogo.setLayout(new java.awt.BorderLayout());
+
+    javax.swing.ImageIcon iconoLogo = new javax.swing.ImageIcon(
+            getClass().getResource("/Imagenes/LogoW.png")
+    );
+    java.awt.Image imagenLogo = iconoLogo.getImage().getScaledInstance(
+            72,
+            52,
+            java.awt.Image.SCALE_SMOOTH
+    );
+    javax.swing.JLabel logo = new javax.swing.JLabel(
+            new javax.swing.ImageIcon(imagenLogo),
+            javax.swing.SwingConstants.CENTER
+    );
+    espacioLogo.add(logo, java.awt.BorderLayout.CENTER);
 
     espacioLogo.setPreferredSize(
             new java.awt.Dimension(
@@ -323,6 +338,16 @@ private void configurarBarra() {
 
     btnOrdenar = new Componentes.BotonDerretido();
     btnOrdenar.setText("Ordenar");
+    javax.swing.ImageIcon iconoPedidos = new javax.swing.ImageIcon(
+            getClass().getResource("/Imagenes/pedidos.png")
+    );
+    java.awt.Image imagenPedidos = iconoPedidos.getImage().getScaledInstance(
+            36,
+            36,
+            java.awt.Image.SCALE_SMOOTH
+    );
+    btnOrdenar.setIcon(new javax.swing.ImageIcon(imagenPedidos));
+    btnOrdenar.setIconTextGap(8);
 
 
     btnOrdenar.setPreferredSize(
@@ -354,9 +379,14 @@ private void configurarBarra() {
 
     btnOrdenar.setFocusPainted(false);
 
-    // Conserva la posición del texto del botón Ordenar original.
-    btnOrdenar.setHorizontalAlignment(
+    btnOrdenar.setHorizontalTextPosition(
             javax.swing.SwingConstants.RIGHT
+    );
+    btnOrdenar.setVerticalTextPosition(
+            javax.swing.SwingConstants.CENTER
+    );
+    btnOrdenar.setHorizontalAlignment(
+            javax.swing.SwingConstants.CENTER
     );
     btnOrdenar.setVerticalAlignment(
             javax.swing.SwingConstants.CENTER
@@ -365,9 +395,9 @@ private void configurarBarra() {
     btnOrdenar.setBorder(
             javax.swing.BorderFactory.createEmptyBorder(
                     0,
-                    45,
+                    0,
                     14,
-                    20
+                    10
             )
     );
 
@@ -386,7 +416,7 @@ private void configurarBarra() {
             new java.awt.Font("Arial", java.awt.Font.BOLD, 14)
     );
     btnCerrarSesion.setPreferredSize(
-            new java.awt.Dimension(175, 55)
+            new java.awt.Dimension(180, 60)
     );
 
 
@@ -675,14 +705,7 @@ private void seleccionarBoton(
 }
 
 private void cerrarSesion() {
-    int confirmar = javax.swing.JOptionPane.showConfirmDialog(
-            this,
-            "¿Deseas cerrar la sesión actual?",
-            "Confirmar cierre de sesión",
-            javax.swing.JOptionPane.YES_NO_OPTION,
-            javax.swing.JOptionPane.QUESTION_MESSAGE
-    );
-    if (confirmar != javax.swing.JOptionPane.YES_OPTION) {
+    if (!confirmarCierreSesion()) {
         return;
     }
 
@@ -691,6 +714,157 @@ private void cerrarSesion() {
     login.setLocationRelativeTo(null);
     login.setVisible(true);
     dispose();
+}
+
+private boolean confirmarCierreSesion() {
+    javax.swing.JDialog dialogo = new javax.swing.JDialog(
+            this,
+            "Cerrar sesión",
+            true
+    );
+    dialogo.setUndecorated(true);
+
+    javax.swing.JPanel contenido = new javax.swing.JPanel(
+            new java.awt.BorderLayout(0, 18)
+    ) {
+        @Override protected void paintComponent(java.awt.Graphics graphics) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) graphics.create();
+            g2.setRenderingHint(
+                    java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g2.setColor(java.awt.Color.WHITE);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 22, 22);
+            g2.dispose();
+            super.paintComponent(graphics);
+        }
+    };
+    contenido.setOpaque(false);
+    contenido.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(
+                    new java.awt.Color(220, 226, 233)
+            ),
+            javax.swing.BorderFactory.createEmptyBorder(22, 24, 20, 24)
+    ));
+
+    javax.swing.JPanel encabezado = new javax.swing.JPanel(
+            new java.awt.BorderLayout(14, 0)
+    );
+    encabezado.setOpaque(false);
+
+    javax.swing.JPanel icono = new javax.swing.JPanel(
+            new java.awt.GridBagLayout()
+    ) {
+        @Override protected void paintComponent(java.awt.Graphics graphics) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) graphics.create();
+            g2.setRenderingHint(
+                    java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g2.setColor(AMARILLO);
+            g2.fillOval(0, 0, getWidth(), getHeight());
+            g2.dispose();
+            super.paintComponent(graphics);
+        }
+    };
+    icono.setOpaque(false);
+    icono.setPreferredSize(new java.awt.Dimension(52, 52));
+    javax.swing.ImageIcon iconoPregunta = new javax.swing.ImageIcon(
+            getClass().getResource("/Imagenes/pregunta.png")
+    );
+    java.awt.Image imagenPregunta = iconoPregunta.getImage().getScaledInstance(
+            30,
+            30,
+            java.awt.Image.SCALE_SMOOTH
+    );
+    javax.swing.JLabel iconoSalida = new javax.swing.JLabel(
+            new javax.swing.ImageIcon(imagenPregunta)
+    );
+    icono.add(iconoSalida);
+    encabezado.add(icono, java.awt.BorderLayout.WEST);
+
+    javax.swing.JPanel textos = new javax.swing.JPanel();
+    textos.setOpaque(false);
+    textos.setLayout(new javax.swing.BoxLayout(
+            textos,
+            javax.swing.BoxLayout.Y_AXIS
+    ));
+    javax.swing.JLabel titulo = new javax.swing.JLabel("Cerrar sesión");
+    titulo.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+    titulo.setForeground(AZUL_BARRA);
+    javax.swing.JLabel subtitulo = new javax.swing.JLabel(
+            "La sesión actual se cerrará"
+    );
+    subtitulo.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 13));
+    subtitulo.setForeground(new java.awt.Color(105, 115, 128));
+    textos.add(titulo);
+    textos.add(javax.swing.Box.createVerticalStrut(5));
+    textos.add(subtitulo);
+    encabezado.add(textos, java.awt.BorderLayout.CENTER);
+    contenido.add(encabezado, java.awt.BorderLayout.NORTH);
+
+    javax.swing.JLabel mensaje = new javax.swing.JLabel(
+            "¿Deseas cerrar la sesión actual?",
+            javax.swing.SwingConstants.CENTER
+    );
+    mensaje.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 15));
+    mensaje.setForeground(new java.awt.Color(45, 53, 63));
+    contenido.add(mensaje, java.awt.BorderLayout.CENTER);
+
+    boolean[] confirmar = {false};
+    Componentes.BotonRedondeado cancelar = botonDialogo(
+            "Cancelar",
+            java.awt.Color.WHITE,
+            AZUL_BARRA
+    );
+    cancelar.setColorBorde(new java.awt.Color(190, 198, 208));
+    cancelar.setGrosorBorde(1.2f);
+    Componentes.BotonRedondeado aceptar = botonDialogo(
+            "Cerrar sesión",
+            AMARILLO,
+            AZUL_BARRA
+    );
+    aceptar.addActionListener(e -> {
+        confirmar[0] = true;
+        dialogo.dispose();
+    });
+    cancelar.addActionListener(e -> dialogo.dispose());
+
+    javax.swing.JPanel acciones = new javax.swing.JPanel(
+            new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 10, 0)
+    );
+    acciones.setOpaque(false);
+    acciones.add(cancelar);
+    acciones.add(aceptar);
+    contenido.add(acciones, java.awt.BorderLayout.SOUTH);
+
+    dialogo.setContentPane(contenido);
+    dialogo.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    dialogo.getRootPane().setDefaultButton(cancelar);
+    dialogo.getRootPane().registerKeyboardAction(
+            e -> dialogo.dispose(),
+            javax.swing.KeyStroke.getKeyStroke("ESCAPE"),
+            javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+    );
+    dialogo.setSize(430, 235);
+    dialogo.setLocationRelativeTo(this);
+    dialogo.setVisible(true);
+    return confirmar[0];
+}
+
+private Componentes.BotonRedondeado botonDialogo(
+        String texto,
+        java.awt.Color fondo,
+        java.awt.Color tinta) {
+    Componentes.BotonRedondeado boton = new Componentes.BotonRedondeado();
+    boton.setText(texto);
+    boton.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 13));
+    boton.setForeground(tinta);
+    boton.setColorInicio(fondo);
+    boton.setDegradado(false);
+    boton.setRadio(12);
+    boton.setPreferredSize(new java.awt.Dimension(138, 42));
+    return boton;
 }
 
 

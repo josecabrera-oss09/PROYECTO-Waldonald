@@ -143,9 +143,13 @@ public class PedidoPanel extends JPanel {
         };
         indicador.setOpaque(false);
         indicador.setPreferredSize(new Dimension(48, 48));
-        JLabel marca = new JLabel("W", SwingConstants.CENTER);
-        marca.setFont(new Font(FUENTE, Font.BOLD, 25));
-        marca.setForeground(ROJO_HEADER);
+        ImageIcon iconoPedido = new ImageIcon(
+                getClass().getResource("/Imagenes/pedido.png")
+        );
+        Image imagenPedido = iconoPedido.getImage().getScaledInstance(
+                34, 34, Image.SCALE_SMOOTH
+        );
+        JLabel marca = new JLabel(new ImageIcon(imagenPedido), SwingConstants.CENTER);
         indicador.setLayout(new BorderLayout());
         indicador.add(marca, BorderLayout.CENTER);
         JPanel textosHeader = new JPanel();
@@ -190,11 +194,26 @@ public class PedidoPanel extends JPanel {
                 new javax.swing.table.DefaultTableCellRenderer() {
             @Override public Component getTableCellRendererComponent(JTable table,
                     Object value, boolean selected, boolean focused, int row, int column) {
-                JTextArea area = new JTextArea(String.valueOf(value).replace(" | ", "\n  • "));
-                area.setLineWrap(true); area.setWrapStyleWord(true); area.setEditable(false);
+                javax.swing.JTextPane area = new javax.swing.JTextPane();
+                area.setText(String.valueOf(value).replace(" | ", "\n• "));
+                area.setEditable(false);
+                area.setFocusable(false);
                 area.setOpaque(false); area.setForeground(TINTA);
-                area.setFont(new Font(FUENTE, Font.PLAIN, 12));
-                area.setBorder(BorderFactory.createEmptyBorder(7,10,5,7));
+                area.setFont(new Font(FUENTE, Font.PLAIN, 15));
+                area.setMargin(new Insets(0, 0, 0, 0));
+                area.setBorder(BorderFactory.createEmptyBorder(7, 8, 5, 8));
+                javax.swing.text.SimpleAttributeSet centrado =
+                        new javax.swing.text.SimpleAttributeSet();
+                javax.swing.text.StyleConstants.setAlignment(
+                        centrado,
+                        javax.swing.text.StyleConstants.ALIGN_CENTER
+                );
+                area.getStyledDocument().setParagraphAttributes(
+                        0,
+                        area.getDocument().getLength(),
+                        centrado,
+                        false
+                );
                 return area;
             }
         });

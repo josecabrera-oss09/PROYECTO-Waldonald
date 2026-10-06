@@ -4,7 +4,6 @@
  */
 package GUI_ADMINISTRADOR;
 
-import Componentes.BotonDesplegable;
 import Componentes.BotonRedondeado;
 import Componentes.PanelFlotante;
 import DAO.InventarioDAO;
@@ -106,24 +105,10 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
     }
 
     private void prepararVista() {
-        labelTitulo3.setFont(tema.negrita(42f));
-        labelTitulo2.setFont(tema.regular(16f));
-        botonAgregarProducto.setFont(tema.negrita(14f));
-        botonRegistrarSalida.setFont(tema.negrita(14f));
-        botonMovimientos.setFont(tema.negrita(14f));
-        botonExportar.setFont(tema.negrita(14f));
         botonExportar.setIcon(IconosUsuarios.crear(
                 IconosUsuarios.Tipo.EXPORTAR, ROJO, 19));
-        botonExportar.setIconTextGap(9);
-        campoBusqueda.setFont(tema.regular(14f));
-        botonLimpiarFiltros.setFont(tema.negrita(14f));
         botonLimpiarFiltros.setIcon(IconosUsuarios.crear(
                 IconosUsuarios.Tipo.FILTRO, ROJO, 19));
-        botonLimpiarFiltros.setIconTextGap(9);
-        scrollUsuarios.setBorder(BorderFactory.createEmptyBorder());
-        scrollUsuarios.getViewport().setBackground(Color.WHITE);
-        etiquetaRango.setFont(tema.regular(12f));
-        etiquetaRango.setForeground(SECUNDARIO);
     }
 
     private BotonRedondeado crearBotonSuperior(String texto, Color color) {
@@ -144,7 +129,6 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         filtroCategoria.setText("Todos los tipos");
         filtroCategoria.setTextoDesplegable(
                 "Todos los tipos;Ingredientes;Productos directos");
-        prepararSelector(filtroCategoria);
         filtroCategoria.addMenuOpcionListener(e -> {
             filtroCategoria.setText(e.getActionCommand());
             tipoActual = switch (e.getActionCommand()) {
@@ -159,7 +143,6 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         filtroEstado.setText("Todos los estados");
         filtroEstado.setTextoDesplegable(
                 "Todos los estados;Disponible;Stock bajo;Agotado;Inactivo");
-        prepararSelector(filtroEstado);
         filtroEstado.addMenuOpcionListener(e -> {
             filtroEstado.setText(e.getActionCommand());
             estadoActual = switch (e.getActionCommand()) {
@@ -197,35 +180,16 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         });
     }
 
-    private void prepararSelector(BotonDesplegable boton) {
-        boton.setFont(tema.regular(14f));
-        boton.setForeground(AZUL);
-        boton.setColorFondo(Color.WHITE);
-        boton.setColorHover(new Color(248, 249, 251));
-        boton.setColorDesplegado(new Color(255, 247, 222));
-        boton.setColorTextoOpcion(AZUL);
-        boton.setColorBordeMenu(BORDE);
-        boton.setAnchoMenu(280);
-        boton.setAltoOpcion(42);
-    }
-
     private void configurarTabla() {
         tablaProductos.setModel(modeloTabla);
         tablaProductos.aplicarEstilo();
-        tablaProductos.setRowHeight(53);
         tablaProductos.setAutoCreateRowSorter(false);
-        tablaProductos.setColumnasCentradas("0,2,4,5,6,8,9");
         tablaProductos.getColumnModel().getColumn(8)
                 .setCellRenderer(new RenderEstado());
         tablaProductos.getColumnModel().getColumn(9)
                 .setCellRenderer(new RenderAccion());
         tablaProductos.getColumnModel().getColumn(9)
                 .setCellEditor(new EditorAccion());
-        int[] anchos = {78, 220, 128, 125, 82, 95, 95, 160, 105, 125};
-        for (int i = 0; i < anchos.length; i++) {
-            tablaProductos.getColumnModel().getColumn(i)
-                    .setPreferredWidth(anchos[i]);
-        }
     }
 
     private void configurarPaginacion() {
@@ -924,11 +888,13 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         add(labelTitulo2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 76, 620, 36));
 
         botonAgregarProducto.setForeground(new java.awt.Color(0, 0, 0));
+        botonAgregarProducto.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         botonAgregarProducto.setText("Registrar entrada");
         add(botonAgregarProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 42, 175, 60));
 
         botonRegistrarSalida.setColorInicio(new java.awt.Color(255, 255, 255));
         botonRegistrarSalida.setDegradado(false);
+        botonRegistrarSalida.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         botonRegistrarSalida.setForeground(new java.awt.Color(0, 20, 43));
         botonRegistrarSalida.setText("Registrar salida");
         botonRegistrarSalida.setColorBorde(new java.awt.Color(0, 20, 43));
@@ -939,6 +905,7 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
 
         botonMovimientos.setColorInicio(new java.awt.Color(255, 255, 255));
         botonMovimientos.setDegradado(false);
+        botonMovimientos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         botonMovimientos.setForeground(new java.awt.Color(0, 20, 43));
         botonMovimientos.setText("Ajustar stock");
         botonMovimientos.setColorBorde(new java.awt.Color(0, 20, 43));
@@ -1079,6 +1046,7 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         botonExportar.setColorFinal(new java.awt.Color(255, 255, 255));
         botonExportar.setFont(new java.awt.Font("Arial", 1, 16)); // NOI18N
         botonExportar.setGrosorBorde(1.6F);
+        botonExportar.setIconTextGap(9);
         botonExportar.setMargin(new java.awt.Insets(5, 14, 3, 14));
         add(botonExportar, new org.netbeans.lib.awtextra.AbsoluteConstraints(1335, 45, 175, 54));
 
@@ -1098,7 +1066,13 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         panelFiltros.add(campoBusqueda, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 420, 55));
 
         filtroCategoria.setColorFondo(new java.awt.Color(255, 255, 255));
+        filtroCategoria.setAltoOpcion(42);
+        filtroCategoria.setAnchoMenu(280);
+        filtroCategoria.setColorBordeMenu(new java.awt.Color(225, 230, 237));
+        filtroCategoria.setColorDesplegado(new java.awt.Color(255, 247, 222));
         filtroCategoria.setColorHover(new java.awt.Color(248, 249, 251));
+        filtroCategoria.setColorTextoOpcion(new java.awt.Color(0, 20, 43));
+        filtroCategoria.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         filtroCategoria.setForeground(new java.awt.Color(0, 20, 43));
         filtroCategoria.setText("Todos los tipos");
         filtroCategoria.setTextoDesplegable("Todos los tipos;Ingredientes;Productos directos");
@@ -1110,7 +1084,13 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         panelFiltros.add(filtroCategoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 22, 280, 52));
 
         filtroEstado.setColorFondo(new java.awt.Color(255, 255, 255));
+        filtroEstado.setAltoOpcion(42);
+        filtroEstado.setAnchoMenu(280);
+        filtroEstado.setColorBordeMenu(new java.awt.Color(225, 230, 237));
+        filtroEstado.setColorDesplegado(new java.awt.Color(255, 247, 222));
         filtroEstado.setColorHover(new java.awt.Color(248, 249, 251));
+        filtroEstado.setColorTextoOpcion(new java.awt.Color(0, 20, 43));
+        filtroEstado.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         filtroEstado.setForeground(new java.awt.Color(0, 20, 43));
         filtroEstado.setText("Todos los estados");
         filtroEstado.setTextoDesplegable("Todos los estados;Disponible;Stock bajo;Agotado;Inactivo");
@@ -1124,6 +1104,7 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
         botonLimpiarFiltros.setColorFinal(new java.awt.Color(255, 255, 255));
         botonLimpiarFiltros.setFont(new java.awt.Font("Arial", 1, 15)); // NOI18N
         botonLimpiarFiltros.setGrosorBorde(1.6F);
+        botonLimpiarFiltros.setIconTextGap(9);
         botonLimpiarFiltros.setMargin(new java.awt.Insets(5, 14, 3, 14));
         panelFiltros.add(botonLimpiarFiltros, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 22, 380, 52));
 
@@ -1156,12 +1137,15 @@ public class GestionInventarioPanel extends javax.swing.JPanel {
             }
         });
         tablaProductos.setAutoscrolls(false);
+        tablaProductos.setRowHeight(53);
+        tablaProductos.setAnchosColumnas("78,220,128,125,82,95,95,160,105,125");
         tablaProductos.setColumnasCentradas("0,2,4,5,6,8,9");
         scrollUsuarios.setViewportView(tablaProductos);
 
         panelTabla.add(scrollUsuarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(14, 14, 1442, 555));
 
         etiquetaRango.setForeground(new java.awt.Color(92, 103, 124));
+        etiquetaRango.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         etiquetaRango.setText("Mostrando inventario");
         panelTabla.add(etiquetaRango, new org.netbeans.lib.awtextra.AbsoluteConstraints(28, 581, 420, 42));
 

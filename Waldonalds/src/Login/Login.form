@@ -170,6 +170,19 @@
         <Component class="Labels.LabelEscalable" name="labelEscalable1">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/Imagenes/cerrar-con-llave.png"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="labelEscalable1"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+              <AbsoluteConstraints x="1013" y="574" width="45" height="45"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="Labels.LabelEscalable" name="labelEscalable4">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/Imagenes/Usuarios.png"/>
             </Property>
             <Property name="text" type="java.lang.String" value="labelEscalable1"/>

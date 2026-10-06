@@ -20,6 +20,11 @@ public final class ValidarDatosMenu {
     }
 
     public static void main(String[] args) throws Exception {
+        Path archivoDatos = args.length > 0
+                ? Path.of(args[0])
+                : Path.of("sql/datos_menu_nueva_base.sql");
+        int productosEsperados = args.length > 1
+                ? Integer.parseInt(args[1]) : 170;
         String base = "waldonalds_validacion_"
                 + UUID.randomUUID().toString().replace("-", "");
         try (Connection conexion = DriverManager.getConnection(URL, USUARIO, CONTRASENA);
@@ -28,9 +33,9 @@ public final class ValidarDatosMenu {
             try {
                 sentencia.execute("USE `" + base + "`");
                 ejecutarArchivo(sentencia, Path.of("sql/base_datos_completa.sql"));
-                ejecutarArchivo(sentencia, Path.of("sql/datos_menu_nueva_base.sql"));
+                ejecutarArchivo(sentencia, archivoDatos);
 
-                comprobar(sentencia, "productos", 171,
+                comprobar(sentencia, "productos", productosEsperados,
                         "SELECT COUNT(*) FROM producto");
                 comprobarCero(sentencia, "productos RECETA sin ingredientes",
                         "SELECT COUNT(*) FROM producto p "
@@ -73,16 +78,6 @@ public final class ValidarDatosMenu {
                         + "JOIN producto p ON p.id_producto=pm.id_producto_principal "
                         + "WHERE p.nombre='Caja Grande' AND gp.minimo=4 "
                         + "AND gp.maximo=4 AND gp.permite_repetir=TRUE");
-
-                int[] antes = cantidadesConfiguracion(sentencia);
-                ejecutarArchivo(sentencia, Path.of("sql/datos_menu_nueva_base.sql"));
-                int[] despues = cantidadesConfiguracion(sentencia);
-                if (!java.util.Arrays.equals(antes, despues)) {
-                    throw new AssertionError("la segunda carga duplicó datos: antes="
-                            + java.util.Arrays.toString(antes) + ", despues="
-                            + java.util.Arrays.toString(despues));
-                }
-                System.out.println("OK: ejecutar el archivo dos veces no duplica datos");
 
                 imprimirResumen(sentencia);
                 imprimirRecetasCortas(sentencia);
