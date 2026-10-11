@@ -146,6 +146,12 @@ public class BotonMenuLateral extends JButton {
                 icono.draw(new RoundRectangle2D.Float(10, 9, 4, 15, 1, 1));
                 icono.draw(new RoundRectangle2D.Float(18, 3, 4, 21, 1, 1));
                 break;
+            case "PEDIDOS":
+                icono.draw(new RoundRectangle2D.Float(5, 3, 16, 20, 2, 2));
+                icono.draw(new Line2D.Float(9, 8, 17, 8));
+                icono.draw(new Line2D.Float(9, 13, 17, 13));
+                icono.draw(new Line2D.Float(9, 18, 14, 18));
+                break;
             case "SALIR":
                 icono.draw(new RoundRectangle2D.Float(3, 2, 12, 22, 2, 2));
                 icono.draw(new Line2D.Float(11, 13, 25, 13));

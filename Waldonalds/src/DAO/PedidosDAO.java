@@ -6,6 +6,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import Utilidades.SesionUsuario;
 
 /** Consulta y cancelación segura de pedidos en preparación. */
 public final class PedidosDAO {
@@ -14,6 +15,12 @@ public final class PedidosDAO {
             long segundosTranscurridos) { }
 
     public List<Pedido> listar() throws SQLException {
+        return listar(SesionUsuario.getIdUsuario());
+    }
+
+    public List<Pedido> listar(int idUsuario) throws SQLException {
+        if (idUsuario <= 0) return List.of();
+        boolean administrador = "ADMINISTRADOR".equalsIgnoreCase(SesionUsuario.getRol());
         try (Connection c = Conexion.conectar()) {
             if (c == null) throw new SQLException("No se pudo conectar con MySQL.");
             asegurarColumnas(c);
@@ -28,8 +35,12 @@ public final class PedidosDAO {
                     + "WHERE d.id_pedido=p.id_pedido AND LOWER(REPLACE(pr.nombre,'é','e')) NOT LIKE '%cafe blend%') "
                     + "THEN 1 ELSE 0 END AS listo_directo, "
                     + "TIMESTAMPDIFF(SECOND,p.fecha_hora,NOW()) "
-                    + "FROM pedido p ORDER BY p.id_pedido DESC LIMIT 100";
-            try (PreparedStatement s = c.prepareStatement(sql); ResultSet r = s.executeQuery()) {
+                    + "FROM pedido p "
+                    + (administrador ? "" : "WHERE p.id_usuario=? ")
+                    + "ORDER BY p.id_pedido DESC LIMIT 100";
+            try (PreparedStatement s = c.prepareStatement(sql)) {
+                if (!administrador) s.setInt(1, idUsuario);
+                try (ResultSet r = s.executeQuery()) {
                 List<Pedido> pedidos = new ArrayList<>();
                 while (r.next()) {
                     // La instalación actual guarda fecha_hora seis horas atrasada respecto a Guatemala.
@@ -39,25 +50,35 @@ public final class PedidosDAO {
                             r.getBigDecimal(7), r.getBoolean(8), r.getLong(9)));
                 }
                 return pedidos;
+                }
             }
         }
     }
 
     public void cancelar(int idPedido) throws SQLException {
+        cancelar(idPedido, SesionUsuario.getIdUsuario());
+    }
+
+    public void cancelar(int idPedido, int idUsuario) throws SQLException {
         try (Connection c = Conexion.conectar()) {
             if (c == null) throw new SQLException("No se pudo conectar con MySQL.");
             asegurarColumnas(c);
             c.setAutoCommit(false);
             try {
                 String estado;
+                int propietario;
                 try (PreparedStatement s = c.prepareStatement(
-                        "SELECT estado FROM pedido WHERE id_pedido=? FOR UPDATE")) {
+                        "SELECT estado,id_usuario FROM pedido WHERE id_pedido=? FOR UPDATE")) {
                     s.setInt(1, idPedido);
                     try (ResultSet r = s.executeQuery()) {
                         if (!r.next()) throw new IllegalArgumentException("El pedido ya no existe.");
                         estado = r.getString(1);
+                        propietario = r.getInt(2);
                     }
                 }
+                boolean administrador = "ADMINISTRADOR".equalsIgnoreCase(SesionUsuario.getRol());
+                if (idUsuario <= 0 || (!administrador && propietario != idUsuario))
+                    throw new IllegalArgumentException("El pedido no pertenece a la sesión actual.");
                 if (!"PAGADO".equals(estado))
                     throw new IllegalArgumentException("El pedido ya está cancelado.");
 

@@ -2,6 +2,7 @@ package GUI_CAJERO;
 
 import Componentes.PanelFlotante;
 import DAO.PedidosDAO;
+import Utilidades.SesionUsuario;
 import java.awt.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -117,7 +118,9 @@ public final class PedidosPanel extends JPanel {
 
     public void cargar() {
         new SwingWorker<List<PedidosDAO.Pedido>, Void>() {
-            @Override protected List<PedidosDAO.Pedido> doInBackground() throws Exception { return new PedidosDAO().listar(); }
+            @Override protected List<PedidosDAO.Pedido> doInBackground() throws Exception {
+                return new PedidosDAO().listar();
+            }
             @Override protected void done() {
                 try { pedidos = get(); llenar(); }
                 catch (Exception ex) { Utilidades.DialogosCajero.mensaje(PedidosPanel.this,
@@ -150,7 +153,10 @@ public final class PedidosPanel extends JPanel {
         if (!Utilidades.DialogosCajero.confirmar(this, "Cancelar pedido",
                 "¿Cancelar el pedido #" + pedido.orden() + "?\nSe devolverán sus existencias al inventario.")) return;
         new SwingWorker<Void, Void>() {
-            @Override protected Void doInBackground() throws Exception { new PedidosDAO().cancelar(pedido.id()); return null; }
+            @Override protected Void doInBackground() throws Exception {
+                new PedidosDAO().cancelar(pedido.id(), SesionUsuario.getIdUsuario());
+                return null;
+            }
             @Override protected void done() {
                 try { get(); cargar(); }
                 catch (Exception ex) { Utilidades.DialogosCajero.mensaje(PedidosPanel.this,

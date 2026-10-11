@@ -31,6 +31,7 @@ public class MenuAdmin extends javax.swing.JFrame {
     private static final String GESTION_MENU = "gestionMenu";
     private static final String INVENTARIO = "inventario";
     private static final String REPORTES = "reportes";
+    private static final String PEDIDOS = "pedidos";
     private final TemaAdmin tema;
     private CardLayout navegador;
     private BotonMenuLateral botonActivo;
@@ -66,6 +67,7 @@ private Rectangle boundsBotonUsuarios;
 private Rectangle boundsBotonGestionMenu;
 private Rectangle boundsBotonInventario;
 private Rectangle boundsBotonReportes;
+private Rectangle boundsBotonPedidos;
 private Rectangle boundsBotonCerrarSesion;
 
 private Rectangle boundsCabeceraAbierta;
@@ -151,7 +153,7 @@ private Rectangle boundsUsuario;
     });
     for (BotonMenuLateral boton : new BotonMenuLateral[]{botonDashboard, botonUsuarios,
             botonGestionMenu, botonInventario,
-            botonReportes, botonCerrarSesion}) {
+            botonReportes, botonPedidos, botonCerrarSesion}) {
         boton.setToolTipText(boton.getText());
     }
     javax.swing.SwingUtilities.invokeLater(
@@ -186,6 +188,9 @@ private Rectangle boundsUsuario;
 
     boundsBotonReportes =
             new Rectangle(botonReportes.getBounds());
+
+    boundsBotonPedidos =
+            new Rectangle(botonPedidos.getBounds());
 
     boundsBotonCerrarSesion =
             new Rectangle(botonCerrarSesion.getBounds());
@@ -421,6 +426,12 @@ private Rectangle boundsUsuario;
     );
 
     actualizarBotonCompacto(
+            botonPedidos,
+            boundsBotonPedidos,
+            apertura
+    );
+
+    actualizarBotonCompacto(
             botonCerrarSesion,
             boundsBotonCerrarSesion,
             apertura
@@ -431,7 +442,7 @@ private Rectangle boundsUsuario;
             - boundsBotonCerrarSesion.height;
     botonCerrarSesion.setLocation(
             botonCerrarSesion.getX(),
-            Math.max(boundsBotonReportes.y + boundsBotonReportes.height + 12,
+            Math.max(boundsBotonPedidos.y + boundsBotonPedidos.height + 12,
                     altoRaiz - margenInferior - botonCerrarSesion.getHeight())
     );
 
@@ -509,6 +520,7 @@ private Rectangle boundsUsuario;
         botonGestionMenu.setFont(tema.media(17f));
         botonInventario.setFont(tema.media(17f));
         botonReportes.setFont(tema.media(17f));
+        botonPedidos.setFont(tema.media(17f));
         botonCerrarSesion.setFont(tema.negrita(17f));
     }
 
@@ -521,6 +533,7 @@ private Rectangle boundsUsuario;
         agregarSeccion(new GestionMenuPanel(), GESTION_MENU);
         agregarSeccion(new InventarioPanel(), INVENTARIO);
         agregarSeccion(new ReportesPanel(), REPORTES);
+        agregarSeccion(new GUI_CAJERO.PedidosPanel(), PEDIDOS);
     }
 
     private void agregarSeccion(JPanel seccion, String nombre) {
@@ -560,6 +573,7 @@ private Rectangle boundsUsuario;
             case GESTION_MENU -> "Gestión de Productos";
             case INVENTARIO -> "Inventario";
             case REPORTES -> "Reportes";
+            case PEDIDOS -> "Pedidos";
             default -> "Administración";
         };
     }
@@ -585,6 +599,7 @@ private Rectangle boundsUsuario;
         botonGestionMenu = new Componentes.BotonMenuLateral();
         botonInventario = new Componentes.BotonMenuLateral();
         botonReportes = new Componentes.BotonMenuLateral();
+        botonPedidos = new Componentes.BotonMenuLateral();
         botonCerrarSesion = new Componentes.BotonMenuLateral();
         panelCabecera = new javax.swing.JPanel();
         labelHamburguesa = new javax.swing.JLabel();
@@ -667,6 +682,15 @@ private Rectangle boundsUsuario;
         });
         panelLateral.add(botonReportes, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 485, 296, 64));
 
+        botonPedidos.setText("Pedidos");
+        botonPedidos.setTipoIcono("PEDIDOS");
+        botonPedidos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonPedidosActionPerformed(evt);
+            }
+        });
+        panelLateral.add(botonPedidos, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 570, 296, 64));
+
         botonCerrarSesion.setText("Volver Al Menú");
         botonCerrarSesion.setMostrarBorde(true);
         botonCerrarSesion.setTipoIcono("SALIR");
@@ -744,6 +768,10 @@ private Rectangle boundsUsuario;
         mostrarSeccion(REPORTES, botonReportes);
     }//GEN-LAST:event_botonReportesActionPerformed
 
+    private void botonPedidosActionPerformed(java.awt.event.ActionEvent evt) {
+        mostrarSeccion(PEDIDOS, botonPedidos);
+    }
+
     private void botonCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCerrarSesionActionPerformed
         cerrarSesion();
     }//GEN-LAST:event_botonCerrarSesionActionPerformed
@@ -768,6 +796,7 @@ private Rectangle boundsUsuario;
     private Componentes.BotonMenuLateral botonDashboard;
     private Componentes.BotonMenuLateral botonGestionMenu;
     private Componentes.BotonMenuLateral botonInventario;
+    private Componentes.BotonMenuLateral botonPedidos;
     private Componentes.BotonMenuLateral botonReportes;
     private Componentes.BotonMenuLateral botonUsuarios;
     private javax.swing.JLabel labelBienvenido;
