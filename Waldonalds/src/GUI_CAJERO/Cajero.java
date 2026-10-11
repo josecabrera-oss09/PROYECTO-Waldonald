@@ -39,6 +39,7 @@ private java.awt.CardLayout cardLayout;
 private javax.swing.JPanel panelContenido;
 
 private MenuCajeroPanel menuCajeroPanel;
+private PedidosPanel pedidosPanel;
 
 
 // =====================================================
@@ -55,6 +56,7 @@ private boolean configurandoProducto;
 // =====================================================
 
 private javax.swing.JButton btnMenu;
+private javax.swing.JButton btnPedidos;
 private javax.swing.JButton btnOrdenar;
 private Componentes.BotonMenuLateral btnCerrarSesion;
 
@@ -134,6 +136,8 @@ private void configurarInterfaz() {
 
     menuCajeroPanel =
             new MenuCajeroPanel();
+
+    pedidosPanel = new PedidosPanel();
     
 
     // =================================================
@@ -143,6 +147,10 @@ private void configurarInterfaz() {
     panelContenido.add(
             menuCajeroPanel,
             "MENU"
+    );
+    panelContenido.add(
+            pedidosPanel,
+            "PEDIDOS"
     );
     // =================================================
     // CREAR PEDIDO
@@ -237,7 +245,12 @@ private void mostrarPanel(
     panelContenido.repaint();
 
     if (barraTitulo != null) {
-        barraTitulo.setSeccion("Menú");
+        barraTitulo.setSeccion("PEDIDOS".equals(nombrePanel) ? "Pedidos" : "Menú");
+    }
+
+    if ("PEDIDOS".equals(nombrePanel) && pedidosPanel != null) {
+        pedidosPanel.cargar();
+        cerrarPedido();
     }
 }
 
@@ -330,6 +343,9 @@ private void configurarBarra() {
     panelIzquierdo.add(
             btnMenu
     );
+
+    btnPedidos = crearBotonBarra("Pedidos");
+    panelIzquierdo.add(btnPedidos);
 
 
     // =================================================
@@ -472,6 +488,11 @@ private void configurarBarra() {
         seleccionarBoton(
                 btnMenu
         );
+    });
+
+    btnPedidos.addActionListener(e -> {
+        mostrarPanel("PEDIDOS");
+        seleccionarBoton(btnPedidos);
     });
 
 
@@ -926,9 +947,9 @@ public void agregarProducto(int idProducto) {
             } catch (Exception ex) {
                 Throwable causa = ex instanceof java.util.concurrent.ExecutionException
                         && ex.getCause() != null ? ex.getCause() : ex;
-                javax.swing.JOptionPane.showMessageDialog(Cajero.this,
+                Utilidades.DialogosCajero.mensaje(Cajero.this, "Producto no disponible",
                         causa.getMessage() == null ? "No se pudo configurar el producto." : causa.getMessage(),
-                        "Producto no disponible", javax.swing.JOptionPane.WARNING_MESSAGE);
+                        javax.swing.JOptionPane.WARNING_MESSAGE);
                 configurandoProducto = false;
             }
         }

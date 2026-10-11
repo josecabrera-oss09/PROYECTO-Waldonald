@@ -20,6 +20,7 @@ public final class PagoPendienteStore {
         p.setProperty("clave", pago.clave()); p.setProperty("usuario", "" + pago.usuario());
         p.setProperty("servicio", pago.servicio()); p.setProperty("metodo", pago.metodo());
         p.setProperty("recibido", pago.recibido().toPlainString()); p.setProperty("referencia", pago.referencia());
+        p.setProperty("nit", pago.nit());
         p.setProperty("cantidad", "" + pago.lineas().size());
         for (int i=0; i<pago.lineas().size(); i++) {
             LineaPedido l=pago.lineas().get(i); String prefijo="linea."+i+".";
@@ -100,7 +101,8 @@ public final class PagoPendienteStore {
                         opciones,Integer.parseInt(p.getProperty(prefijo+"cantidad"))));
             }
             return new SolicitudPago(p.getProperty("clave"),Integer.parseInt(p.getProperty("usuario")),lineas,
-                    p.getProperty("servicio"),p.getProperty("metodo"),new BigDecimal(p.getProperty("recibido")),p.getProperty("referencia"));
+                    p.getProperty("servicio"),p.getProperty("metodo"),new BigDecimal(p.getProperty("recibido")),
+                    p.getProperty("referencia"),p.getProperty("nit", ""));
         } catch(RuntimeException ex) { throw new IOException("El archivo de cobro pendiente no se puede leer. Verifique la venta antes de continuar.",ex); }
     }
     public void eliminar() throws IOException { Files.deleteIfExists(archivo); }

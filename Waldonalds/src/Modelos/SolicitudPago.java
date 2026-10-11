@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.UUID;
 
 public record SolicitudPago(String clave, int usuario, List<LineaPedido> lineas,
-        String servicio, String metodo, BigDecimal recibido, String referencia) {
+        String servicio, String metodo, BigDecimal recibido, String referencia, String nit) {
+    public SolicitudPago(String clave, int usuario, List<LineaPedido> lineas,
+            String servicio, String metodo, BigDecimal recibido, String referencia) {
+        this(clave, usuario, lineas, servicio, metodo, recibido, referencia, "");
+    }
+
     public SolicitudPago {
         UUID.fromString(clave);
         lineas = List.copyOf(lineas);
@@ -24,6 +29,10 @@ public record SolicitudPago(String clave, int usuario, List<LineaPedido> lineas,
             throw new IllegalArgumentException("Ingrese un monto válido, con hasta dos decimales, que cubra el total.");
         }
         referencia = referencia == null ? "" : referencia.trim();
+        nit = nit == null ? "" : nit.trim().toUpperCase();
+        if (nit.length() > 20 || !nit.matches("[A-Z0-9-]*")) {
+            throw new IllegalArgumentException("El NIT solo puede contener letras, números y guiones (máximo 20 caracteres).");
+        }
         if (referencia.length() > 100 || (metodo.equals("TARJETA")
                 && (referencia.isEmpty() || recibido.compareTo(total) != 0))) {
             throw new IllegalArgumentException("Confirme el pago externo e ingrese su referencia (máximo 100 caracteres).");

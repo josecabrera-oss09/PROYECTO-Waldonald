@@ -3,6 +3,7 @@ package GUI_CAJERO;
 import Componentes.BotonRedondeado;
 import Componentes.TablaAdministrativa;
 import DAO.PagoDAO;
+import DAO.NitDAO;
 import Modelos.*;
 import Utilidades.SesionUsuario;
 import java.awt.*;
@@ -347,9 +348,8 @@ public class PedidoPanel extends JPanel {
         cancelar.addActionListener(e -> {
             // Un cobro en curso conserva su solicitud; cerrar la vista no lo cancela.
             if (!bloqueado()) {
-                if (!lineas.isEmpty() && JOptionPane.showConfirmDialog(this,
-                        "¿Cancelar todo el pedido y volver al menú?", "Cancelar pedido",
-                        JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+                if (!lineas.isEmpty() && !Utilidades.DialogosCajero.confirmar(this,
+                        "Cancelar pedido", "¿Cancelar todo el pedido y volver al menú?")) return;
                 lineas.clear();
                 actualizar();
             }
@@ -536,11 +536,16 @@ public class PedidoPanel extends JPanel {
         FormularioCobro formulario = new FormularioCobro(suma());
         JComboBox<String> servicio = formulario.servicio, metodo = formulario.metodo;
         JTextField recibido = formulario.recibido, referencia = formulario.referencia;
+        JTextField vencimiento = formulario.vencimiento;
+        JPasswordField cvv = formulario.cvv;
+        JComboBox<String> nit = formulario.nit;
         JCheckBox confirmado = formulario.confirmado;
         JButton guardar = formulario.guardar, volver = formulario.volver;
         Runnable refrescar = () -> {
             boolean tarjeta = metodo.getSelectedIndex() == 1;
-            recibido.setEnabled(!tarjeta && pendiente == null); referencia.setEnabled(tarjeta && pendiente == null); confirmado.setEnabled(tarjeta && pendiente == null);
+            recibido.setEnabled(!tarjeta && pendiente == null); referencia.setEnabled(tarjeta && pendiente == null);
+            vencimiento.setEnabled(tarjeta && pendiente == null); cvv.setEnabled(tarjeta && pendiente == null);
+            confirmado.setEnabled(tarjeta && pendiente == null); nit.setEnabled(pendiente == null);
             formulario.mostrarMetodo(tarjeta);
             try { formulario.actualizarCambio(monto(recibido.getText()).subtract(suma())); }
             catch (IllegalArgumentException ex) { formulario.montoInvalido(); }
@@ -555,6 +560,7 @@ public class PedidoPanel extends JPanel {
             servicio.setSelectedIndex(pendiente.servicio().equals("COMER_AQUI") ? 0 : 1);
             metodo.setSelectedIndex(pendiente.metodo().equals("EFECTIVO") ? 0 : 1);
             recibido.setText(pendiente.recibido().toPlainString()); referencia.setText(pendiente.referencia()); confirmado.setSelected(true);
+            formulario.setNit(pendiente.nit());
             servicio.setEnabled(false); metodo.setEnabled(false); guardar.setText("Reintentar misma operación");
         }
         refrescar.run();
@@ -565,9 +571,13 @@ public class PedidoPanel extends JPanel {
                 if (pendiente == null) {
                     boolean tarjeta = metodo.getSelectedIndex() == 1;
                     if (tarjeta && !confirmado.isSelected()) throw new IllegalArgumentException("Confirme primero la aprobación en la terminal externa.");
+                    if (tarjeta) {
+                        validarDatosTarjeta(vencimiento.getText(), new String(cvv.getPassword()));
+                        confirmarAlmacenamientoTarjeta(dialogo);
+                    }
                     pendiente = new SolicitudPago(UUID.randomUUID().toString(), SesionUsuario.getIdUsuario(), new ArrayList<>(lineas.values()),
                             servicio.getSelectedIndex() == 0 ? "COMER_AQUI" : "PARA_LLEVAR", tarjeta ? "TARJETA" : "EFECTIVO",
-                            tarjeta ? suma() : monto(recibido.getText()), tarjeta ? referencia.getText() : "");
+                            tarjeta ? suma() : monto(recibido.getText()), tarjeta ? referencia.getText() : "", formulario.nitTexto());
                 }
                 if (nueva) respaldo.guardar(pendiente);
             } catch (java.io.IOException ex) {
@@ -597,8 +607,8 @@ public class PedidoPanel extends JPanel {
                             try { respaldo.eliminar(); pendiente = null; dialogo.dispose(); }
                             catch (java.io.IOException fallo) { aviso("No se pudo retirar el respaldo pendiente: " + fallo.getMessage()); }
                         }
-                        JOptionPane.showMessageDialog(dialogo.isDisplayable() ? dialogo : PedidoPanel.this,
-                                mensaje(ex) + (pendiente != null ? "\nEl pedido se conserva. Reintente esta operación; no repita el cobro externo." : ""), "No se completó el registro", JOptionPane.ERROR_MESSAGE);
+                        Utilidades.DialogosCajero.mensaje(dialogo.isDisplayable() ? dialogo : PedidoPanel.this,
+                                "No se completó el registro", mensaje(ex) + (pendiente != null ? "\nEl pedido se conserva. Reintente esta operación; no repita el cobro externo." : ""), JOptionPane.ERROR_MESSAGE);
                     } finally {
                         ocupado = false; actualizar(); guardar.setEnabled(true); volver.setEnabled(true);
                         guardar.setText("Reintentar misma operación"); dialogo.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -655,6 +665,31 @@ public class PedidoPanel extends JPanel {
         dialogo.setVisible(true);
     }
 
+    private static void validarDatosTarjeta(String vencimiento, String cvv) {
+        String valor = vencimiento == null ? "" : vencimiento.trim();
+        if (!valor.matches("(0[1-9]|1[0-2])[0-9]{2}|(0[1-9]|1[0-2])[/\\-][0-9]{2}"))
+            throw new IllegalArgumentException("Ingrese el vencimiento como MMYY, MM/YY o MM-YY.");
+        String normalizado = valor.replace("/", "").replace("-", "");
+        int mes = Integer.parseInt(normalizado.substring(0, 2));
+        int anio = 2000 + Integer.parseInt(normalizado.substring(2, 4));
+        java.time.YearMonth actual = java.time.YearMonth.now();
+        if (java.time.YearMonth.of(anio, mes).isBefore(actual))
+            throw new IllegalArgumentException("La tarjeta está vencida.");
+        if (cvv == null || !cvv.matches("[0-9]{3}"))
+            throw new IllegalArgumentException("El CVV debe tener exactamente 3 dígitos.");
+    }
+
+    private static void confirmarAlmacenamientoTarjeta(Component padre) {
+        if (Utilidades.DialogosCajero.confirmar(padre, "Protección de datos de tarjeta",
+                "¿Desea guardar los datos de la tarjeta para futuras compras?\n\n"
+                + "Por seguridad, el sistema no guarda el número de tarjeta, el vencimiento ni el CVV.\n"
+                + "Solo se registrarán los datos no sensibles del cobro, como el NIT y el TID.")) {
+            Utilidades.DialogosCajero.mensaje(padre, "Datos protegidos",
+                    "No se almacenarán datos sensibles de la tarjeta. La compra continuará de forma segura.",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
     /** Vista del cobro; no realiza operaciones ni modifica los datos del pedido. */
     private static final class FormularioCobro extends JPanel implements Scrollable {
         private static final Color TEXTO_SECUNDARIO = new Color(108, 119, 135);
@@ -663,6 +698,9 @@ public class PedidoPanel extends JPanel {
         private final JComboBox<String> metodo = selector(new String[]{"Efectivo", "Tarjeta"});
         private final JTextField recibido;
         private final JTextField referencia = new JTextField();
+        private final JTextField vencimiento = new JTextField();
+        private final JPasswordField cvv = new JPasswordField();
+        private final JComboBox<String> nit = selector(new String[]{"", "CF"});
         private final JCheckBox confirmado = new JCheckBox("Pago aprobado en la terminal externa");
         private final JLabel cambio = new JLabel("Q0.00", SwingConstants.RIGHT);
         private final JLabel tituloCambio = etiqueta("Cambio a entregar", 12, Font.PLAIN);
@@ -700,10 +738,14 @@ public class PedidoPanel extends JPanel {
             contenido.add(resumenTotal, BorderLayout.NORTH);
 
             JPanel campos = transparente(new BorderLayout(0, 18));
-            JPanel opciones = transparente(new GridLayout(1, 2, 16, 0));
+            JPanel opciones = transparente(new GridLayout(1, 3, 16, 0));
             opciones.add(campo("Tipo de pedido", servicio));
             opciones.add(campo("Método de pago", metodo));
+            nit.setEditable(true);
+            nit.setMaximumRowCount(8);
+            opciones.add(campo("NIT (opcional)", nit));
             campos.add(opciones, BorderLayout.NORTH);
+            instalarAutocompletadoNit();
 
             recibido.setFont(new Font(FUENTE, Font.BOLD, 18));
             recibido.setForeground(ROJO_HEADER);
@@ -741,15 +783,25 @@ public class PedidoPanel extends JPanel {
             referencia.setBorder(new BordeCampoCobro());
             referencia.setPreferredSize(new Dimension(0, 44));
             referencia.setOpaque(false);
-            referencia.setToolTipText("Solo la referencia del comprobante de la terminal; no ingreses datos de tarjeta.");
+            referencia.setToolTipText("Es el ID de terminal (TID) del voucher; no es un dato de la tarjeta.");
             foco(referencia, referencia);
             JPanel tarjeta = transparente(new BorderLayout(0, 14));
             JPanel referenciaTerminal = transparente(new BorderLayout(0, 6));
-            referenciaTerminal.add(campo("Referencia de terminal", referencia), BorderLayout.CENTER);
-            JLabel avisoReferencia = etiqueta("Sin número de tarjeta, fecha de vencimiento ni CVV.", 11, Font.PLAIN);
+            referenciaTerminal.add(campo("ID de terminal (TID)", referencia), BorderLayout.CENTER);
+            JLabel avisoReferencia = etiqueta("Identifica el aparato que cobró; búscalo en el voucher o recibo.", 11, Font.PLAIN);
             avisoReferencia.setForeground(TEXTO_SECUNDARIO);
             referenciaTerminal.add(avisoReferencia, BorderLayout.SOUTH);
             tarjeta.add(referenciaTerminal, BorderLayout.NORTH);
+            vencimiento.setFont(new Font(FUENTE, Font.PLAIN, 14));
+            cvv.setFont(new Font(FUENTE, Font.PLAIN, 14));
+            ((javax.swing.text.AbstractDocument) vencimiento.getDocument()).setDocumentFilter(new FiltroVencimiento());
+            ((javax.swing.text.AbstractDocument) cvv.getDocument()).setDocumentFilter(new FiltroDigitos(3));
+            JPanel datosTarjeta = transparente(new GridLayout(1, 2, 12, 0));
+            datosTarjeta.add(campo("Vencimiento (MMYY, MM/YY o MM-YY)", vencimiento));
+            datosTarjeta.add(campo("CVV (3 dígitos)", cvv));
+            tarjeta.add(datosTarjeta, BorderLayout.CENTER);
+            foco(vencimiento, vencimiento);
+            foco(cvv, cvv);
             confirmado.setFont(new Font(FUENTE, Font.PLAIN, 12));
             confirmado.setForeground(ROJO_HEADER);
             confirmado.setOpaque(false);
@@ -779,8 +831,92 @@ public class PedidoPanel extends JPanel {
             servicio.getAccessibleContext().setAccessibleName("Tipo de pedido");
             metodo.getAccessibleContext().setAccessibleName("Método de pago");
             recibido.getAccessibleContext().setAccessibleName("Monto recibido en quetzales");
-            referencia.getAccessibleContext().setAccessibleName("Referencia de terminal");
+            referencia.getAccessibleContext().setAccessibleName("ID de terminal TID del voucher");
+            vencimiento.getAccessibleContext().setAccessibleName("Fecha de vencimiento de la tarjeta, cuatro dígitos en formato mes y año");
+            cvv.getAccessibleContext().setAccessibleName("Código de seguridad CVV de tres dígitos");
+            nit.getAccessibleContext().setAccessibleName("NIT del cliente");
         }
+
+        private static final class FiltroVencimiento extends javax.swing.text.DocumentFilter {
+            @Override public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attrs)
+                    throws javax.swing.text.BadLocationException { replace(fb, offset, 0, string, attrs); }
+            @Override public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs)
+                    throws javax.swing.text.BadLocationException {
+                String actual = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String agregado = text == null ? "" : text.replaceAll("[^0-9/-]", "");
+                String resultado = actual.substring(0, offset) + agregado + actual.substring(offset + length);
+                if (resultado.length() > 5) resultado = resultado.substring(0, 5);
+                if (resultado.indexOf('/') >= 0 && resultado.indexOf('-') >= 0) {
+                    resultado = resultado.replace("-", "");
+                }
+                if (resultado.replaceAll("[^0-9]", "").length() > 4) {
+                    StringBuilder limitado = new StringBuilder();
+                    int digitos = 0;
+                    for (char caracter : resultado.toCharArray()) {
+                        if (Character.isDigit(caracter)) {
+                            if (digitos++ == 4) break;
+                        }
+                        limitado.append(caracter);
+                    }
+                    resultado = limitado.toString();
+                }
+                fb.replace(0, fb.getDocument().getLength(), resultado, attrs);
+            }
+        }
+
+        private static final class FiltroDigitos extends javax.swing.text.DocumentFilter {
+            private final int maximo;
+            private FiltroDigitos(int maximo) { this.maximo = maximo; }
+            @Override public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attrs)
+                    throws javax.swing.text.BadLocationException { replace(fb, offset, 0, string, attrs); }
+            @Override public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs)
+                    throws javax.swing.text.BadLocationException {
+                String actual = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String agregado = text == null ? "" : text.replaceAll("[^0-9]", "");
+                String resultado = actual.substring(0, offset) + agregado + actual.substring(offset + length);
+                if (resultado.length() > maximo) resultado = resultado.substring(0, maximo);
+                fb.replace(0, fb.getDocument().getLength(), resultado, attrs);
+            }
+        }
+
+        private void instalarAutocompletadoNit() {
+            JTextField editor = (JTextField) nit.getEditor().getEditorComponent();
+            editor.getDocument().addDocumentListener(new DocumentListener() {
+                private boolean actualizando;
+                private void buscar() {
+                    if (actualizando) return;
+                    String texto = editor.getText().trim();
+                    if (texto.isEmpty()) return;
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            java.util.List<String> opciones = new NitDAO().sugerencias(texto);
+                            if (opciones.isEmpty() || !editor.getText().trim().equals(texto)) return;
+                            actualizando = true;
+                            DefaultComboBoxModel<String> modelo = new DefaultComboBoxModel<>();
+                            modelo.addElement("CF");
+                            opciones.stream().filter(opcion -> !"CF".equals(opcion)).forEach(modelo::addElement);
+                            nit.setModel(modelo);
+                            nit.setEditable(true);
+                            nit.getEditor().setItem(texto);
+                            actualizando = false;
+                            if (nit.isShowing()) nit.setPopupVisible(true);
+                        } catch (java.sql.SQLException ignorada) {
+                            // El cobro sigue funcionando aunque el catálogo de sugerencias no esté disponible.
+                        }
+                    });
+                }
+                public void insertUpdate(DocumentEvent e) { buscar(); }
+                public void removeUpdate(DocumentEvent e) { }
+                public void changedUpdate(DocumentEvent e) { }
+            });
+        }
+
+        private String nitTexto() {
+            Object valor = nit.getEditor().getItem();
+            return valor == null ? "" : valor.toString().trim();
+        }
+
+        private void setNit(String valor) { nit.getEditor().setItem(valor == null ? "" : valor); }
 
         private void mostrarMetodo(boolean tarjeta) {
             modoPago.show(detallePago, tarjeta ? "TARJETA" : "EFECTIVO");
@@ -1072,5 +1208,5 @@ public class PedidoPanel extends JPanel {
         Throwable causa = ex instanceof java.util.concurrent.ExecutionException ? ex.getCause() : ex;
         return causa.getMessage() == null ? "No se pudo completar la operación." : causa.getMessage();
     }
-    private void aviso(String mensaje) { JOptionPane.showMessageDialog(this, mensaje, "Pedido", JOptionPane.WARNING_MESSAGE); }
+    private void aviso(String mensaje) { Utilidades.DialogosCajero.mensaje(this, "Pedido", mensaje, JOptionPane.WARNING_MESSAGE); }
 }

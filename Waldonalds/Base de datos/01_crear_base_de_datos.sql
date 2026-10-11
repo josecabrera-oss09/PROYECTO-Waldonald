@@ -116,6 +116,8 @@ CREATE TABLE pedido (
     monto_recibido DECIMAL(12,2) NOT NULL DEFAULT 0,
     total DECIMAL(12,2) NOT NULL,
     fecha_hora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tiempo_preparacion_min INT NOT NULL DEFAULT 5,
+    estado_preparacion VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
@@ -189,6 +191,12 @@ CREATE TABLE pago_operacion (
     comprobante LONGTEXT,
     referencia VARCHAR(100) NOT NULL DEFAULT '',
     FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
+);
+
+CREATE TABLE nit_cliente (
+    nit VARCHAR(20) NOT NULL PRIMARY KEY,
+    ultima_utilizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Cada producto vendible necesita al menos una presentación.

@@ -19,6 +19,7 @@ public class PagoDAO {
     public String cobrar(SolicitudPago pago) throws SQLException {
         try (Connection c = conexiones.abrir()) {
             if (c == null) throw new SQLException("No se pudo conectar con MySQL. Reintente cuando esté disponible.");
+            if (!pago.nit().isBlank()) asegurarTablaNit(c);
             c.setAutoCommit(false);
             boolean confirmando = false;
             try {
@@ -56,6 +57,9 @@ public class PagoDAO {
                     s.setInt(1, pago.usuario()); s.setString(2, pago.servicio()); s.setString(3, pago.metodo());
                     s.setBigDecimal(4, pago.recibido()); s.setBigDecimal(5, pago.total()); s.executeUpdate();
                     try (ResultSet r = s.getGeneratedKeys()) { if (!r.next()) throw new SQLException("No se obtuvo el número de pedido."); id = r.getInt(1); }
+                }
+                if (!pago.nit().isBlank()) {
+                    ejecutar(c, "INSERT INTO nit_cliente(nit) VALUES(?) ON DUPLICATE KEY UPDATE ultima_utilizacion=CURRENT_TIMESTAMP", pago.nit());
                 }
                 ejecutar(c, "UPDATE pedido SET numero_orden=? WHERE id_pedido=?", id, id);
                 for (LineaPedido linea : pago.lineas()) guardarLinea(c, id, linea);
@@ -300,6 +304,16 @@ public class PagoDAO {
         }
     }
 
+    private static void asegurarTablaNit(Connection c) throws SQLException {
+        try (Statement s = c.createStatement()) {
+            s.executeUpdate("CREATE TABLE IF NOT EXISTS nit_cliente ("
+                    + "nit VARCHAR(20) NOT NULL PRIMARY KEY, "
+                    + "ultima_utilizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP "
+                    + "ON UPDATE CURRENT_TIMESTAMP"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+    }
+
     private static String comprobante(int id, SolicitudPago p) {
         StringBuilder b = new StringBuilder("WALDONALD'S\nComprobante de venta\nPedido #" + id + "\n" + LocalDateTime.now().withNano(0)
                 + "\nCajero: " + p.usuario() + "\n" + (p.servicio().equals("COMER_AQUI") ? "Comer aquí" : "Para llevar") + "\n\n");
@@ -318,6 +332,7 @@ public class PagoDAO {
         }
         b.append("\nTotal: Q").append(p.total().toPlainString()).append("\nMétodo: ").append(p.metodo())
                 .append("\nRecibido: Q").append(p.recibido().toPlainString()).append("\nCambio: Q").append(p.cambio().toPlainString());
+        if (!p.nit().isBlank()) b.append("\nNIT: ").append(p.nit());
         if (!p.referencia().isBlank()) b.append("\nReferencia: ").append(p.referencia());
         return b.append("\n\nGracias por su compra.").toString();
     }
