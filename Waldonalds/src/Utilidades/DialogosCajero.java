@@ -70,6 +70,10 @@ public final class DialogosCajero {
         contenido.add(encabezado, BorderLayout.NORTH);
 
         JTextArea mensaje = new JTextArea(texto);
+        // Sin filas/columnas, el JTextArea puede calcular una altura de cero
+        // dentro del BorderLayout y dejar invisible el texto de la advertencia.
+        mensaje.setRows(3);
+        mensaje.setColumns(40);
         mensaje.setWrapStyleWord(true); mensaje.setLineWrap(true);
         mensaje.setEditable(false); mensaje.setOpaque(false);
         mensaje.setFocusable(false);
@@ -78,6 +82,7 @@ public final class DialogosCajero {
         mensaje.setCursor(Cursor.getDefaultCursor());
         mensaje.setFont(new Font("Arial", Font.PLAIN, 14));
         mensaje.setForeground(new Color(45, 53, 63));
+        mensaje.setPreferredSize(new Dimension(430, 72));
         contenido.add(mensaje, BorderLayout.CENTER);
 
         boolean[] aceptar = {false};
